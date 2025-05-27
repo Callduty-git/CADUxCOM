@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categorias', function (Blueprint $table) {
-            $table->id('Id_Categoria');
+    Schema::create('categorias', function (Blueprint $table) {
+            $table->bigIncrements('Id_Categoria'); // ¡CAMBIO AQUÍ! De id() a bigIncrements
             $table->string('Nombre')->unique();
-            $table->string('Icono')->nullable(); // puedes guardar nombre de archivo o clase de ícono
+            $table->string('Icono')->nullable();
             $table->timestamps();
+
 });
     }
 

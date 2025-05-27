@@ -9,12 +9,16 @@ class Categoria extends Model
 {
     use HasFactory;
 
-    protected $table = 'categorias';
-    protected $primaryKey = 'Id_Categoria';
-    protected $fillable = ['Nombre', 'Icono'];
+    protected $primaryKey = 'Id_Categoria'; // <-- ¡Añade o corrige esta línea!
 
+    protected $fillable = [
+        'Nombre',
+        'Icono',
+    ];
+
+    // Si tienes una relación con Subcategorías
     public function subcategorias()
     {
-        return $this->hasMany(Subcategoria::class, 'Id_Categoria');
+        return $this->hasMany(Subcategoria::class, 'Id_Categoria', 'Id_Categoria');
     }
 }

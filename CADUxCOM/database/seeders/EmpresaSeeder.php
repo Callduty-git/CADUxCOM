@@ -11,7 +11,6 @@ class EmpresaSeeder extends Seeder
     public function run(): void
     {
         Empresa::create([
-            'Id_Inventario' => null,
             'Nombre' => 'Empresa Ejemplo',
             'Foto' => null,
             'Direccion' => 'Calle 123 #45-67',
@@ -21,7 +20,7 @@ class EmpresaSeeder extends Seeder
             'email' => 'empresa@ejemplo.com',
             'NIT' => '900123456-7',
             'Certificado_Camara_de_comercio' => null,
-            'password' => Hash::make('password'), // puedes cambiar esta contraseña
+            'password' => Hash::make('password'),
         ]);
     }
 }

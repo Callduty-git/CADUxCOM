@@ -8,8 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('empresas', function (Blueprint $table) {
-            $table->id(); // Crea columna 'id' tipo BIGINT UNSIGNED (clave primaria)
-            $table->unsignedBigInteger('Id_Inventario')->nullable();
+            $table->bigIncrements("Id_Empresa"); // ¡CAMBIO AQUÍ! De increments a bigIncrements
             $table->string('Nombre');
             $table->string('Foto')->nullable();
             $table->string('Direccion');
