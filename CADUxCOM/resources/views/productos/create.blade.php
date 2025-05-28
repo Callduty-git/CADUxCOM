@@ -4,42 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Nuevo Producto</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; }
-        form { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
-        div { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"],
-        input[type="number"],
-        input[type="date"],
-        textarea,
-        select {
-            width: calc(100% - 22px);
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box; /* Para que el padding no aumente el ancho total */
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .error { color: red; font-size: 0.9em; }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/productos-create.css') }}">
 </head>
 <body>
     <h1>Crear Nuevo Producto</h1>
 
-    <form action="{{ route('productos.store') }}" method="POST">
-        @csrf {{-- ¡Esto es CRUCIAL para la seguridad en Laravel! --}}
+    <form action="{{ route('productos.store') }}" method="POST" enctype="multipart/form-data">
+        @csrf
 
         {{-- Campo Nombre --}}
         <div>
@@ -113,40 +84,50 @@
             @enderror
         </div>
 
-        {{-- Campo Id_Empresa (por ahora, fijo en 1. Luego se puede hacer dinámico) --}}
-        {{-- Puedes hacerlo oculto si no quieres que el usuario lo vea/edite --}}
+        {{-- Campo Id_Empresa (SELECT DINÁMICO) --}}
         <div>
-            <label for="Id_Empresa">ID Empresa:</label>
-            <input type="number" id="Id_Empresa" name="Id_Empresa" value="1" required readonly>
+            <label for="Id_Empresa">Empresa:</label>
+            <select id="Id_Empresa" name="Id_Empresa" required>
+                <option value="">Seleccione una empresa</option>
+                @foreach ($empresas as $empresa)
+                    <option value="{{ $empresa->Id_Empresa }}" {{ old('Id_Empresa') == $empresa->Id_Empresa ? 'selected' : '' }}>
+                        {{ $empresa->Nombre }}
+                    </option>
+                @endforeach
+            </select>
             @error('Id_Empresa')
                 <div class="error">{{ $message }}</div>
             @enderror
         </div>
 
-        {{-- Campo Id_Subcategoria (Necesitarás llenar esto dinámicamente) --}}
-        {{-- Por ahora, pondremos un campo de texto simple. Luego lo haremos un select. --}}
+        {{-- Campo Id_Subcategoria (SELECT DINÁMICO) --}}
         <div>
-            <label for="Id_Subcategoria">ID Subcategoría:</label>
-            <input type="number" id="Id_Subcategoria" name="Id_Subcategoria" value="{{ old('Id_Subcategoria') }}" required>
+            <label for="Id_Subcategoria">Subcategoría:</label>
+            <select id="Id_Subcategoria" name="Id_Subcategoria" required>
+                <option value="">Seleccione una subcategoría</option>
+                @foreach ($subcategorias as $subcategoria)
+                    <option value="{{ $subcategoria->Id_Subcategoria }}" {{ old('Id_Subcategoria') == $subcategoria->Id_Subcategoria ? 'selected' : '' }}>
+                        {{ $subcategoria->Nombre }}
+                    </option>
+                @endforeach
+            </select>
             @error('Id_Subcategoria')
                 <div class="error">{{ $message }}</div>
             @enderror
         </div>
 
-        {{-- Puedes agregar un campo para la Foto, pero necesitarás manejar la carga de archivos --}}
-        {{-- <div>
-            <label for="Foto">Foto (URL o Carga):</label>
-            <input type="text" id="Foto" name="Foto" value="{{ old('Foto') }}">
+        {{-- Campo para la Foto (Tipo FILE) --}}
+        <div>
+            <label for="Foto">Foto del Producto:</label>
+            <input type="file" id="Foto" name="Foto" accept="image/"> {{-- 'accept="image/"' sugiere al navegador mostrar solo imágenes --}}
             @error('Foto')
                 <div class="error">{{ $message }}</div>
             @enderror
-        </div> --}}
-
+        </div>
 
         <button type="submit">Guardar Producto</button>
     </form>
 
-    <br>
-    <a href="{{ route('productos.index') }}">Volver a la lista de productos</a>
+    <p class="back-link"><a href="{{ route('productos.index') }}">Volver a la lista de productos</a></p>
 </body>
-</html>
+</html> 

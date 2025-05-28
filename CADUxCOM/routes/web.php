@@ -1,13 +1,24 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductoController; // ¡Importa tu controlador!
+use App\Http\Controllers\ProductoController;
 
-// ... (otras rutas que ya tengas, como la ruta de bienvenida)
-
-Route::resource('productos', ProductoController::class);
-
-// Opcional: Ruta de bienvenida si la has modificado o quieres volver a la original
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
+
+// Ruta para productos
+Route::resource('/productos', ProductoController::class);
