@@ -18,15 +18,15 @@ return new class extends Migration
             $table->unsignedBigInteger('Id_Empresa');
             $table->unsignedBigInteger('Id_Subcategoria');
 
-            $table->string('Nombre, 100');
-            $table->string('Marca, 10');
+            $table->string('Nombre', 100);
+            $table->string('Marca', 10);
             $table->date('Fecha_Caducidad')->nullable();
             $table->integer('Cantidad')->default(0)->check('Cantidad >= 0');
             $table->string('Foto')->nullable();
             $table->text('Descripcion')->nullable();
             $table->decimal('Precio', 10, 2); // Agregué el "2" para decimales, es buena práctica
-            $table->string('Tipo, 50');
-            $table->string('Codigo, 50')->unique();
+            $table->string('Tipo', 50);
+            $table->string('Codigo', 50)->unique();
             $table->timestamps();
 
             // Definición de las claves foráneas
