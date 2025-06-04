@@ -8,8 +8,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('empresas', function (Blueprint $table) {
-            $table->bigIncrements("Id_Empresa"); // ¡CAMBIO AQUÍ! De increments a bigIncrements
-            $table->string('Nombre');
+            $table->bigIncrements('Id_Empresa');
+            $table->string('Nombre'); // obligatorio
             $table->string('Foto')->nullable();
             $table->string('Direccion');
             $table->string('Municipio');
