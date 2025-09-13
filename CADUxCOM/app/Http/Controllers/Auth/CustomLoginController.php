@@ -28,7 +28,7 @@ class CustomLoginController extends Controller
             'password' => $credentials['password'],
         ], $request->filled('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended(route('home'));
         }
 
         // Intentar login como empresa

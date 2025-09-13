@@ -52,16 +52,7 @@ class ProductoController extends Controller
         $precioMax = $request->input('precio_max');
         $disponibilidad = $request->input('disponibilidad');
 
-        // Iniciar la consulta base
-        $productosQuery = Producto::with(['subcategoria.categoria']);
-
-        // Si es una empresa autenticada, filtrar solo sus productos
-        if (Auth::guard('empresa')->check()) {
-            $empresa = Auth::guard('empresa')->user();
-            $productosQuery->where('Id_Empresa', $empresa->Id_Empresa);
-        }
-
-        $productos = $productosQuery
+        $productos = Producto::with(['subcategoria.categoria'])
             ->when($query, function ($q) use ($query) {
                 $q->where('Nombre', 'like', "%{$query}%")
                   ->orWhere('Marca', 'like', "%{$query}%");
@@ -113,11 +104,6 @@ class ProductoController extends Controller
         $categorias = \App\Models\Categoria::all();
         $subcategorias = \App\Models\Subcategoria::with('categoria')->get();
 
-        // Si es una empresa autenticada, pasar también los datos de la empresa
-        if (Auth::guard('empresa')->check()) {
-            return view('empresa.productos.index', compact('productos', 'categorias', 'subcategorias', 'empresa'));
-        }
-
         return view('productos.index', compact('productos', 'categorias', 'subcategorias'));
     }
     
@@ -144,26 +130,13 @@ class ProductoController extends Controller
         $request->validate([
             'Nombre' => 'required|string|max:255',
             'Marca' => 'required|string|max:255',
-            'Codigo' => 'required|string|max:50|unique:productos,Codigo',
             'PrecioOriginal' => 'required|numeric',
             'Precio' => 'required|numeric',
             'Fecha_Caducidad' => 'nullable|date',
             'Id_Empresa' => 'required|exists:empresas,Id_Empresa',
             'Id_Subcategoria' => 'required|exists:subcategorias,Id_Subcategoria',
             'Foto' => 'nullable|image|max:2048',
-        ], [
-            'Codigo.unique' => 'El código del producto ya existe. Por favor, ingresa un código único.',
-            'Codigo.required' => 'El código del producto es obligatorio.',
-            'Codigo.max' => 'El código del producto no puede tener más de 50 caracteres.',
         ]);
-
-        // Validar que la empresa solo pueda crear productos para sí misma
-        if (Auth::guard('empresa')->check()) {
-            $empresa = Auth::guard('empresa')->user();
-            if ($request->Id_Empresa != $empresa->Id_Empresa) {
-                abort(403, 'No tienes permisos para crear productos para otra empresa.');
-            }
-        }
 
         $producto = new Producto($request->except('Foto'));
 
@@ -205,31 +178,13 @@ class ProductoController extends Controller
     public function show($id)
     {
         $producto = Producto::findOrFail($id);
-        
-        // Validar que la empresa solo pueda ver sus propios productos
-        if (Auth::guard('empresa')->check()) {
-            $empresa = Auth::guard('empresa')->user();
-            if ($producto->Id_Empresa !== $empresa->Id_Empresa) {
-                abort(403, 'No tienes permisos para ver este producto.');
-            }
-        }
-        
         return view('productos.show', compact('producto'));
     }
 
-    public function showEmpresa($id)
+    public function userShow($id)
     {
         $producto = Producto::with(['empresa', 'subcategoria.categoria'])->findOrFail($id);
-        
-        // Validar que la empresa solo pueda ver sus propios productos
-        if (Auth::guard('empresa')->check()) {
-            $empresa = Auth::guard('empresa')->user();
-            if ($producto->Id_Empresa !== $empresa->Id_Empresa) {
-                abort(403, 'No tienes permisos para ver este producto.');
-            }
-        }
-        
-        return view('empresa.productos.show', compact('producto'));
+        return view('productos.user-detail', compact('producto'));
     }
 
     public function edit($id)
@@ -239,12 +194,6 @@ class ProductoController extends Controller
 
         if (Auth::guard('empresa')->check()) {
             $empresa = Auth::guard('empresa')->user();
-            
-            // Validar que la empresa solo pueda editar sus propios productos
-            if ($producto->Id_Empresa !== $empresa->Id_Empresa) {
-                abort(403, 'No tienes permisos para editar este producto.');
-            }
-            
             return view('productos.edit', [
                 'producto' => $producto,
                 'subcategorias' => $subcategorias,
@@ -261,29 +210,15 @@ class ProductoController extends Controller
         $request->validate([
             'Nombre' => 'required|string|max:255',
             'Marca' => 'required|string|max:255',
-            'Codigo' => 'required|string|max:50|unique:productos,Codigo,' . $id . ',Id_Producto',
             'PrecioOriginal' => 'required|numeric',
             'Precio' => 'required|numeric',
             'Fecha_Caducidad' => 'nullable|date',
             'Id_Empresa' => 'required|exists:empresas,Id_Empresa',
             'Id_Subcategoria' => 'required|exists:subcategorias,Id_Subcategoria',
             'Foto' => 'nullable|image|max:2048',
-        ], [
-            'Codigo.unique' => 'El código del producto ya existe. Por favor, ingresa un código único.',
-            'Codigo.required' => 'El código del producto es obligatorio.',
-            'Codigo.max' => 'El código del producto no puede tener más de 50 caracteres.',
         ]);
 
         $producto = Producto::findOrFail($id);
-        
-        // Validar que la empresa solo pueda actualizar sus propios productos
-        if (Auth::guard('empresa')->check()) {
-            $empresa = Auth::guard('empresa')->user();
-            if ($producto->Id_Empresa !== $empresa->Id_Empresa) {
-                abort(403, 'No tienes permisos para actualizar este producto.');
-            }
-        }
-        
         $producto->fill($request->except('Foto'));
 
         if ($request->hasFile('Foto')) {
@@ -303,14 +238,6 @@ class ProductoController extends Controller
     public function destroy($id)
     {
         $producto = Producto::findOrFail($id);
-
-        // Validar que la empresa solo pueda eliminar sus propios productos
-        if (Auth::guard('empresa')->check()) {
-            $empresa = Auth::guard('empresa')->user();
-            if ($producto->Id_Empresa !== $empresa->Id_Empresa) {
-                abort(403, 'No tienes permisos para eliminar este producto.');
-            }
-        }
 
         // Guarda el nombre del producto antes de eliminarlo para el log
         $nombreProducto = $producto->Nombre;

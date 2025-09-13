@@ -4,234 +4,428 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todos los Productos - CADUxCOM</title>
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/productos-public.css') }}?v={{ time() }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .product-card { transition: all 0.3s ease; }
-        .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .discount-badge { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
-        .filter-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    </style>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- JavaScript del carrito -->
+    <script src="{{ asset('js/cart.js') }}"></script>
 </head>
-<body class="bg-gray-50">
+<body>
     <div class="page-container">
         <x-header-pages />
         
-        <main class="content min-h-screen py-8">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Header -->
-                <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-gray-900">Todos los Productos</h1>
-                    <p class="text-gray-600 mt-2">Descubre nuestra amplia gama de productos</p>
+        <main>
+            <div class="max-w-7xl">
+                <!-- Título principal -->
+                <div class="page-title">
+                    <h1 class="flex items-center justify-center gap-3">
+                        🛒 Todos los Productos
+                    </h1>
+                    <p>
+                        Descubre nuestra amplia gama de productos frescos y de calidad
+                    </p>
                 </div>
 
-                <!-- Filtros -->
-                <div class="filter-section text-white rounded-lg p-6 mb-8">
-                    <form method="GET" action="{{ route('productos.public.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <!-- Búsqueda -->
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Buscar</label>
-                            <input type="text" name="query" value="{{ request('query') }}" 
-                                   placeholder="Nombre o marca..." 
-                                   class="w-full px-3 py-2 rounded-lg text-gray-900">
+                <!-- Estadísticas Rápidas -->
+                <div class="stats-section">
+                    <div class="stats-grid">
+                        <div class="stats-card">
+                            <h3>{{ $productos->count() }}</h3>
+                            <p>Productos Disponibles</p>
                         </div>
-
-                        <!-- Categoría -->
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Categoría</label>
-                            <select name="categoria" class="w-full px-3 py-2 rounded-lg text-gray-900">
-                                <option value="">Todas las categorías</option>
-                                @foreach($categorias as $categoria)
-                                    <option value="{{ $categoria->Id_Categoria }}" 
-                                            {{ request('categoria') == $categoria->Id_Categoria ? 'selected' : '' }}>
-                                        {{ $categoria->Nombre }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div class="stats-card">
+                            <h3>{{ $categorias->count() }}</h3>
+                            <p>Categorías</p>
                         </div>
+                        <div class="stats-card">
+                            <h3>{{ $subcategorias->count() }}</h3>
+                            <p>Subcategorías</p>
+                        </div>
+                    </div>
+                </div>
 
-                        <!-- Subcategoría -->
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Subcategoría</label>
-                            <select name="subcategoria" class="w-full px-3 py-2 rounded-lg text-gray-900">
-                                <option value="">Todas las subcategorías</option>
-                                @foreach($subcategorias as $subcategoria)
-                                    <option value="{{ $subcategoria->Id_Subcategoria }}" 
-                                            {{ request('subcategoria') == $subcategoria->Id_Subcategoria ? 'selected' : '' }}>
-                                        {{ $subcategoria->Nombre }}
-                                    </option>
-                                @endforeach
-                            </select>
+                <!-- Sección de Filtros -->
+                <div class="filter-section">
+                    <h3>🔍 Buscar Productos</h3>
+                    <p>Encuentra exactamente lo que necesitas</p>
+                    
+                    <form method="GET" action="{{ route('productos.public.index') }}" class="filter-form">
+                        <div class="filter-grid">
+                            <!-- Búsqueda por nombre -->
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-white">🔍 Buscar</label>
+                                <input type="text" name="query" value="{{ request('query') }}" 
+                                       placeholder="Nombre o marca..." 
+                                       class="search-input w-full">
+                            </div>
+
+                            <!-- Categoría -->
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-white">📂 Categoría</label>
+                                <select name="categoria" class="select-input w-full">
+                                    <option value="">Todas las categorías</option>
+                                    @foreach($categorias as $categoria)
+                                        <option value="{{ $categoria->Id_Categoria }}" 
+                                                {{ request('categoria') == $categoria->Id_Categoria ? 'selected' : '' }}>
+                                            {{ $categoria->Nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Subcategoría -->
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-white">📁 Subcategoría</label>
+                                <select name="subcategoria" class="select-input w-full">
+                                    <option value="">Todas las subcategorías</option>
+                                    @foreach($subcategorias as $subcategoria)
+                                        <option value="{{ $subcategoria->Id_Subcategoria }}" 
+                                                {{ request('subcategoria') == $subcategoria->Id_Subcategoria ? 'selected' : '' }}>
+                                            {{ $subcategoria->Nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
 
                         <!-- Botones -->
-                        <div class="flex items-end space-x-2">
-                            <button type="submit" class="bg-white text-purple-600 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                        <div class="filter-buttons">
+                            <button type="submit" class="btn-primary">
                                 🔍 Filtrar
                             </button>
-                            <a href="{{ route('productos.public.index') }}" class="bg-gray-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors">
-                                Limpiar
+                            <a href="{{ route('productos.public.index') }}" class="btn-secondary">
+                                🗑️ Limpiar
                             </a>
                         </div>
                     </form>
                 </div>
 
-                <!-- Resultados -->
-                <div class="mb-4">
-                    <p class="text-gray-600">
-                        Mostrando {{ $productos->count() }} productos
-                        @if(request('query'))
-                            para "{{ request('query') }}"
-                        @endif
-                    </p>
-                </div>
-
-                @if($productos->count() > 0)
-                    <!-- Grid de productos -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        @foreach($productos as $producto)
-                            <div class="product-card bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                                <!-- Imagen del producto -->
-                                <div class="aspect-square bg-gray-100 relative overflow-hidden">
-                                    @if($producto->Foto)
-                                        <img src="{{ asset('storage/' . $producto->Foto) }}" 
-                                             alt="{{ $producto->Nombre }}" 
-                                             class="w-full h-full object-cover">
-                                    @else
-                                        <div class="w-full h-full flex items-center justify-center">
-                                            <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                            </svg>
-                                        </div>
-                                    @endif
-
-                                    <!-- Badge de descuento -->
-                                    @if($producto->PrecioOriginal > $producto->Precio)
-                                        <div class="absolute top-2 left-2">
-                                            <span class="discount-badge text-xs px-2 py-1 rounded-full text-white font-medium">
-                                                -{{ number_format((($producto->PrecioOriginal - $producto->Precio) / $producto->PrecioOriginal) * 100, 0) }}%
-                                            </span>
-                                        </div>
-                                    @endif
-
-                                    <!-- Badge de stock -->
-                                    @if($producto->Cantidad <= 5 && $producto->Cantidad > 0)
-                                        <div class="absolute top-2 right-2">
-                                            <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                                                Solo {{ $producto->Cantidad }}
-                                            </span>
-                                        </div>
-                                    @elseif($producto->Cantidad == 0)
-                                        <div class="absolute top-2 right-2">
-                                            <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                                                Agotado
-                                            </span>
-                                        </div>
-                                    @endif
-                                </div>
-
-                                <!-- Información del producto -->
-                                <div class="p-4">
-                                    <h3 class="font-semibold text-gray-900 text-lg mb-1 line-clamp-2">
-                                        {{ $producto->Nombre }}
-                                    </h3>
-                                    
-                                    <p class="text-sm text-gray-600 mb-2">
-                                        {{ $producto->empresa->Nombre ?? 'Empresa no disponible' }}
-                                    </p>
-
-                                    <!-- Precios -->
-                                    <div class="mb-3">
-                                        @if($producto->PrecioOriginal > $producto->Precio)
-                                            <div class="flex items-center space-x-2">
-                                                <span class="text-lg font-bold text-gray-900">
-                                                    ${{ number_format($producto->Precio, 0, ',', '.') }}
-                                                </span>
-                                                <span class="text-sm text-gray-500 line-through">
-                                                    ${{ number_format($producto->PrecioOriginal, 0, ',', '.') }}
-                                                </span>
-                                            </div>
-                                        @else
-                                            <span class="text-lg font-bold text-gray-900">
-                                                ${{ number_format($producto->Precio, 0, ',', '.') }}
-                                            </span>
-                                        @endif
-                                    </div>
-
-                                    <!-- Stock -->
-                                    <div class="text-sm text-gray-600 mb-4">
-                                        @if($producto->Cantidad > 0)
-                                            <span class="text-green-600">✓ Disponible</span>
-                                            <span class="text-gray-500">({{ $producto->Cantidad }} {{ $producto->Tipo }})</span>
-                                        @else
-                                            <span class="text-red-600">✗ Agotado</span>
-                                        @endif
-                                    </div>
-
-                                    <!-- Botones de acción -->
-                                    <div class="space-y-2">
-                                        <a href="{{ route('productos.show', $producto->Id_Producto) }}" 
-                                           class="block w-full bg-gray-600 hover:bg-gray-700 text-white text-center py-2 rounded-lg font-medium transition-colors">
-                                            Ver Detalles
-                                        </a>
-                                        
-                                        @if($producto->Cantidad > 0)
-                                            <x-add-to-cart :product="$producto" />
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
+                <!-- Sección de Resultados -->
+                <div class="results-section">
+                    <div class="results-header">
+                        <h3>📦 Resultados de Búsqueda</h3>
+                        <p>
+                            Mostrando <span class="font-semibold text-green-600">{{ $productos->count() }}</span> productos
+                            @if(request('query'))
+                                para "<span class="font-semibold text-purple-600">"{{ request('query') }}"</span>"
+                            @endif
+                        </p>
                     </div>
+                    
+                    @if($productos->count() > 0)
+                        <div class="products-grid">
+                            @foreach($productos as $producto)
+                                <div class="product-card">
+                                    <!-- Imagen del producto -->
+                                    <div class="product-image-container">
+                                        @if($producto->Foto)
+                                            <img src="{{ asset('storage/' . $producto->Foto) }}" 
+                                                 alt="{{ $producto->Nombre }}"
+                                                 class="product-image">
+                                        @else
+                                            <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                                <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </div>
+                                        @endif
 
-                    <!-- Paginación -->
-                    @if($productos->hasPages())
-                        <div class="mt-8">
-                            {{ $productos->links() }}
+                                        <!-- Badge de descuento -->
+                                        @if($producto->PrecioOriginal > $producto->Precio)
+                                            @php
+                                                $descuento = round((($producto->PrecioOriginal - $producto->Precio) / $producto->PrecioOriginal) * 100);
+                                            @endphp
+                                            <div class="discount-badge">
+                                                -{{ $descuento }}%
+                                            </div>
+                                        @endif
+
+                                        <!-- Badge de stock bajo -->
+                                        @if($producto->Cantidad <= 5 && $producto->Cantidad > 0)
+                                            <div class="stock-warning">
+                                                ¡Solo {{ $producto->Cantidad }}!
+                                            </div>
+                                        @elseif($producto->Cantidad == 0)
+                                            <div class="stock-out">
+                                                Agotado
+                                            </div>
+                                        @endif
+
+                                        <!-- Botón de favoritos -->
+                                        <x-wishlist-button :product-id="$producto->Id_Producto" />
+                                    </div>
+
+                                    <!-- Contenido de la tarjeta -->
+                                    <div class="product-content">
+                                        <h3 class="product-title">
+                                            {{ $producto->Nombre }}
+                                        </h3>
+                                        
+                                        <!-- Marca -->
+                                        <div class="product-brand">
+                                            {{ $producto->Marca ?? 'Sin marca' }}
+                                        </div>
+
+                                        <!-- Descripción -->
+                                        <div class="product-description">
+                                            {{ $producto->Descripcion ?? 'Justo y bueno' }} — {{ $producto->subcategoria->Nombre ?? 'Garzón' }}
+                                        </div>
+
+                                        <!-- Precios -->
+                                        <div class="price-section">
+                                            @if($producto->PrecioOriginal > $producto->Precio)
+                                                <div class="price-container">
+                                                    <span class="price-original">
+                                                        ${{ number_format($producto->PrecioOriginal, 0, ',', '.') }}
+                                                    </span>
+                                                    <span class="price-arrow">→</span>
+                                                    <span class="price-current">
+                                                        ${{ number_format($producto->Precio, 0, ',', '.') }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <div class="price-container">
+                                                    <span class="price-current">
+                                                        ${{ number_format($producto->Precio, 0, ',', '.') }}
+                                                    </span>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <!-- Fecha de vencimiento -->
+                                        @if($producto->Fecha_Caducidad)
+                                            <div class="expiration-date">
+                                                Vence: {{ date('d/m/Y', strtotime($producto->Fecha_Caducidad)) }}
+                                            </div>
+                                        @endif
+
+                                        <!-- Stock -->
+                                        <div class="stock-info">
+                                            @if($producto->Cantidad > 0)
+                                                <div class="stock-dot available"></div>
+                                                <span class="stock-text">
+                                                    Disponible ({{ $producto->Cantidad }} {{ $producto->Tipo ?? 'unidades' }})
+                                                </span>
+                                            @else
+                                                <div class="stock-dot out-of-stock"></div>
+                                                <span class="stock-text">Agotado</span>
+                                            @endif
+                                        </div>
+
+                                        <!-- Acciones del producto -->
+                                        <div class="product-actions">
+                                            <div class="action-buttons">
+                                                <a href="{{ route('productos.user.show', $producto->Id_Producto) }}" 
+                                                   class="btn-view-details">
+                                                    Ver detalles
+                                                </a>
+
+                                                @if($producto->Cantidad > 0)
+                                                    <button type="button" class="add-to-cart-btn" 
+                                                            onclick="addToCart({{ $producto->Id_Producto }})">
+                                                        Agregar
+                                                    </button>
+                                                @else
+                                                    <button disabled class="add-to-cart-btn">
+                                                        Producto Agotado
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Paginación -->
+                        <div class="pagination-section">
+                            <div class="pagination-container">
+                                {{ $productos->links() }}
+                            </div>
+                        </div>
+                    @else
+                        <div class="text-center py-12">
+                            <div class="text-6xl mb-4">🔍</div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">No se encontraron productos</h3>
+                            <p class="text-gray-600 mb-6">Intenta ajustar tus filtros de búsqueda</p>
+                            <a href="{{ route('productos.public.index') }}" class="btn-primary">
+                                Ver Todos los Productos
+                            </a>
                         </div>
                     @endif
-                @else
-                    <!-- Sin resultados -->
-                    <div class="text-center py-12">
-                        <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                        </div>
-                        <h2 class="text-2xl font-semibold text-gray-900 mb-2">No se encontraron productos</h2>
-                        <p class="text-gray-600 mb-6">Intenta ajustar los filtros de búsqueda</p>
-                        <a href="{{ route('productos.public.index') }}" class="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
-                            Ver Todos los Productos
-                        </a>
-                    </div>
-                @endif
+                </div>
             </div>
         </main>
+
+        <!-- Botón flotante para ir arriba -->
+        <div class="floating-action">
+            <button class="scroll-to-top" onclick="scrollToTop()">
+                ↑
+            </button>
+        </div>
 
         <x-footer />
     </div>
 
     <script>
-        // Actualizar contador del carrito
-        function updateCartCount() {
-            fetch('{{ route("cart.count") }}')
-                .then(response => response.json())
-                .then(data => {
-                    const cartCount = document.querySelector('.cart-count');
-                    if (cartCount) {
-                        cartCount.textContent = data.count;
-                        cartCount.style.display = data.count > 0 ? 'block' : 'none';
-                    }
-                });
+        // Función para aumentar cantidad
+        function increaseQty(productId) {
+            const input = document.getElementById(`qty-${productId}`);
+            const max = parseInt(input.getAttribute('max'));
+            const current = parseInt(input.value);
+            if (current < max) {
+                input.value = current + 1;
+            }
         }
 
-        // Actualizar contador al cargar la página
+        // Función para disminuir cantidad
+        function decreaseQty(productId) {
+            const input = document.getElementById(`qty-${productId}`);
+            const current = parseInt(input.value);
+            if (current > 1) {
+                input.value = current - 1;
+            }
+        }
+
+        // Función para agregar al carrito (usando sistema unificado)
+        function addToCart(productId) {
+            window.cartManager.addToCart(productId, 1);
+        }
+
+        // Función para mostrar notificaciones
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white font-medium transform transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Animar entrada
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Remover después de 3 segundos
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // La función updateCartCounter ahora está en cart.js
+
+        // Función para ir arriba
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Mostrar/ocultar botón flotante
+        window.addEventListener('scroll', function() {
+            const scrollButton = document.querySelector('.scroll-to-top');
+            if (window.pageYOffset > 300) {
+                scrollButton.style.display = 'flex';
+            } else {
+                scrollButton.style.display = 'none';
+            }
+        });
+
+        // Función para manejar favoritos
+        function toggleFavorites(productId) {
+            fetch('{{ route("wishlist.add") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Producto agregado a tus favoritos', 'success');
+                    updateWishlistCount();
+                    // Cambiar el icono a favorito lleno
+                    const btn = document.getElementById(`favorites-btn-${productId}`);
+                    if (btn) {
+                        const img = btn.querySelector('img');
+                        img.src = '{{ asset("images/heart-filled-icon.svg") }}';
+                        btn.title = 'Eliminar de favoritos';
+                    }
+                } else if (data.redirect) {
+                    // Redirigir al login si no está autenticado
+                    window.location.href = data.redirect;
+                } else {
+                    showNotification(data.error || 'Error al agregar a favoritos', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al agregar a favoritos', 'error');
+            });
+        }
+
+        // Función para actualizar contador de favoritos
+        function updateWishlistCount() {
+            fetch('{{ route("wishlist.count") }}')
+            .then(response => response.json())
+            .then(data => {
+                const wishlistCount = document.getElementById('wishlist-count');
+                if (wishlistCount) {
+                    wishlistCount.textContent = data.count;
+                }
+            })
+            .catch(error => {
+                console.error('Error updating wishlist count:', error);
+            });
+        }
+
+        // Función para mostrar notificaciones
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg max-w-sm ${
+                type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
+                type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' :
+                'bg-blue-100 text-blue-800 border border-blue-200'
+            }`;
+            
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        ${type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' :
+                          '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'}
+                    </svg>
+                    <span class="text-sm font-medium">${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
-            updateCartCount();
+            // Ocultar botón flotante inicialmente
+            document.querySelector('.scroll-to-top').style.display = 'none';
         });
     </script>
 </body>

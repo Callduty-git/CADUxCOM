@@ -6,23 +6,15 @@
     <link rel="stylesheet" href="{{ asset('css/style_register.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .main-content {
-            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            min-height: 100vh;
+            margin: 0;
         }
         .container {
             background-color: #ffffff;
@@ -113,8 +105,7 @@
     </style>
 </head>
 <body>
-    <div class="main-content">
-        <div class="container">
+    <div class="container">
         <h2>Cambiar Contraseña de Empresa</h2>
 
         <div id="responseMessage" class="message-box" style="display: none;"></div>
@@ -141,7 +132,6 @@
             <button type="submit">Cambiar contraseña</button>
         </form>
         <a href="{{ route('empresa.dashboard') }}" class="back-link">Volver al panel</a>
-        </div>
     </div>
 
     <script>
@@ -204,8 +194,5 @@
             });
         });
     </script>
-
-    <!-- Footer -->
-    <x-footer />
 </body>
 </html>

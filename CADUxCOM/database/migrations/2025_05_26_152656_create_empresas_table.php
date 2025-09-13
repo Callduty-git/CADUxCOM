@@ -1,35 +1,39 @@
 <?php
 
-namespace App\Models;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-
-class Empresa extends Authenticatable
+return new class extends Migration
 {
-    use Notifiable;
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('empresas', function (Blueprint $table) {
+            $table->id('Id_Empresa');
+            $table->string('Nombre');
+            $table->string('Foto')->nullable();
+            $table->text('Direccion');
+            $table->string('Municipio');
+            $table->string('Ubicacion');
+            $table->string('Contacto');
+            $table->string('email')->unique();
+            $table->string('NIT')->unique();
+            $table->string('Certificado_Camara_de_comercio')->nullable();
+            $table->string('password');
+            $table->timestamp('email_verified_at')->nullable();
+            $table->rememberToken();
+            $table->timestamps();
+        });
+    }
 
-    protected $table = 'empresas';
-
-    protected $primaryKey = 'Id_Empresa'; // 👈 Clave primaria personalizada
-    public $incrementing = true;          // 👈 Clave autoincremental
-    protected $keyType = 'int';           // 👈 Tipo entero, no string
-
-    protected $fillable = [
-        'Nombre',
-        'Foto',
-        'Direccion',
-        'Municipio',
-        'Ubicacion',
-        'Contacto',
-        'email',
-        'NIT',
-        'Certificado_Camara_de_comercio',
-        'password',
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-}
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('empresas');
+    }
+};

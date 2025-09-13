@@ -156,22 +156,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const savedView = localStorage.getItem('productView') || 'grid';
         if (savedView === 'list') {
             productosLista.classList.add('list-view');
-            // Cambiar icono a rectangulo-arriba.png si está en vista de lista
-            toggleViewBtn.src = '{{ asset("images/rectangulo-arriba.png") }}';
         }
         
         toggleViewBtn.addEventListener('click', () => {
             productosLista.classList.toggle('list-view');
             
-            // Cambiar icono según la vista
-            const isListView = productosLista.classList.contains('list-view');
-            if (isListView) {
-                toggleViewBtn.src = '{{ asset("images/rectangulo-arriba.png") }}';
-            } else {
-                toggleViewBtn.src = '{{ asset("images/rectangulo-lado.png") }}';
-            }
-            
             // Guardar estado
+            const isListView = productosLista.classList.contains('list-view');
             localStorage.setItem('productView', isListView ? 'list' : 'grid');
         });
     }

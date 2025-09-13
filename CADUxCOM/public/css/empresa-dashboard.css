@@ -8,13 +8,6 @@ body {
 .main-container {
     display: flex;
     height: auto;
-    justify-content: center; /* Centrar el contenido */
-    padding: 20px;
-}
-
-.dashboard-panel {
-    width: 100%;
-    max-width: 1200px; /* Mantener el tamaño original */
 }
 
 /* ==== HEADER SUPERIOR ==== */
@@ -83,18 +76,6 @@ body {
     padding-left: 10px;
 }
 
-/* ==== SIDEBAR CONTAINER ==== */
-.sidebar-container {
-    position: fixed;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 450px;
-    height: 80vh;
-    z-index: 1000;
-    transition: all 0.3s ease; /* Para que se mueva junto con el sidebar */
-}
-
 /* ==== SIDEBAR ==== */
 .sidebar {
     width: 450px;
@@ -105,58 +86,6 @@ body {
     align-items: center;
     border-radius: 20px;
     border: 2px solid rgba(0, 0, 0, 0.178);
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1001;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    opacity: 0.95;
-}
-
-.sidebar:hover {
-    opacity: 1;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-    transform: scale(1.02);
-}
-
-/* Cuando el sidebar hace hover, mover el contenedor */
-.sidebar-container:hover {
-    transform: translateY(-50%) scale(1.02);
-}
-
-/* Responsive para pantallas pequeñas */
-@media (max-width: 1200px) {
-    .sidebar-container {
-        width: 350px;
-    }
-    
-    .sidebar {
-        width: 350px;
-    }
-    
-    .main-container {
-        justify-content: center; /* Centrar el contenido */
-        padding: 15px;
-    }
-}
-
-@media (max-width: 768px) {
-    .sidebar-container {
-        left: 10px;
-        width: 300px;
-    }
-    
-    .sidebar {
-        width: 300px;
-    }
-    
-    .main-container {
-        justify-content: center; /* Centrar el contenido */
-        padding: 10px;
-    }
 }
 
 form .btn {

@@ -20,7 +20,7 @@ class CouponController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function validate(Request $request)
+    public function validateCoupon(Request $request)
     {
         $request->validate([
             'code' => 'required|string|max:50',

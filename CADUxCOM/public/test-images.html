@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Imágenes - CADUxCOM</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .image-test { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .image-test img { max-width: 300px; height: auto; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Test de Imágenes de Productos</h1>
+    
+    <div class="image-test">
+        <h3>Imagen 1: Leche entera Alpina</h3>
+        <img src="/storage/productos/4runYEfUnv2ckRN1hTwn5y6LEOXtstUhPFzuZutM.png" 
+             alt="Leche entera Alpina" 
+             onerror="this.parentNode.innerHTML += '<p class=error>❌ Error cargando imagen</p>'"
+             onload="this.parentNode.innerHTML += '<p class=success>✅ Imagen cargada correctamente</p>'">
+    </div>
+    
+    <div class="image-test">
+        <h3>Imagen 2: Yogurt natural</h3>
+        <img src="/storage/productos/BI4yCaW8gprRv4zVz09UgB3FYETy209Fw5xWFkvn.png" 
+             alt="Yogurt natural" 
+             onerror="this.parentNode.innerHTML += '<p class=error>❌ Error cargando imagen</p>'"
+             onload="this.parentNode.innerHTML += '<p class=success>✅ Imagen cargada correctamente</p>'">
+    </div>
+    
+    <div class="image-test">
+        <h3>Imagen 3: Arroz blanco 1kg</h3>
+        <img src="/storage/productos/us6OKBs1c66MGFaaz9bgH6uPhHWgvCKoEd2L8e7f.png" 
+             alt="Arroz blanco 1kg" 
+             onerror="this.parentNode.innerHTML += '<p class=error>❌ Error cargando imagen</p>'"
+             onload="this.parentNode.innerHTML += '<p class=success>✅ Imagen cargada correctamente</p>'">
+    </div>
+    
+    <div class="image-test">
+        <h3>Imagen de Prueba</h3>
+        <img src="/storage/productos/test-image.png" 
+             alt="Imagen de prueba" 
+             onerror="this.parentNode.innerHTML += '<p class=error>❌ Error cargando imagen</p>'"
+             onload="this.parentNode.innerHTML += '<p class=success>✅ Imagen cargada correctamente</p>'">
+    </div>
+    
+    <h2>URLs de las imágenes:</h2>
+    <ul>
+        <li><a href="/storage/productos/4runYEfUnv2ckRN1hTwn5y6LEOXtstUhPFzuZutM.png" target="_blank">Leche entera Alpina</a></li>
+        <li><a href="/storage/productos/BI4yCaW8gprRv4zVz09UgB3FYETy209Fw5xWFkvn.png" target="_blank">Yogurt natural</a></li>
+        <li><a href="/storage/productos/us6OKBs1c66MGFaaz9bgH6uPhHWgvCKoEd2L8e7f.png" target="_blank">Arroz blanco 1kg</a></li>
+        <li><a href="/storage/productos/test-image.png" target="_blank">Imagen de prueba</a></li>
+    </ul>
+</body>
+</html>

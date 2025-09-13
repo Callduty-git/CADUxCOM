@@ -248,3 +248,43 @@ h1 {
         grid-template-columns: 1fr;
     }
 }
+
+/* Estilos para botón de favoritos */
+.favorites-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.favorites-btn:hover {
+    background: #fef2f2;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.favorites-btn .heart-icon {
+    width: 1rem;
+    height: 1rem;
+    color: #6b7280;
+    transition: color 0.2s ease;
+}
+
+.favorites-btn:hover .heart-icon {
+    color: #ef4444;
+}
+
+.favorites-btn.active .heart-icon {
+    color: #ef4444;
+}

@@ -13,8 +13,8 @@
             <ul class="footer-links">
                 <li><a href="{{ url('/') }}">Inicio</a></li>
                 <li><a href="{{ url('/productos') }}">Productos</a></li>
-                <li><a href="{{ url('/about') }}">Nosotros</a></li>
-                <li><a href="{{ url('/contacto') }}">Contacto</a></li>
+                <li><a href="{{ route('about') }}">Nosotros</a></li>
+                <li><a href="{{ route('contact.index') }}">Contacto</a></li>
             </ul>
         </div>
 
@@ -22,9 +22,9 @@
         <div class="footer-section">
             <h3 class="footer-title">Soporte</h3>
             <ul class="footer-links">
-                <li><a href="{{ url('/ayuda') }}">Centro de Ayuda</a></li>
-                <li><a href="{{ url('/terminos') }}">Términos de Servicio</a></li>
-                <li><a href="{{ url('/privacidad') }}">Política de Privacidad</a></li>
+                <li><a href="{{ route('help') }}">Centro de Ayuda</a></li>
+                <li><a href="{{ route('terms') }}">Términos de Servicio</a></li>
+                <li><a href="{{ route('privacy') }}">Política de Privacidad</a></li>
             </ul>
         </div>
 

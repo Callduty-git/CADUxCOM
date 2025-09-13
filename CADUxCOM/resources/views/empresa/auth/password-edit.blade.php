@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Cambiar Contraseña</title>
     <link rel="stylesheet" href="{{ asset('css/empresa-dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
 </head>
 <body>
     <div class="container">
@@ -38,8 +37,5 @@
             <button type="submit" class="btn">Actualizar Contraseña</button>
         </form>
     </div>
-
-    <!-- Footer -->
-    <x-footer />
 </body>
 </html>

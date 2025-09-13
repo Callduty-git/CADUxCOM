@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/banner-carousel.css') }}">
     <link rel="stylesheet" href="{{ asset('css/subcategorias.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/favorites.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 

@@ -28,11 +28,8 @@ class FacturaController extends Controller
 
         // Obtener todos los logs de la empresa autenticada, ordenados por fecha de creación descendente
         $rawLogs = LogEmpresa::where('empresa_id', $empresaId) // 👈 ESTO ES LO QUE YA FILTRA POR EMPRESA
-                               ->orderBy('hora', 'desc')
+                               ->orderBy('created_at', 'desc')
                                ->get();
-        
-        // Obtener todos los productos de la empresa para poder mostrar sus imágenes
-        $productos = \App\Models\Producto::where('Id_Empresa', $empresaId)->get();
 
         $groupedLogs = [];
         $today = Carbon::today();
@@ -43,16 +40,16 @@ class FacturaController extends Controller
         $currentGroup = '';
 
         foreach ($rawLogs as $log) {
-            $logDate = Carbon::parse($log->hora)->startOfDay();
+            $logDate = Carbon::parse($log->created_at)->startOfDay();
 
             if ($logDate->equalTo($today)) {
-                $groupName = 'HOY';
+                $groupName = 'Hoy';
             } elseif ($logDate->equalTo($yesterday)) {
-                $groupName = 'AYER';
+                $groupName = 'Ayer';
             } elseif ($logDate->greaterThanOrEqualTo($lastWeek) && $logDate->lt($yesterday)) {
-                $groupName = 'ESTA SEMANA';
+                $groupName = 'La semana pasada';
             } elseif ($logDate->greaterThanOrEqualTo($lastMonth) && $logDate->lt($lastWeek)) {
-                $groupName = 'ESTE MES';
+                $groupName = 'El mes pasado';
             } else {
                 $groupName = $logDate->translatedFormat('F Y');
             }
@@ -74,7 +71,6 @@ class FacturaController extends Controller
         return view('facturas.index', [
             'facturas' => $facturas,
             'logs' => $groupedLogs,
-            'productos' => $productos,
         ]);
     }
 

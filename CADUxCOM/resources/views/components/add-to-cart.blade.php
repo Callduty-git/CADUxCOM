@@ -63,49 +63,20 @@ function decreaseCartQty(productId) {
     }
 }
 
-// Manejar envío del formulario
+// Manejar envío del formulario usando el sistema unificado
 document.getElementById('add-to-cart-form-{{ $product->Id_Producto }}').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const form = this;
     const button = document.getElementById('add-cart-btn-{{ $product->Id_Producto }}');
-    const originalText = button.innerHTML;
+    const quantity = document.getElementById('cart-qty-{{ $product->Id_Producto }}').value;
     
-    // Mostrar loading
-    button.innerHTML = '<svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Agregando...</span>';
-    button.disabled = true;
-    
-    fetch(form.action, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: new URLSearchParams(new FormData(form))
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Mostrar mensaje de éxito
-            showNotification('Producto agregado al carrito', 'success');
-            
-            // Actualizar contador del carrito
-            updateCartCount();
-            
+    // Usar el sistema unificado de carrito
+    window.cartManager.addToCart({{ $product->Id_Producto }}, quantity, button).then(success => {
+        if (success) {
             // Resetear cantidad a 1
             document.getElementById(`cart-qty-{{ $product->Id_Producto }}`).value = 1;
-        } else {
-            showNotification(data.error || 'Error al agregar al carrito', 'error');
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Error al agregar al carrito', 'error');
-    })
-    .finally(() => {
-        // Restaurar botón
-        button.innerHTML = originalText;
-        button.disabled = false;
     });
 });
 
@@ -125,16 +96,6 @@ function showNotification(message, type) {
     }, 3000);
 }
 
-function updateCartCount() {
-    fetch('{{ route("cart.count") }}')
-        .then(response => response.json())
-        .then(data => {
-            const cartCount = document.querySelector('.cart-count');
-            if (cartCount) {
-                cartCount.textContent = data.count;
-                cartCount.style.display = data.count > 0 ? 'block' : 'none';
-            }
-        });
-}
+// La función updateCartCount ahora está en cart.js
 </script>
 

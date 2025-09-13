@@ -6,59 +6,10 @@
     <link rel="stylesheet" href="{{ asset('css/empresa-dashboard.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header-empresa.css') }}">
     <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .main-content {
-            flex: 1;
-        }
-        
         .header {
             border-bottom: 3px solid #006400;
-        }
-        
-        /* ====== SIDEBAR CONTAINER ====== */
-        .sidebar-container {
-            position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 450px;
-            height: 80vh;
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
-        
-        .sidebar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1001;
-            transition: all 0.3s ease;
-            opacity: 0.95;
-        }
-        
-        .sidebar:hover {
-            opacity: 1;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-            transform: scale(1.02);
-        }
-        
-        .sidebar-container:hover {
-            transform: translateY(-50%) scale(1.02);
-        }
-        
-        .dashboard-panel {
-            width: 100%;
-            max-width: 1200px; /* Mantener el tamaño original */
-            margin: 0 auto; /* Centrar el panel */
         }
 
         /* ====== MODAL ESTILOS ====== */
@@ -509,24 +460,22 @@
     </style>
 </head>
 <body>
-    <div class="main-content">
-        <x-header-productos :categorias="$categorias" :subcategorias="$subcategorias" />
+    
+    <x-header-productos :categorias="$categorias" :subcategorias="$subcategorias" />
 
-    <div class="sidebar-container">
-        <aside class="sidebar" id="sidebar">
+    <div class="main-container">
+        <aside class="sidebar">
             <nav class="nav-buttons">
                 <a href="{{ route('empresa.dashboard') }}" class="btn">Inicio</a>
                 <a href="{{ route('empresa.productos.index') }}" class="btn">Productos</a>
-                <a href="{{ route('empresa.facturas') }}" class="btn">Log de Productos</a>
+                <a href="{{ route('empresa.facturas') }}" class="btn">Facturas</a>
                 <form method="POST" action="{{ route('empresa.logout') }}" style="margin-top: 10px;">
                     @csrf
                     <button type="submit" class="btn">Salir</button>
                 </form>
             </nav>
         </aside>
-    </div>
 
-    <div class="main-container">
         <main class="dashboard-panel">
             <div class="header-productos">
                 <h2>PRODUCTOS</h2>
@@ -552,15 +501,7 @@
                         <div class="producto-info">
                             <strong>{{ $producto->Nombre }}</strong><br>
                             <span>Marca: {{ $producto->Marca }}</span><br>
-                            <span>Caduca: {{ \Carbon\Carbon::parse($producto->Fecha_Caducidad)->format('d/m/Y') }}</span><br>
-                            @php
-                                $fechaCaducidad = \Carbon\Carbon::parse($producto->Fecha_Caducidad);
-                                $hoy = \Carbon\Carbon::now();
-                                $estaDisponible = $fechaCaducidad->isFuture() && $producto->Cantidad > 0;
-                            @endphp
-                            <span style="color: {{ $estaDisponible ? '#28a745' : '#dc3545' }}; font-weight: bold;">
-                                {{ $estaDisponible ? '✓ DISPONIBLE' : '✗ NO DISPONIBLE' }}
-                            </span>
+                            <span>Caduca: {{ \Carbon\Carbon::parse($producto->Fecha_Caducidad)->format('d/m/Y') }}</span>
                         </div>
 
                         <div class="product-actions">
@@ -711,34 +652,7 @@
             // Redirigir sin filtros
             window.location.href = '{{ route("empresa.productos.index") }}';
         }
-        
-        // Funcionalidad del sidebar deslizable
-        const sidebar = document.getElementById('sidebar');
-        let sidebarTimeout;
-        
-        // Mostrar sidebar al hacer hover en el área izquierda
-        document.addEventListener('mousemove', function(e) {
-            if (e.clientX <= 20) { // Área de 20px desde el borde izquierdo
-                clearTimeout(sidebarTimeout);
-                sidebar.style.left = '0';
-            }
-        });
-        
-        // Ocultar sidebar cuando el mouse sale del área
-        sidebar.addEventListener('mouseleave', function() {
-            sidebarTimeout = setTimeout(function() {
-                sidebar.style.left = '-250px';
-            }, 300); // Delay de 300ms antes de ocultar
-        });
-        
-        // Cancelar ocultar si el mouse vuelve al sidebar
-        sidebar.addEventListener('mouseenter', function() {
-            clearTimeout(sidebarTimeout);
-        });
     </script>
-    </div>
 
-    <!-- Footer -->
-    <x-footer />
 </body>
 </html>

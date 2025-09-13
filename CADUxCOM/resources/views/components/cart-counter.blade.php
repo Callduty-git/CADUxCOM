@@ -3,19 +3,13 @@
     $cartCount = array_sum(array_column($cart, 'quantity'));
 @endphp
 
-<a href="{{ route('cart.index') }}" class="relative inline-flex items-center p-2 text-gray-600 hover:text-gray-800 transition-colors duration-200">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
-    </svg>
-    
-    @if($cartCount > 0)
-        <span class="cart-count absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+<div class="dropdown">
+    <a href="{{ route('cart.index') }}" class="relative">
+        <img src="{{ asset('images/icon-cart.png') }}" alt="Carrito" class="header-icon">
+        
+        <span class="cart-count" id="cart-count" style="background: linear-gradient(135deg, #AA5FC7 0%, #8B5CF6 100%); color: white; font-size: 0.8rem; font-weight: 800; min-width: 24px; height: 24px; border-radius: 50%; display: {{ $cartCount > 0 ? 'flex' : 'none' }}; align-items: center; justify-content: center; border: 3px solid #90D575; box-shadow: 0 4px 15px rgba(170, 95, 199, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2); position: absolute; top: -10px; right: -10px; z-index: 10; font-family: Arial, sans-serif; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);">
             {{ $cartCount }}
         </span>
-    @else
-        <span class="cart-count absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium" style="display: none;">
-            0
-        </span>
-    @endif
-</a>
+    </a>
+</div>
 

@@ -5,351 +5,226 @@ namespace App\Http\Controllers;
 use App\Models\Wishlist;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
+use Illuminate\View\View;
 
-/**
- * Controlador WishlistController - Maneja la lista de deseos de los usuarios
- * 
- * Este controlador permite a los usuarios agregar, eliminar y gestionar
- * productos en su lista de deseos, tanto para usuarios registrados como invitados.
- */
 class WishlistController extends Controller
 {
     /**
-     * Constructor - Aplicar middleware de autenticación opcional
+     * Constructor - Requerir autenticación para todas las acciones
      */
     public function __construct()
     {
-        // No requerimos autenticación obligatoria ya que también funciona para invitados
+        $this->middleware('auth');
     }
 
     /**
-     * Mostrar la lista de deseos del usuario
-     * 
-     * @return \Illuminate\View\View
+     * Mostrar la wishlist del usuario
      */
-    public function index()
+    public function index(): View
     {
         $userId = Auth::id();
-        $sessionId = Session::getId();
+        $wishlistItems = Wishlist::getUserWishlist($userId);
+        $wishlistCount = Wishlist::getWishlistCount($userId);
 
-        // Obtener items de la wishlist
-        $wishlistItems = Wishlist::with(['product.empresa', 'product.subcategoria'])
-            ->byUserOrSession($userId, $sessionId)
-            ->orderByPriority()
-            ->get();
-
-        // Obtener estadísticas
-        $stats = Wishlist::getWishlistStats($userId, $sessionId);
-
-        return view('wishlist.index', compact('wishlistItems', 'stats'));
+        return view('wishlist.index', compact('wishlistItems', 'wishlistCount'));
     }
 
     /**
-     * Agregar un producto a la lista de deseos
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * Agregar producto a la wishlist
      */
-    public function add(Request $request)
+    public function add(Request $request): JsonResponse
     {
         $request->validate([
             'product_id' => 'required|integer|exists:productos,Id_Producto',
-            'quantity' => 'nullable|integer|min:1|max:10',
-            'notes' => 'nullable|string|max:500',
         ]);
 
+        $userId = Auth::id();
         $productId = $request->product_id;
-        $quantity = $request->quantity ?? 1;
-        $notes = $request->notes;
 
-        // Verificar que el producto existe y está disponible
+        // Verificar que el producto existe y está activo
         $product = Producto::find($productId);
         if (!$product) {
-            if ($request->wantsJson()) {
-                return response()->json(['error' => 'Producto no encontrado'], 404);
-            }
-            return back()->with('error', 'Producto no encontrado.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Producto no encontrado'
+            ], 404);
         }
 
-        $userId = Auth::id();
-        $sessionId = Session::getId();
+        $success = Wishlist::addToWishlist($userId, $productId);
 
-        // Agregar a la wishlist
-        $wishlistItem = Wishlist::addToWishlist($productId, $userId, $sessionId, $quantity, $notes);
-
-        if ($request->wantsJson()) {
+        if ($success) {
+            $wishlistCount = Wishlist::getWishlistCount($userId);
             return response()->json([
                 'success' => true,
-                'message' => 'Producto agregado a tu lista de deseos',
-                'wishlist_count' => Wishlist::byUserOrSession($userId, $sessionId)->count(),
+                'message' => 'Producto agregado a favoritos',
+                'wishlist_count' => $wishlistCount,
+                'is_in_wishlist' => true
             ]);
         }
 
-        return back()->with('success', 'Producto agregado a tu lista de deseos.');
+        return response()->json([
+            'success' => false,
+            'message' => 'El producto ya está en favoritos'
+        ], 400);
     }
 
     /**
-     * Eliminar un producto de la lista de deseos
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * Remover producto de la wishlist
      */
-    public function remove(Request $request)
+    public function remove(Request $request): JsonResponse
     {
         $request->validate([
             'product_id' => 'required|integer|exists:productos,Id_Producto',
         ]);
 
-        $productId = $request->product_id;
         $userId = Auth::id();
-        $sessionId = Session::getId();
+        $productId = $request->product_id;
 
-        $wishlistItem = Wishlist::byUserOrSession($userId, $sessionId)
-            ->where('product_id', $productId)
-            ->first();
+        $success = Wishlist::removeFromWishlist($userId, $productId);
 
-        if (!$wishlistItem) {
-            if ($request->wantsJson()) {
-                return response()->json(['error' => 'Producto no encontrado en tu lista de deseos'], 404);
-            }
-            return back()->with('error', 'Producto no encontrado en tu lista de deseos.');
-        }
-
-        $wishlistItem->delete();
-
-        if ($request->wantsJson()) {
+        if ($success) {
+            $wishlistCount = Wishlist::getWishlistCount($userId);
             return response()->json([
                 'success' => true,
-                'message' => 'Producto eliminado de tu lista de deseos',
-                'wishlist_count' => Wishlist::byUserOrSession($userId, $sessionId)->count(),
+                'message' => 'Producto removido de favoritos',
+                'wishlist_count' => $wishlistCount,
+                'is_in_wishlist' => false
             ]);
         }
 
-        return back()->with('success', 'Producto eliminado de tu lista de deseos.');
+        return response()->json([
+            'success' => false,
+            'message' => 'El producto no estaba en favoritos'
+        ], 400);
     }
 
     /**
-     * Actualizar la cantidad de un producto en la wishlist
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * Toggle producto en la wishlist (agregar si no está, remover si está)
      */
-    public function update(Request $request)
+    public function toggle(Request $request): JsonResponse
     {
         $request->validate([
             'product_id' => 'required|integer|exists:productos,Id_Producto',
-            'quantity' => 'required|integer|min:1|max:10',
-            'notes' => 'nullable|string|max:500',
         ]);
 
-        $productId = $request->product_id;
-        $quantity = $request->quantity;
-        $notes = $request->notes;
         $userId = Auth::id();
-        $sessionId = Session::getId();
+        $productId = $request->product_id;
 
-        $wishlistItem = Wishlist::byUserOrSession($userId, $sessionId)
-            ->where('product_id', $productId)
-            ->first();
-
-        if (!$wishlistItem) {
-            if ($request->wantsJson()) {
-                return response()->json(['error' => 'Producto no encontrado en tu lista de deseos'], 404);
-            }
-            return back()->with('error', 'Producto no encontrado en tu lista de deseos.');
+        // Verificar que el producto existe
+        $product = Producto::find($productId);
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Producto no encontrado'
+            ], 404);
         }
 
-        $wishlistItem->update([
-            'quantity' => $quantity,
-            'notes' => $notes,
-        ]);
+        $isInWishlist = Wishlist::isInWishlist($userId, $productId);
 
-        if ($request->wantsJson()) {
+        if ($isInWishlist) {
+            // Remover de la wishlist
+            $success = Wishlist::removeFromWishlist($userId, $productId);
+            $message = 'Producto removido de favoritos';
+            $isInWishlist = false;
+        } else {
+            // Agregar a la wishlist
+            $success = Wishlist::addToWishlist($userId, $productId);
+            $message = 'Producto agregado a favoritos';
+            $isInWishlist = true;
+        }
+
+        if ($success) {
+            $wishlistCount = Wishlist::getWishlistCount($userId);
             return response()->json([
                 'success' => true,
-                'message' => 'Lista de deseos actualizada',
+                'message' => $message,
+                'wishlist_count' => $wishlistCount,
+                'is_in_wishlist' => $isInWishlist
             ]);
         }
 
-        return back()->with('success', 'Lista de deseos actualizada.');
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al actualizar favoritos'
+        ], 500);
     }
 
     /**
-     * Mover un producto a una nueva prioridad
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * Obtener el estado de un producto en la wishlist
      */
-    public function move(Request $request)
+    public function status(Request $request): JsonResponse
     {
         $request->validate([
             'product_id' => 'required|integer|exists:productos,Id_Producto',
-            'priority' => 'required|integer|min:1',
         ]);
 
+        $userId = Auth::id();
         $productId = $request->product_id;
-        $priority = $request->priority;
+
+        $isInWishlist = Wishlist::isInWishlist($userId, $productId);
+
+        return response()->json([
+            'is_in_wishlist' => $isInWishlist
+        ]);
+    }
+
+    /**
+     * Obtener el contador de la wishlist
+     */
+    public function count(): JsonResponse
+    {
         $userId = Auth::id();
-        $sessionId = Session::getId();
+        $count = Wishlist::getWishlistCount($userId);
 
-        $wishlistItem = Wishlist::byUserOrSession($userId, $sessionId)
-            ->where('product_id', $productId)
-            ->first();
+        return response()->json([
+            'count' => $count
+        ]);
+    }
 
-        if (!$wishlistItem) {
-            if ($request->wantsJson()) {
-                return response()->json(['error' => 'Producto no encontrado en tu lista de deseos'], 404);
-            }
-            return back()->with('error', 'Producto no encontrado en tu lista de deseos.');
-        }
+    /**
+     * Limpiar toda la wishlist del usuario
+     */
+    public function clear(): JsonResponse
+    {
+        $userId = Auth::id();
+        $success = Wishlist::clearUserWishlist($userId);
 
-        $wishlistItem->moveToPriority($priority);
-
-        if ($request->wantsJson()) {
+        if ($success) {
             return response()->json([
                 'success' => true,
-                'message' => 'Prioridad actualizada',
+                'message' => 'Lista de favoritos limpiada correctamente',
+                'wishlist_count' => 0
             ]);
         }
 
-        return back()->with('success', 'Prioridad actualizada.');
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al limpiar la lista de favoritos'
+        ], 500);
     }
 
     /**
-     * Agregar todos los productos de la wishlist al carrito
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * Obtener múltiples estados de productos en la wishlist
      */
-    public function addAllToCart(Request $request)
+    public function getMultipleStatus(Request $request): JsonResponse
     {
+        $request->validate([
+            'product_ids' => 'required|array',
+            'product_ids.*' => 'integer|exists:productos,Id_Producto',
+        ]);
+
         $userId = Auth::id();
-        $sessionId = Session::getId();
+        $productIds = $request->product_ids;
 
-        $wishlistItems = Wishlist::with('product')
-            ->byUserOrSession($userId, $sessionId)
-            ->whereHas('product', function ($query) {
-                $query->where('Cantidad', '>', 0);
-            })
-            ->get();
-
-        if ($wishlistItems->isEmpty()) {
-            if ($request->wantsJson()) {
-                return response()->json(['error' => 'No hay productos disponibles en tu lista de deseos'], 400);
-            }
-            return back()->with('error', 'No hay productos disponibles en tu lista de deseos.');
+        $statuses = [];
+        foreach ($productIds as $productId) {
+            $statuses[$productId] = Wishlist::isInWishlist($userId, $productId);
         }
 
-        $cart = Session::get('cart', []);
-        $addedCount = 0;
-        $errors = [];
-
-        foreach ($wishlistItems as $item) {
-            $product = $item->product;
-            $productId = $product->Id_Producto;
-            $quantity = $item->quantity;
-
-            // Verificar stock disponible
-            if ($product->Cantidad < $quantity) {
-                $errors[] = "Solo hay {$product->Cantidad} unidades disponibles de {$product->Nombre}";
-                continue;
-            }
-
-            // Agregar al carrito
-            if (isset($cart[$productId])) {
-                $newQuantity = $cart[$productId]['quantity'] + $quantity;
-                if ($newQuantity > $product->Cantidad) {
-                    $errors[] = "No se puede agregar más cantidad de {$product->Nombre}. Stock disponible: {$product->Cantidad}";
-                    continue;
-                }
-                $cart[$productId]['quantity'] = $newQuantity;
-            } else {
-                $cart[$productId] = [
-                    'quantity' => $quantity,
-                    'added_at' => now()->toDateTimeString()
-                ];
-            }
-
-            $addedCount++;
-        }
-
-        Session::put('cart', $cart);
-
-        if ($request->wantsJson()) {
-            $response = [
-                'success' => true,
-                'message' => "Se agregaron {$addedCount} productos al carrito",
-                'added_count' => $addedCount,
-            ];
-
-            if (!empty($errors)) {
-                $response['errors'] = $errors;
-            }
-
-            return response()->json($response);
-        }
-
-        $message = "Se agregaron {$addedCount} productos al carrito.";
-        if (!empty($errors)) {
-            $message .= " Algunos productos no pudieron ser agregados: " . implode(', ', $errors);
-        }
-
-        return back()->with('success', $message);
-    }
-
-    /**
-     * Vaciar toda la lista de deseos
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
-     */
-    public function clear(Request $request)
-    {
-        $userId = Auth::id();
-        $sessionId = Session::getId();
-
-        $deletedCount = Wishlist::byUserOrSession($userId, $sessionId)->delete();
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => "Se eliminaron {$deletedCount} productos de tu lista de deseos",
-                'deleted_count' => $deletedCount,
-            ]);
-        }
-
-        return back()->with('success', "Se eliminaron {$deletedCount} productos de tu lista de deseos.");
-    }
-
-    /**
-     * Obtener el conteo de productos en la wishlist
-     * 
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getCount()
-    {
-        $userId = Auth::id();
-        $sessionId = Session::getId();
-
-        $count = Wishlist::byUserOrSession($userId, $sessionId)->count();
-
-        return response()->json(['count' => $count]);
-    }
-
-    /**
-     * Migrar wishlist de sesión a usuario (cuando el usuario se registra/inicia sesión)
-     * 
-     * @return void
-     */
-    public function migrateSessionToUser()
-    {
-        if (Auth::check()) {
-            $sessionId = Session::getId();
-            $userId = Auth::id();
-
-            Wishlist::migrateSessionToUser($sessionId, $userId);
-        }
+        return response()->json([
+            'statuses' => $statuses
+        ]);
     }
 }
