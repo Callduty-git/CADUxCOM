@@ -1,0 +1,103 @@
+body {
+    font-family: sans-serif;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.btn-crear {
+    display: inline-block;
+    margin-bottom: 20px;
+    background-color: #49874E;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 10px;
+}
+
+.contenedor-productos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    width: 220px;
+    padding: 10px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.card img {
+    width: 100%;
+    height: 140px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.card h3 {
+    font-size: 1rem;
+    margin: 5px 0;
+    color: #222;
+}
+
+.card .marca {
+    font-size: 0.85rem;
+    color: gray;
+    margin-bottom: 8px;
+}
+
+.card .precio {
+    margin: 5px 0;
+}
+
+.card .original {
+    text-decoration: line-through;
+    color: red;
+    margin-right: 5px;
+}
+
+.card .descuento {
+    color: green;
+    font-weight: bold;
+}
+
+.card .vence {
+    background-color: #aa5fc7;
+    color: white;
+    font-size: 0.85rem;
+    padding: 5px;
+    border-radius: 15px;
+    margin-top: 10px;
+}
+
+.card .acciones {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.card .acciones a,
+.card .acciones form button {
+    background-color: #90D575;
+    border: none;
+    padding: 5px;
+    text-decoration: none;
+    color: #333;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.card .acciones form {
+    margin: 0;
+}

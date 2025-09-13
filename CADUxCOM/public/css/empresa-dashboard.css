@@ -1,0 +1,671 @@
+/* ==== RESET Y BASE ==== */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: white;
+}
+
+.main-container {
+    display: flex;
+    height: auto;
+    justify-content: center; /* Centrar el contenido */
+    padding: 20px;
+}
+
+.dashboard-panel {
+    width: 100%;
+    max-width: 1200px; /* Mantener el tamaño original */
+}
+
+/* ==== HEADER SUPERIOR ==== */
+.header {
+    background-color: #87d96d;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 30px;
+    border-bottom: 2px solid rgb(25, 83, 19);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-left .logo {
+    width: 100px;
+    height: 100px;
+}
+
+.header-left h1 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.header-right .profile {
+    width: 100px;
+    height: 100px;
+}
+
+/* ==== BARRA DE BÚSQUEDA ==== */
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 30px;
+    padding: 5px 15px;
+    max-width: 800px;
+    width: 100%;
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    padding: 10px;
+    font-size: 16px;
+    flex-grow: 1;
+    border-radius: 30px;
+}
+
+.search-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    padding-left: 10px;
+}
+
+/* ==== SIDEBAR CONTAINER ==== */
+.sidebar-container {
+    position: fixed;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 450px;
+    height: 80vh;
+    z-index: 1000;
+    transition: all 0.3s ease; /* Para que se mueva junto con el sidebar */
+}
+
+/* ==== SIDEBAR ==== */
+.sidebar {
+    width: 450px;
+    background-color: #ffffff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 20px;
+    border: 2px solid rgba(0, 0, 0, 0.178);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1001;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    opacity: 0.95;
+}
+
+.sidebar:hover {
+    opacity: 1;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    transform: scale(1.02);
+}
+
+/* Cuando el sidebar hace hover, mover el contenedor */
+.sidebar-container:hover {
+    transform: translateY(-50%) scale(1.02);
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 1200px) {
+    .sidebar-container {
+        width: 350px;
+    }
+    
+    .sidebar {
+        width: 350px;
+    }
+    
+    .main-container {
+        justify-content: center; /* Centrar el contenido */
+        padding: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar-container {
+        left: 10px;
+        width: 300px;
+    }
+    
+    .sidebar {
+        width: 300px;
+    }
+    
+    .main-container {
+        justify-content: center; /* Centrar el contenido */
+        padding: 10px;
+    }
+}
+
+form .btn {
+    display: block;
+    width: 100%;
+}
+
+.logo-section {
+    text-align: center;
+    background-color: #87d96d;
+    padding: 10px;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    width: 100%;
+}
+
+.logo {
+    width: 60px;
+    height: 60px;
+}
+
+.logo-section h1 {
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.nav-buttons {
+    width: 100%;
+    padding: 50px;
+}
+
+.nav-buttons .btn {
+    display: block;
+    background-color: #d88ef0;
+    color: white;
+    padding: 30px;
+    text-align: center;
+    border-radius: 40px;
+    margin-bottom: 70px;
+    font-weight: bold;
+    text-decoration: none;
+    border: 2px solid black;
+    transition: background-color 0.3s;
+    font-size: 16px;
+}
+
+.nav-buttons .btn:hover {
+    background-color: #b963d1;
+}
+
+/* ==== PANEL CENTRAL ==== */
+.dashboard-panel {
+    flex-grow: 1;
+    background-color: #ffffff;
+    padding: 40px;
+}
+
+.empresa-title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+/* ==== INFORMACIÓN EMPRESA ==== */
+.info-panel {
+    background-color: #d78df0;
+    padding: 30px;
+    border-radius: 30px;
+    display: flex;
+    justify-content: space-between;
+    border: 2px solid black;
+    gap: 40px;
+}
+
+/* COLUMNA IZQUIERDA */
+.column-left {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.info-box {
+    background-color: white;
+    padding: 12px;
+    border-radius: 25px;
+    font-weight: bold;
+    text-align: center;
+    border: 2px solid black;
+}
+
+/* COLUMNA DERECHA */
+.column-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-box {
+    background-color: rgb(255, 255, 255);
+    padding: 15px;
+    border-radius: 25px;
+    text-align: center;
+    border: 2px solid black;
+    width: 60%;
+    height: 60%;
+
+}
+
+.icon {
+    width: 100%;
+    height: 100%;
+    margin-bottom: 10px;
+}
+
+.small-btn {
+    background-color: white;
+    border: 2px solid black;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.small-btn:hover {
+    background-color: #eee;
+}
+
+/* ==== PRODUCTOS LISTA ==== */
+.productos-lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.producto-card {
+    border: 2px solid black;
+    border-radius: 20px;
+    padding: 20px;
+    width: 300px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.imagen-producto {
+    width: 100%;
+    height: 140px;
+    object-fit: contain;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+
+.producto-info {
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.product-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-ver,
+.btn-editar,
+.btn-borrar {
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 2px solid black;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.btn-ver {
+    background-color: #ffffff;
+    color: black;
+}
+
+.btn-editar {
+    background-color: #D994F4;
+}
+
+.btn-borrar {
+    background-color: #C75F5F;
+}
+
+.btn-ver:hover {
+    background-color: #ffffff;
+}
+
+.btn-editar:hover {
+    background-color: #AA5FC7;
+}
+
+.btn-borrar:hover {
+    background-color: #c9302c;
+}
+
+.header-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-left: auto;
+}
+
+.btn-crear {
+    background-color: #D994F4;
+    color: white;
+    border: 2px solid #000;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.btn-crear:hover {
+    background-color: #d88ef0;
+}
+
+/* ==== FORMULARIO DE EDICIÓN ==== */
+.edit-form-container {
+    background-color: #f5f5f5;
+    padding: 40px;
+    border-radius: 20px;
+    border: 2px solid #ccc;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.edit-form-container h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.edit-form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-form-group label {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.edit-form-group input,
+.edit-form-group textarea,
+.edit-form-group select {
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid black;
+    font-size: 16px;
+    background-color: white;
+}
+
+.edit-form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.edit-form-submit {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.edit-form-submit button {
+    background-color: #87d96d;
+    color: black;
+    font-weight: bold;
+    border: 2px solid black;
+    border-radius: 15px;
+    padding: 12px 30px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-form-submit button:hover {
+    background-color: #6cc656;
+}
+
+.form-box {
+    background-color: #d78df0;
+    border-radius: 25px;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    border: 2px solid black;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.edit-form {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.form-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-left label {
+    font-weight: bold;
+}
+
+.form-left input,
+.form-left select,
+.form-left textarea {
+    padding: 10px;
+    border-radius: 20px;
+    border: 2px solid black;
+    font-size: 16px;
+    width: 100%;
+}
+
+.form-left textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.input-icon {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.input-icon span {
+    position: absolute;
+    left: 12px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.input-icon input {
+    padding-left: 30px;
+}
+
+.form-right {
+    flex: 0.8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    justify-content: center;
+}
+
+.img-preview {
+    width: 450px;
+    height: 450px;
+    object-fit: cover;
+    border-radius: 15px;
+    border: 2px solid black;
+}
+
+.btn-foto {
+    background-color: white;
+    border: 2px solid black;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn-foto:hover {
+    background-color: #eee;
+}
+
+.btn-guardar {
+    background-color: white;
+    border: 2px solid black;
+    padding: 10px 30px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn-guardar:hover {
+    background-color: #eee;
+}
+
+/* ==== ESTILOS PARA LA CONSOLA (MODIFICADOS) ==== */
+/* El panel principal de la consola */
+.consola-panel {
+    background-color: #fff; /* Fondo blanco */
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid black;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 600px; /* Alto fijo para el scroll */
+    overflow-y: auto; /* Habilita el scroll vertical */
+}
+
+/* Título de la consola */
+.consola-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+/* Lista de logs */
+.log-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+/* Cada entrada del log */
+.log-lista li {
+    background: #f0f0f0; /* Fondo gris claro */
+    border: 2px solid black;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Estilo para la hora */
+.log-lista li span:first-child {
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap; /* Evita que la fecha y hora se dividan */
+}
+
+/* Estilo para la acción */
+.log-accion {
+    font-weight: bold;
+    color: #6a1b9a; /* Color por defecto para la acción */
+}
+
+/* Estilo para la descripción */
+.log-descripcion {
+    color: #555; /* Color por defecto para la descripción */
+    flex-grow: 1; /* Permite que el texto ocupe el espacio restante */
+}
+
+/* 👇👇👇 ESTILOS PARA LA ELIMINACIÓN (CRUCIALES PARA EL COLOR ROJO) 👇👇👇 */
+/* Aplica un fondo y borde distintivo a la entrada eliminada */
+.log-eliminar {
+    background: #ffe0e0; /* Fondo rosado claro para destacar la eliminación */
+    border-color: #ff0000; /* Borde rojo para la entrada eliminada */
+}
+
+/* Fuerza el color rojo para todo el texto dentro de una entrada eliminada */
+/* Usamos !important para asegurar que sobrescribe otras reglas de color */
+.log-eliminar span,
+.log-eliminar .log-accion,
+.log-eliminar .log-descripcion,
+.log-eliminar * { /* ¡Añadimos este selector genérico para asegurar que todo dentro sea rojo! */
+    color: #ff0000 !important;
+}
+/* Estilos para los separadores de fecha en la lista de logs */
+.log-separator {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #6a1b9a; /* Un color que combine con tu tema */
+    position: relative;
+    border-bottom: 2px dashed #ccc; /* Línea discontinua */
+    padding-bottom: 10px;
+}
+
+.log-separator h3 {
+    margin: 0;
+    background-color: #f8f8f8; /* Fondo ligero para el texto del separador */
+    padding: 0 10px;
+    display: inline-block;
+}
+
+/* Puedes mantener tus estilos para .log-eliminar como los teníamos, para que las entradas eliminadas sigan siendo rojas */
+.log-eliminar {
+    background: #ffe0e0; /* Fondo rosado claro para destacar la eliminación */
+    border-color: #ff0000; /* Borde rojo para la entrada eliminada */
+}
+
+.log-eliminar span,
+.log-eliminar .log-accion,
+.log-eliminar .log-descripcion,
+.log-eliminar * {
+    color: #ff0000 !important; /* Fuerza el color rojo */
+}
+
+
