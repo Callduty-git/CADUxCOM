@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ asset('css/empresa-dashboard.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/header-empresa.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <style>
         .header {
             border-bottom: 3px solid #006400;

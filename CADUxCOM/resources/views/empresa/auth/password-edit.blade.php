@@ -4,13 +4,21 @@
     <meta charset="UTF-8">
     <title>Cambiar Contraseña</title>
     <link rel="stylesheet" href="{{ asset('css/empresa-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/notifications.css') }}">
 </head>
 <body>
     <div class="container">
         <h2>Cambiar Contraseña</h2>
 
         @if(session('success'))
-            <div class="alert success">{{ session('success') }}</div>
+            <div class="session-message success">
+                <div class="notification-icon">✓</div>
+                <div class="notification-content">
+                    <div class="notification-message">{{ session('success') }}</div>
+                </div>
+                <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+            </div>
         @endif
 
         <form method="POST" action="{{ route('empresa.password.update') }}">
@@ -37,5 +45,11 @@
             <button type="submit" class="btn">Actualizar Contraseña</button>
         </form>
     </div>
+
+    <!-- Footer -->
+    <x-footer />
+    
+    <!-- Scripts -->
+    <script src="{{ asset('js/notifications.js') }}"></script>
 </body>
 </html>

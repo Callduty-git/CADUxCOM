@@ -11,13 +11,13 @@ class EmpresaSeeder extends Seeder
     public function run(): void
     {
         Empresa::create([
-            'Nombre' => 'Justo y bueno',
+            'Nombre' => 'Empresa Ejemplo',
             'Foto' => null,
-            'Direccion' => 'Calle 10 # 20-30',
-            'Municipio' => 'Garzón',
-            'Ubicacion' => 'Centro',
+            'Direccion' => 'Calle 123 #45-67',
+            'Municipio' => 'Ciudad Demo',
+            'Ubicacion' => null,
             'Contacto' => '3001234567',
-            'email' => 'justoybueno@example.com',
+            'email' => 'empresa@ejemplo.com',
             'NIT' => '900123456-7',
             'Certificado_Camara_de_comercio' => null,
             'password' => Hash::make('password'),

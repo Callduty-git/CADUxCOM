@@ -8,8 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/banner-carousel.css') }}">
     <link rel="stylesheet" href="{{ asset('css/subcategorias.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/favorites.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/notifications.css') }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
@@ -38,5 +37,8 @@
         <!-- FOOTER -->
         <x-footer />
     </div>
+    
+    <!-- Scripts -->
+    <script src="{{ asset('js/notifications.js') }}"></script>
 </body>
 </html>

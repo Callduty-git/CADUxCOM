@@ -23,15 +23,16 @@ ul, li {
 /* === ESTILOS DEL HEADER === */
 .main-header {
   background-color: #90D575;
-  padding: 15px 30px;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   position: sticky;
   top: 0;
   z-index: 1000;
   border-bottom: 2px solid #49874E;
+  min-height: 70px;
 }
 
 /* Altura declarativa para cálculo del navbar sticky */
@@ -40,20 +41,22 @@ ul, li {
 .left-section {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .logo {
-  height: 72px;
+  height: 50px;
   width: auto;
 }
 
 .logo-text {
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: bold;
   color: #000000;
   font-family: Arial, sans-serif;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
 }
 .logo-link {
   display: flex;
@@ -127,7 +130,8 @@ ul, li {
 .right-section {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
+  flex-shrink: 0;
 }
 
 .header-icon {
@@ -155,7 +159,7 @@ ul, li {
   background-color: #fff;
   border: 2px solid #458D58;
   border-radius: 10px;
-  min-width: 160px;
+  width: 250px;
   z-index: 100;
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
@@ -176,6 +180,65 @@ ul, li {
 
 .dropdown-menu.show {
   display: block;
+}
+
+/* === ESTILOS ESPECÍFICOS PARA DROPDOWN DE EMPRESA === */
+.dropdown-user-info {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #eee;
+}
+
+.dropdown-company-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+  border: 2px solid #89CF6D;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-company-name {
+  margin: 0;
+  font-weight: bold;
+  color: #333;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.dropdown-options {
+  padding: 10px 0;
+}
+
+.dropdown-menu-link, .dropdown-menu-button {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.dropdown-menu-link:hover, .dropdown-menu-button:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown-menu-button.danger {
+  color: #dc3545;
+}
+
+.dropdown-menu-button.danger:hover {
+  background-color: #ffe0e0;
 }
 
 @media screen and (max-width: 768px) {
@@ -200,82 +263,4 @@ ul, li {
     justify-content: center;
     gap: 16px;
   }
-}
-
-/* === ESTILOS DEL CONTADOR DEL CARRITO === */
-.cart-count {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  background: linear-gradient(135deg, #AA5FC7 0%, #8B5CF6 100%);
-  color: white;
-  font-size: 0.8rem;
-  font-weight: 800;
-  min-width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 3px solid #90D575;
-  box-shadow: 0 4px 15px rgba(170, 95, 199, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-  font-family: Arial, sans-serif;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  animation: cartPulse 2.5s infinite;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes cartPulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 4px 15px rgba(170, 95, 199, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
-  50% {
-    transform: scale(1.15);
-    box-shadow: 0 6px 20px rgba(170, 95, 199, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 4px 15px rgba(170, 95, 199, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
-}
-
-.cart-count:hover {
-  animation: none;
-  transform: scale(1.2);
-  box-shadow: 0 8px 25px rgba(170, 95, 199, 0.7), 0 6px 15px rgba(0, 0, 0, 0.4);
-  background: linear-gradient(135deg, #BB6FD0 0%, #9F7AEA 100%);
-}
-
-/* Responsive para el contador del carrito */
-@media screen and (max-width: 768px) {
-  .cart-count {
-    top: -8px;
-    right: -8px;
-    min-width: 20px;
-    height: 20px;
-    font-size: 0.75rem;
-    border: 2px solid #90D575;
-    box-shadow: 0 3px 12px rgba(170, 95, 199, 0.4), 0 2px 6px rgba(0, 0, 0, 0.2);
-  }
-}
-
-/* === ESTILOS PARA ENLACE DE FAVORITOS === */
-.header-icon-link {
-  position: relative;
-  display: inline-block;
-  transition: transform 0.2s ease;
-}
-
-.header-icon-link:hover {
-  transform: scale(1.1);
-}
-
-.header-icon-link .header-icon {
-  transition: filter 0.2s ease;
-}
-
-.header-icon-link:hover .header-icon {
-  filter: brightness(1.2);
 }

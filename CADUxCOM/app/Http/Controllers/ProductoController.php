@@ -146,6 +146,9 @@ class ProductoController extends Controller
 
         $producto->save();
 
+        // Manejar límite de logs antes de crear uno nuevo
+        $this->manageLogLimit($producto->Id_Empresa);
+        
         // Registrar la acción de "agregar producto" en el log
         LogEmpresa::create([
             'empresa_id' => $producto->Id_Empresa,
@@ -154,21 +157,6 @@ class ProductoController extends Controller
             'created_at' => now(), // Asegúrate de registrar la hora exacta
         ]);
 
-        // Lógica para limitar a 100 registros para la empresa actual
-        $maxLogs = 100; // Define el límite de logs
-        $logsCount = LogEmpresa::where('empresa_id', $producto->Id_Empresa)->count(); // Contar logs para esta empresa
-
-        if ($logsCount > $maxLogs) {
-            // Obtener los logs más antiguos para esta empresa y eliminarlos hasta que queden 100
-            $oldestLogs = LogEmpresa::where('empresa_id', $producto->Id_Empresa)
-                                    ->orderBy('created_at', 'asc')
-                                    ->take($logsCount - $maxLogs)
-                                    ->get();
-
-            foreach ($oldestLogs as $oldLog) {
-                $oldLog->delete();
-            }
-        }
 
         return Auth::guard('empresa')->check()
             ? redirect()->route('empresa.productos.index')->with('success', 'Producto creado exitosamente.')
@@ -181,10 +169,10 @@ class ProductoController extends Controller
         return view('productos.show', compact('producto'));
     }
 
-    public function userShow($id)
+    public function showEmpresa($id)
     {
         $producto = Producto::with(['empresa', 'subcategoria.categoria'])->findOrFail($id);
-        return view('productos.user-detail', compact('producto'));
+        return view('empresa.productos.show', compact('producto'));
     }
 
     public function edit($id)
@@ -249,6 +237,9 @@ class ProductoController extends Controller
 
         $producto->delete();
 
+        // Manejar límite de logs antes de crear uno nuevo
+        $this->manageLogLimit($empresaId);
+        
         // Registra la acción de "eliminar producto" en el log
         LogEmpresa::create([
             'empresa_id' => $empresaId, // Asocia el log a la empresa correcta
@@ -257,24 +248,30 @@ class ProductoController extends Controller
             'created_at' => now(), // Asegúrate de registrar la hora exacta de la eliminación
         ]);
 
-        // Lógica para limitar a 100 registros después de la eliminación para la empresa actual
-        $maxLogs = 100; // Define el límite de logs
-        $logsCount = LogEmpresa::where('empresa_id', $empresaId)->count(); // Contar logs para esta empresa
-
-        if ($logsCount > $maxLogs) {
-            // Obtener los logs más antiguos para esta empresa y eliminarlos hasta que queden 100
-            $oldestLogs = LogEmpresa::where('empresa_id', $empresaId)
-                                    ->orderBy('created_at', 'asc')
-                                    ->take($logsCount - $maxLogs)
-                                    ->get();
-
-            foreach ($oldestLogs as $oldLog) {
-                $oldLog->delete();
-            }
-        }
 
         return Auth::guard('empresa')->check()
             ? redirect()->route('empresa.productos.index')->with('success', 'Producto eliminado exitosamente.')
             : redirect()->route('productos.index')->with('success', 'Producto eliminado exitosamente.');
+    }
+
+    /**
+     * Maneja el límite de logs (máximo 50 por empresa)
+     * Si se alcanza el límite, elimina el log más antiguo
+     */
+    private function manageLogLimit($empresaId)
+    {
+        $maxLogs = 50;
+        $currentLogs = LogEmpresa::where('empresa_id', $empresaId)->count();
+        
+        if ($currentLogs >= $maxLogs) {
+            // Eliminar el log más antiguo
+            $oldestLog = LogEmpresa::where('empresa_id', $empresaId)
+                ->orderBy('created_at', 'asc')
+                ->first();
+            
+            if ($oldestLog) {
+                $oldestLog->delete();
+            }
+        }
     }
 }

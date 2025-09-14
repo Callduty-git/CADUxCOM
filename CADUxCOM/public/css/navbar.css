@@ -62,64 +62,6 @@
   width: auto;
 }
 
-/* Estilos específicos para el enlace del mapa */
-.map-link {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 0.5rem;
-}
-
-.map-link-item {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-}
-
-.map-link-item:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-.map-link-item svg {
-  width: 20px;
-  height: 20px;
-}
-
-/* Estilos específicos para el enlace de educación */
-.education-link {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  border-radius: 0.5rem;
-}
-
-.education-link-item {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-}
-
-.education-link-item:hover {
-  background: rgba(16, 185, 129, 0.2);
-  transform: translateY(-2px);
-}
-
-.education-link-item svg {
-  width: 20px;
-  height: 20px;
-}
-
 /* Submenú desplegable */
 .submenu {
   position: absolute;

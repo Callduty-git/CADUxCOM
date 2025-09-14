@@ -3,35 +3,29 @@
 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
     <!-- Imagen del producto -->
     <div class="relative">
-        <a href="{{ route('productos.user.show', $product->Id_Producto) }}">
+        <a href="{{ route('productos.show', $product->Id_Producto) }}">
             <img src="{{ $product->Foto ? asset('storage/' . $product->Foto) : asset('images/default-product.png') }}" 
                  alt="{{ $product->Nombre }}" 
                  class="w-full h-48 object-cover">
         </a>
         
-        <!-- Badge de descuento progresivo -->
-        @php
-            $discountInfo = $product->getDiscountInfo();
-        @endphp
-        @if($discountInfo['has_discount'])
+        <!-- Badge de descuento -->
+        @if($product->PrecioOriginal > $product->Precio)
             <div class="absolute top-2 left-2">
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
-                    @if($discountInfo['expiry_status'] === 'critical') bg-red-100 text-red-800
-                    @elseif($discountInfo['expiry_status'] === 'urgent') bg-orange-100 text-orange-800
-                    @elseif($discountInfo['expiry_status'] === 'near_expiry') bg-yellow-100 text-yellow-800
-                    @else bg-green-100 text-green-800 @endif">
-                    -{{ round($discountInfo['discount_percentage'], 0) }}%
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    -{{ number_format((($product->PrecioOriginal - $product->Precio) / $product->PrecioOriginal) * 100, 0) }}%
                 </span>
             </div>
         @endif
         
-        <!-- Botón de favoritos - Solo para usuarios autenticados -->
-        @if($showWishlist && auth()->check())
-            <button onclick="toggleFavorites({{ $product->Id_Producto }})" 
-                    class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-red-50 transition-colors group"
-                    id="favorites-btn-{{ $product->Id_Producto }}"
-                    title="Agregar a favoritos">
-                <img src="{{ asset('images/heart-icon.svg') }}" alt="Favoritos" class="w-4 h-4 text-gray-500 group-hover:text-red-500 transition-colors">
+        <!-- Botón de wishlist -->
+        @if($showWishlist)
+            <button onclick="toggleWishlist({{ $product->Id_Producto }})" 
+                    class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-red-50 transition-colors"
+                    id="wishlist-btn-{{ $product->Id_Producto }}">
+                <svg class="w-4 h-4 text-gray-500 hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                </svg>
             </button>
         @endif
     </div>
@@ -39,7 +33,7 @@
     <!-- Información del producto -->
     <div class="p-4">
         <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-            <a href="{{ route('productos.user.show', $product->Id_Producto) }}" class="hover:text-blue-600 transition-colors">
+            <a href="{{ route('productos.show', $product->Id_Producto) }}" class="hover:text-blue-600 transition-colors">
                 {{ $product->Nombre }}
             </a>
         </h3>
@@ -52,19 +46,16 @@
             Código: {{ $product->Codigo }}
         </p>
         
-        <!-- Precio con descuento progresivo -->
+        <!-- Precio -->
         <div class="mb-3">
-            @if($discountInfo['has_discount'])
+            @if($product->PrecioOriginal > $product->Precio)
                 <div class="flex items-center space-x-2">
                     <span class="text-lg font-bold text-gray-900">
-                        ${{ number_format($discountInfo['discounted_price'], 0, ',', '.') }}
+                        ${{ number_format($product->Precio, 0, ',', '.') }}
                     </span>
                     <span class="text-sm text-gray-500 line-through">
-                        ${{ number_format($discountInfo['original_price'], 0, ',', '.') }}
+                        ${{ number_format($product->PrecioOriginal, 0, ',', '.') }}
                     </span>
-                </div>
-                <div class="text-xs text-green-600 font-medium">
-                    {{ $discountInfo['savings_message'] }}
                 </div>
             @else
                 <span class="text-lg font-bold text-gray-900">
@@ -99,27 +90,6 @@
             @endif
         </div>
         
-        <!-- Fecha de caducidad -->
-        @if($product->Fecha_Caducidad)
-            <div class="mb-3">
-                <div class="flex items-center justify-between text-xs">
-                    <span class="text-gray-500">Caduca:</span>
-                    <span class="font-medium 
-                        @if($discountInfo['expiry_status'] === 'critical') text-red-600
-                        @elseif($discountInfo['expiry_status'] === 'urgent') text-orange-600
-                        @elseif($discountInfo['expiry_status'] === 'near_expiry') text-yellow-600
-                        @else text-gray-600 @endif">
-                        {{ \Carbon\Carbon::parse($product->Fecha_Caducidad)->format('d/m/Y') }}
-                    </span>
-                </div>
-                @if($discountInfo['has_discount'])
-                    <div class="text-xs text-green-600 font-medium">
-                        {{ $discountInfo['expiry_label'] }}
-                    </div>
-                @endif
-            </div>
-        @endif
-        
         <!-- Botones de acción -->
         <div class="flex space-x-2">
             @if($showCart && $product->Cantidad > 0)
@@ -140,7 +110,7 @@
                 </button>
             @endif
             
-            <a href="{{ route('productos.user.show', $product->Id_Producto) }}" 
+            <a href="{{ route('productos.show', $product->Id_Producto) }}" 
                class="inline-flex items-center justify-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -153,17 +123,33 @@
 
 <script>
 function addToCart(productId) {
-    window.cartManager.addToCart(productId, 1);
+    fetch('{{ route("cart.add") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Producto agregado al carrito', 'success');
+            updateCartCount();
+        } else {
+            showNotification(data.error || 'Error al agregar al carrito', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error al agregar al carrito', 'error');
+    });
 }
 
-function toggleFavorites(productId) {
-    // Verificar si el usuario está autenticado
-    @guest
-        // Si no está autenticado, redirigir al login
-        window.location.href = '{{ route("login") }}';
-        return;
-    @endguest
-
+function toggleWishlist(productId) {
     fetch('{{ route("wishlist.add") }}', {
         method: 'POST',
         headers: {
@@ -178,66 +164,41 @@ function toggleFavorites(productId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showNotification('Producto agregado a tus favoritos', 'success');
+            showNotification('Producto agregado a tu lista de deseos', 'success');
             updateWishlistCount();
-            // Cambiar el icono a favorito lleno
-            const btn = document.getElementById(`favorites-btn-${productId}`);
-            if (btn) {
-                const img = btn.querySelector('img');
-                img.src = '{{ asset("images/heart-filled-icon.svg") }}';
-                btn.title = 'Eliminar de favoritos';
-            }
-        } else if (data.redirect) {
-            // Redirigir al login si no está autenticado
-            window.location.href = data.redirect;
         } else {
-            showNotification(data.error || 'Error al agregar a favoritos', 'error');
+            showNotification(data.error || 'Error al agregar a la lista de deseos', 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showNotification('Error al agregar a favoritos', 'error');
+        showNotification('Error al agregar a la lista de deseos', 'error');
     });
 }
 
-// La función updateCartCount ahora está en cart.js
+function updateCartCount() {
+    fetch('{{ route("cart.count") }}')
+    .then(response => response.json())
+    .then(data => {
+        const cartCount = document.getElementById('cart-count');
+        if (cartCount) {
+            cartCount.textContent = data.count;
+        }
+    });
+}
 
 function updateWishlistCount() {
-    @auth
-        fetch('{{ route("wishlist.count") }}')
-        .then(response => response.json())
-        .then(data => {
-            const wishlistCount = document.getElementById('wishlist-count');
-            if (wishlistCount) {
-                wishlistCount.textContent = data.count;
-            }
-        });
-    @endauth
+    fetch('{{ route("wishlist.count") }}')
+    .then(response => response.json())
+    .then(data => {
+        const wishlistCount = document.getElementById('wishlist-count');
+        if (wishlistCount) {
+            wishlistCount.textContent = data.count;
+        }
+    });
 }
 
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg max-w-sm ${
-        type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
-        type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' :
-        'bg-blue-100 text-blue-800 border border-blue-200'
-    }`;
-    
-    notification.innerHTML = `
-        <div class="flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                ${type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' :
-                  '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'}
-            </svg>
-            <span class="text-sm font-medium">${message}</span>
-        </div>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 5000);
-}
+// La función showNotification ahora usa el sistema elegante de notificaciones
+// Se carga desde notifications.js
 </script>
 

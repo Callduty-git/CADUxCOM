@@ -19,7 +19,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-            return redirect()->intended(route('home'));
+            return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors([
@@ -48,7 +48,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('home'));
+        return redirect('/dashboard');
     }
 
     public function logout()

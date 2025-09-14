@@ -9,16 +9,6 @@ use App\Models\Empresa;
 
 class EmpresaProfileController extends Controller
 {
-    public function edit()
-    {
-        $empresa = Auth::guard('empresa')->user();
-        if (!$empresa) {
-            return redirect()->route('empresa.login')->with('error', 'Debes iniciar sesión primero.');
-        }
-
-        return view('empresa.profile.edit', compact('empresa'));
-    }
-
     public function update(Request $request)
     {
         try {

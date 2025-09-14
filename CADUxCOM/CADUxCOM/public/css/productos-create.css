@@ -1,0 +1,83 @@
+
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 25px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        div { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        textarea,
+        select {
+            width: calc(100% - 24px); /* Ajuste para padding */
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 10px 0;
+            border: 1px solid #ccc; /* Añadir borde para visibilidad */
+            border-radius: 6px;
+            box-sizing: border-box;
+            background-color: #fcfcfc;
+        }
+        button {
+            background-color: #28a745; /* Verde para crear */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: bold;
+            display: block; /* Ocupa todo el ancho disponible */
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .error {
+            color: #dc3545; /* Rojo para errores */
+            font-size: 0.85em;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            font-size: 1.1em;
+        }
+        .back-link a {
+            color: #007bff;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 1px solid #007bff;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .back-link a:hover {
+            background-color: #007bff;
+            color: white;
+        }

@@ -2,12 +2,6 @@
     position: relative;
     width: 100%;
     margin-top: 10px; /* separación del menú */
-    overflow: hidden; /* Prevenir scroll horizontal */
-    touch-action: pan-x; /* Permitir solo gestos horizontales */
-    user-select: none; /* Prevenir selección de texto */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
 }
 
 .carousel-inner {
@@ -27,11 +21,6 @@
     object-fit: contain; /* ahora no recorta, ajusta imagen */
     display: block;
     background-color: #fff; /* relleno si hay espacio */
-    pointer-events: none; /* Prevenir eventos de mouse en las imágenes */
-    user-select: none; /* Prevenir selección de imágenes */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
 }
 
 .carousel-control {
