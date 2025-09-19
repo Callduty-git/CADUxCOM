@@ -90,7 +90,14 @@ class Wishlist extends Model
      */
     public static function clearUserWishlist(int $userId): bool
     {
-        return self::where('user_id', $userId)->delete() >= 0;
+        try {
+            $deletedCount = self::where('user_id', $userId)->delete();
+            \Log::info("Wishlist cleared for user {$userId}, deleted {$deletedCount} items");
+            return true;
+        } catch (\Exception $e) {
+            \Log::error("Error clearing wishlist for user {$userId}: " . $e->getMessage());
+            return false;
+        }
     }
 
     /**

@@ -64,11 +64,17 @@
                     </div>
                     <div class="footer-actions">
                         <a href="{{ route('productos.user.show', $producto->Id_Producto) }}" class="btn btn-primary">Ver detalles</a>
-                        <form method="POST" action="{{ route('cart.add') }}" class="btn-cart-form" onsubmit="return addToCart(event, {{ $producto->Id_Producto }})">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $producto->Id_Producto }}">
-                            <button type="submit" class="btn btn-secondary">Agregar</button>
-                        </form>
+                        @if($producto->Cantidad > 0)
+                            <button type="button" class="btn btn-secondary" 
+                                    onclick="addToCart({{ $producto->Id_Producto }})"
+                                    id="add-cart-btn-{{ $producto->Id_Producto }}">
+                                <span class="btn-text">Agregar</span>
+                            </button>
+                        @else
+                            <button type="button" class="btn btn-secondary" disabled>
+                                Agotado
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -83,100 +89,6 @@
         </div>
     @endif
 
-    <script>
-    async function addToCart(e, id){
-        e.preventDefault();
-        const form = e.target;
-        const data = new FormData(form);
-        const resp = await fetch(form.action, {method:'POST', headers:{'X-Requested-With':'XMLHttpRequest','X-CSRF-TOKEN':data.get('_token')}, body:data});
-        try {
-            const json = await resp.json();
-            const badge = document.querySelector('.cart-badge');
-            if (json && json.count !== undefined && badge){ badge.textContent = json.count; }
-        } catch (err) {}
-        return false;
-    }
-
-    function toggleFavorites(productId) {
-        // Verificar si el usuario está autenticado
-        @guest
-            // Si no está autenticado, redirigir al login
-            window.location.href = '{{ route("login") }}';
-            return;
-        @endguest
-
-        fetch('{{ route("wishlist.add") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                product_id: productId,
-                quantity: 1
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification('Producto agregado a tus favoritos', 'success');
-                updateWishlistCount();
-                // Cambiar el icono a favorito lleno
-                const btn = document.getElementById(`favorites-btn-${productId}`);
-                if (btn) {
-                    const img = btn.querySelector('img');
-                    img.src = '{{ asset("images/heart-filled-icon.svg") }}';
-                    btn.title = 'Eliminar de favoritos';
-                }
-            } else if (data.redirect) {
-                // Redirigir al login si no está autenticado
-                window.location.href = data.redirect;
-            } else {
-                showNotification(data.error || 'Error al agregar a favoritos', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error al agregar a favoritos', 'error');
-        });
-    }
-
-    function updateWishlistCount() {
-        @auth
-            fetch('{{ route("wishlist.count") }}')
-            .then(response => response.json())
-            .then(data => {
-                const wishlistCount = document.getElementById('wishlist-count');
-                if (wishlistCount) {
-                    wishlistCount.textContent = data.count;
-                }
-            });
-        @endauth
-    }
-
-    function showNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg max-w-sm ${
-            type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
-            type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' :
-            'bg-blue-100 text-blue-800 border border-blue-200'
-        }`;
-        
-        notification.innerHTML = `
-            <div class="flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    ${type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' :
-                      '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'}
-                </svg>
-                <span class="text-sm font-medium">${message}</span>
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.remove();
-        }, 5000);
-    }
-    </script>
+    {{-- Scripts centralizados del carrito --}}
+    <x-cart-scripts />
 </div>

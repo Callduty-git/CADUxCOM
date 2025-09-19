@@ -33,6 +33,20 @@
             color: #333;
             line-height: 1.6;
         }
+        
+        /* Espaciado superior específico para la página de wishlist */
+        .wishlist-container {
+            margin-top: 120px; /* Espacio mayor para el header fijo más alto */
+            padding-top: 20px; /* Espacio adicional para mejor separación */
+        }
+        
+        /* Responsive para el espaciado */
+        @media (max-width: 768px) {
+            .wishlist-container {
+                margin-top: 130px; /* Espacio mayor en móviles */
+                padding-top: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -169,80 +183,186 @@
     <!-- SCRIPT DE FUNCIONALIDAD -->
     <script>
         // Función para remover de favoritos
-        function removeFromWishlist(productId) {
+        async function removeFromWishlist(productId) {
             if (!confirm('¿Estás seguro de que quieres quitar este producto de favoritos?')) {
                 return;
             }
 
-            fetch('{{ route("wishlist.remove") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    product_id: productId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
+            try {
+                // Mostrar notificación de carga
+                showNotification('Removiendo de favoritos...', 'info');
+
+                const response = await fetch('{{ route("wishlist.remove") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        product_id: productId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
                 if (data.success) {
-                    // Remover el elemento del DOM
+                    // Remover el elemento del DOM con animación
                     const item = document.querySelector(`[data-product-id="${productId}"]`);
                     if (item) {
-                        item.remove();
+                        item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        item.style.opacity = '0';
+                        item.style.transform = 'scale(0.8)';
+                        setTimeout(() => {
+                            item.remove();
+                        }, 300);
                     }
                     
                     // Actualizar contador
                     updateWishlistCount(data.wishlist_count);
                     
-                    // Mostrar mensaje
-                    showNotification(data.message, 'success');
+                    // Mostrar mensaje de éxito
+                    showNotification(data.message || 'Producto removido de favoritos', 'success');
                     
-                    // Si no hay más elementos, recargar la página
+                    // Si no hay más elementos, mostrar estado vacío
                     if (data.wishlist_count === 0) {
                         setTimeout(() => {
-                            location.reload();
-                        }, 1000);
+                            updateWishlistInterface();
+                        }, 500);
                     }
                 } else {
-                    showNotification(data.message, 'error');
+                    showNotification(data.message || 'Error al quitar de favoritos', 'error');
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error:', error);
-                showNotification('Error al quitar de favoritos', 'error');
-            });
+                showNotification('Error al quitar de favoritos: ' + error.message, 'error');
+            }
         }
 
         // Función para limpiar toda la wishlist
-        function clearWishlist() {
+        async function clearWishlist() {
             if (!confirm('¿Estás seguro de que quieres limpiar toda tu lista de favoritos?')) {
                 return;
             }
 
-            fetch('{{ route("wishlist.clear") }}', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            // Obtener token CSRF
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (!csrfToken) {
+                console.error('CSRF token not found');
+                showNotification('Error de seguridad. Recarga la página.', 'error');
+                return;
+            }
+
+            try {
+                // Mostrar notificación de carga
+                showNotification('Limpiando lista de favoritos...', 'info');
+
+                const response = await fetch('{{ route("wishlist.clear.post") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
+
+                const data = await response.json();
+
                 if (data.success) {
-                    showNotification(data.message, 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
+                    // Mostrar notificación de éxito
+                    showNotification('Lista de favoritos limpiada correctamente', 'success');
+                    
+                    // Actualizar la interfaz inmediatamente
+                    updateWishlistInterface();
+                    
+                    // Actualizar contador en el header
+                    updateWishlistCount(0);
                 } else {
-                    showNotification('Error al limpiar favoritos', 'error');
+                    showNotification(data.message || 'Error al limpiar favoritos', 'error');
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error:', error);
-                showNotification('Error al limpiar favoritos', 'error');
+                showNotification('Error al limpiar favoritos: ' + error.message, 'error');
+            }
+        }
+
+        // Función para actualizar la interfaz después de limpiar
+        function updateWishlistInterface() {
+            // Ocultar todos los productos
+            const productItems = document.querySelectorAll('.wishlist-item');
+            productItems.forEach(item => {
+                item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                item.style.opacity = '0';
+                item.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    item.remove();
+                }, 300);
             });
+
+            // Ocultar estadísticas
+            const statsSection = document.querySelector('.wishlist-stats');
+            if (statsSection) {
+                statsSection.style.transition = 'opacity 0.3s ease';
+                statsSection.style.opacity = '0';
+                setTimeout(() => {
+                    statsSection.remove();
+                }, 300);
+            }
+
+            // Ocultar botón de limpiar
+            const clearButton = document.querySelector('.btn-clear-wishlist');
+            if (clearButton) {
+                clearButton.style.transition = 'opacity 0.3s ease';
+                clearButton.style.opacity = '0';
+                setTimeout(() => {
+                    clearButton.remove();
+                }, 300);
+            }
+
+            // Mostrar estado vacío después de un breve delay
+            setTimeout(() => {
+                showEmptyState();
+            }, 500);
+        }
+
+        // Función para mostrar el estado vacío
+        function showEmptyState() {
+            const wishlistContainer = document.querySelector('.wishlist-container');
+            if (wishlistContainer) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-wishlist';
+                emptyState.style.opacity = '0';
+                emptyState.style.transition = 'opacity 0.5s ease';
+                
+                emptyState.innerHTML = `
+                    <div class="empty-icon">
+                        <img src="{{ asset('images/favoritos.png') }}" alt="Favoritos vacíos" class="empty-heart">
+                    </div>
+                    <h2 class="empty-title">Tu lista de favoritos está vacía</h2>
+                    <p class="empty-description">Agrega productos que te gusten para verlos aquí</p>
+                    <a href="{{ route('home') }}" class="btn-start-shopping">
+                        <img src="{{ asset('images/icon-cart.png') }}" alt="Comprar" class="btn-icon">
+                        Comenzar a Comprar
+                    </a>
+                `;
+                
+                wishlistContainer.appendChild(emptyState);
+                
+                // Animar entrada
+                setTimeout(() => {
+                    emptyState.style.opacity = '1';
+                }, 100);
+            }
         }
 
         // Función para agregar al carrito (usando el sistema unificado)
@@ -254,15 +374,30 @@
         async function addAllToCart() {
             const productButtons = document.querySelectorAll('.btn-add-to-cart');
             let successCount = 0;
+            let totalProducts = productButtons.length;
+            
+            if (totalProducts === 0) {
+                showNotification('No hay productos para agregar', 'info');
+                return;
+            }
+
+            // Mostrar notificación de inicio
+            showNotification(`Agregando ${totalProducts} productos al carrito...`, 'info');
             
             for (const button of productButtons) {
                 const productId = button.getAttribute('onclick').match(/\d+/)[0];
-                const success = await window.cartManager.addToCart(productId, 1);
-                if (success) successCount++;
+                try {
+                    const success = await window.cartManager.addToCart(productId, 1);
+                    if (success) successCount++;
+                } catch (error) {
+                    console.error('Error adding product to cart:', error);
+                }
             }
             
             if (successCount > 0) {
-                window.cartManager.showNotification(`${successCount} productos agregados al carrito`, 'success');
+                showNotification(`${successCount} de ${totalProducts} productos agregados al carrito`, 'success');
+            } else {
+                showNotification('No se pudieron agregar productos al carrito', 'error');
             }
         }
 
@@ -274,9 +409,15 @@
             }
         }
 
-        // Función para mostrar notificaciones
+        // Función para mostrar notificaciones (usando el sistema unificado)
         function showNotification(message, type = 'info') {
-            // Crear elemento de notificación
+            // Usar el sistema de notificaciones del cartManager si está disponible
+            if (window.cartManager && window.cartManager.showNotification) {
+                window.cartManager.showNotification(message, type);
+                return;
+            }
+
+            // Fallback: crear notificación personalizada
             const notification = document.createElement('div');
             notification.className = `notification notification-${type}`;
             notification.textContent = message;
@@ -299,13 +440,13 @@
             
             // Colores según el tipo
             if (type === 'success') {
-                notification.style.backgroundColor = 'var(--color-green-dark)';
+                notification.style.backgroundColor = '#49874E';
             } else if (type === 'error') {
-                notification.style.backgroundColor = '#e74c3c';
+                notification.style.backgroundColor = '#EF4444';
             } else if (type === 'info') {
-                notification.style.backgroundColor = 'var(--color-purple)';
+                notification.style.backgroundColor = '#AA5FC7';
             } else {
-                notification.style.backgroundColor = 'var(--color-green-light)';
+                notification.style.backgroundColor = '#90D575';
             }
             
             // Agregar al DOM
@@ -341,3 +482,4 @@
     <x-footer />
 </body>
 </html>
+

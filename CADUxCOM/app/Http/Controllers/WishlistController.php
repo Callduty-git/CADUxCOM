@@ -186,23 +186,51 @@ class WishlistController extends Controller
     /**
      * Limpiar toda la wishlist del usuario
      */
-    public function clear(): JsonResponse
+    public function clear(Request $request)
     {
-        $userId = Auth::id();
-        $success = Wishlist::clearUserWishlist($userId);
+        try {
+            $userId = Auth::id();
+            
+            if (!$userId) {
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Usuario no autenticado'
+                    ], 401);
+                }
+                return redirect()->route('login')->with('error', 'Debes iniciar sesión para realizar esta acción.');
+            }
 
-        if ($success) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Lista de favoritos limpiada correctamente',
-                'wishlist_count' => 0
-            ]);
+            $success = Wishlist::clearUserWishlist($userId);
+
+            if ($success) {
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Lista de favoritos limpiada correctamente',
+                        'wishlist_count' => 0
+                    ]);
+                }
+                return redirect()->route('wishlist.index')->with('success', 'Lista de favoritos limpiada correctamente');
+            }
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al limpiar la lista de favoritos'
+                ], 500);
+            }
+            return redirect()->route('wishlist.index')->with('error', 'Error al limpiar la lista de favoritos');
+        } catch (\Exception $e) {
+            \Log::error('Error in WishlistController::clear: ' . $e->getMessage());
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error interno del servidor'
+                ], 500);
+            }
+            return redirect()->route('wishlist.index')->with('error', 'Error interno del servidor');
         }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al limpiar la lista de favoritos'
-        ], 500);
     }
 
     /**

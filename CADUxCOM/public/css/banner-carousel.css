@@ -1,7 +1,14 @@
+/* SEPARADOR PARA EL CARRUSEL */
+.carousel-separator {
+    height: 50px !important;
+    background: transparent !important;
+}
+
+/* CACHE CLEARED - CSS UPDATED */
 .carousel {
     position: relative;
     width: 100%;
-    margin-top: 10px; /* separación del menú */
+    margin-top: 0; /* Sin margin-top, el separador se encarga del espaciado */
     overflow: hidden; /* Prevenir scroll horizontal */
     touch-action: pan-x; /* Permitir solo gestos horizontales */
     user-select: none; /* Prevenir selección de texto */
@@ -56,7 +63,26 @@
     right: 10px;
 }
 
+/* Responsive spacing para el carrusel - CACHE CLEARED */
+@media screen and (max-width: 1200px) {
+    .carousel-separator {
+        height: 45px !important;
+    }
+    
+    .carousel {
+        margin-top: 0; /* Sin margin-top, el separador se encarga del espaciado */
+    }
+}
+
 @media screen and (max-width: 768px) {
+    .carousel-separator {
+        height: 40px !important;
+    }
+    
+    .carousel {
+        margin-top: 0; /* Sin margin-top, el separador se encarga del espaciado */
+    }
+    
     .carousel-item img {
         max-height: 250px; /* menor en móvil */
     }
@@ -64,5 +90,19 @@
     .carousel-control {
         font-size: 18px;
         padding: 8px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .carousel-separator {
+        height: 35px !important;
+    }
+    
+    .carousel {
+        margin-top: 0; /* Sin margin-top, el separador se encarga del espaciado */
+    }
+    
+    .carousel-item img {
+        max-height: 200px; /* aún menor en móvil pequeño */
     }
 }

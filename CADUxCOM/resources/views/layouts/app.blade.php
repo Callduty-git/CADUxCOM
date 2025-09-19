@@ -28,6 +28,9 @@
         <x-header />
         <x-navbar />
 
+        <!-- SEPARADOR PARA EL CARRUSEL -->
+        <div class="carousel-separator" style="height: 120px; background: transparent;"></div>
+
         <!-- CONTENIDO PRINCIPAL -->
         <main class="content">
             <x-banner-carousel />

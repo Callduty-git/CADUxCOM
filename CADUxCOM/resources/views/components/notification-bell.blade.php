@@ -223,8 +223,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .notification-icon-img {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     object-fit: contain;
 }
 

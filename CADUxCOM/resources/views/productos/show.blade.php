@@ -15,6 +15,37 @@
         .product-image:hover { transform: scale(1.05); }
         .price-original { text-decoration: line-through; }
         .discount-badge { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+        
+        /* Espaciado superior específico para la página de detalles de productos */
+        .page-container {
+            padding-top: 100px; /* Espacio justo para el header fijo */
+        }
+        
+        .content {
+            margin-top: 0; /* Sin margen adicional */
+        }
+        
+        /* Espaciado específico para el breadcrumb */
+        .content nav {
+            margin-top: 60px; /* Espacio aún mayor antes del breadcrumb */
+            padding-top: 15px; /* Padding adicional */
+        }
+        
+        /* Responsive para el espaciado */
+        @media (max-width: 768px) {
+            .page-container {
+                padding-top: 110px; /* Espacio mínimo en móviles */
+            }
+            
+            .content {
+                margin-top: 0;
+            }
+            
+            .content nav {
+                margin-top: 45px; /* Espacio mayor en móviles */
+                padding-top: 12px;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">

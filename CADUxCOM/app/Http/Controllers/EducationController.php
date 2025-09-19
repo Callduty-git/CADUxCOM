@@ -11,12 +11,27 @@ class EducationController extends Controller
      */
     public function index()
     {
-        $articles = $this->getEducationalArticles();
-        $tips = $this->getFoodWasteTips();
-        $statistics = $this->getFoodWasteStatistics();
-        $recipes = $this->getRecipes();
+        try {
+            $articles = $this->getEducationalArticles();
+            $tips = $this->getFoodWasteTips();
+            $statistics = $this->getFoodWasteStatistics();
+            $recipes = $this->getRecipes();
+            $processSteps = $this->getProcessSteps();
+            $benefits = $this->getBenefits();
 
-        return view('education.index', compact('articles', 'tips', 'statistics', 'recipes'));
+            return view('education.index', compact('articles', 'tips', 'statistics', 'recipes', 'processSteps', 'benefits'));
+        } catch (\Exception $e) {
+            \Log::error('Error en EducationController: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return view('education.index', [
+                'articles' => [],
+                'tips' => [],
+                'statistics' => [],
+                'recipes' => [],
+                'processSteps' => [],
+                'benefits' => []
+            ]);
+        }
     }
 
     /**
@@ -144,29 +159,49 @@ class EducationController extends Controller
     {
         return [
             [
-                'title' => 'Planifica tus comidas',
-                'description' => 'Haz una lista de compras basada en lo que realmente vas a cocinar esta semana.',
-                'icon' => '📝',
-                'category' => 'planificacion',
+                'category' => 'Planificación',
+                'icon' => 'fas fa-clipboard-list',
+                'color' => '#90D575',
+                'tips' => [
+                    'Planifica tus comidas semanalmente',
+                    'Haz una lista de compras antes de ir al supermercado',
+                    'Revisa tu despensa antes de comprar',
+                    'Compra solo lo que necesitas'
+                ]
             ],
             [
-                'title' => 'Almacena correctamente',
-                'description' => 'Cada alimento tiene su lugar ideal en la nevera. Aprende dónde guardar cada producto.',
-                'icon' => '❄️',
-                'category' => 'conservacion',
+                'category' => 'Almacenamiento',
+                'icon' => 'fas fa-boxes',
+                'color' => '#AA5FC7',
+                'tips' => [
+                    'Almacena los productos por fecha de vencimiento',
+                    'Usa el método FIFO (First In, First Out)',
+                    'Mantén tu refrigerador organizado',
+                    'Congela alimentos que no usarás pronto'
+                ]
             ],
             [
-                'title' => 'Usa la regla FIFO',
-                'description' => 'First In, First Out: consume primero los productos que compraste primero.',
-                'icon' => '🔄',
-                'category' => 'organizacion',
+                'category' => 'Consumo Inteligente',
+                'icon' => 'fas fa-lightbulb',
+                'color' => '#49874E',
+                'tips' => [
+                    'Usa CADUxCOM para encontrar ofertas cercanas',
+                    'Compra productos próximos a caducar con descuento',
+                    'Aprende a leer etiquetas de vencimiento',
+                    'Reutiliza sobras en nuevas recetas'
+                ]
             ],
             [
-                'title' => 'Compra productos con descuento',
-                'description' => 'Usa CADUxCOM para encontrar productos próximos a caducar con grandes descuentos.',
-                'icon' => '💰',
-                'category' => 'ahorro',
-            ],
+                'category' => 'Ahorro',
+                'icon' => 'fas fa-piggy-bank',
+                'color' => '#f59e0b',
+                'tips' => [
+                    'Ahorra hasta 70% en productos de calidad',
+                    'Reduce tu presupuesto de alimentación',
+                    'Descubre nuevos productos a precios accesibles',
+                    'Contribuye a la economía circular'
+                ]
+            ]
         ];
     }
 
@@ -264,5 +299,92 @@ class EducationController extends Controller
         ];
 
         return $recommendations;
+    }
+
+    /**
+     * Obtener pasos del proceso CADUxCOM
+     */
+    private function getProcessSteps(): array
+    {
+        return [
+            [
+                'step' => '1',
+                'title' => 'Registro de Empresas',
+                'description' => 'Los supermercados y restaurantes se registran en CADUxCOM y suben sus productos próximos a caducar.',
+                'icon' => 'fas fa-store',
+                'details' => [
+                    'Registro gratuito y fácil',
+                    'Subida de productos con fechas de vencimiento',
+                    'Configuración de descuentos automáticos',
+                    'Verificación de ubicación y datos'
+                ]
+            ],
+            [
+                'step' => '2',
+                'title' => 'Descubrimiento de Ofertas',
+                'description' => 'Los usuarios descubren ofertas cercanas usando nuestro mapa interactivo y filtros inteligentes.',
+                'icon' => 'fas fa-map-marked-alt',
+                'details' => [
+                    'Mapa interactivo con geolocalización',
+                    'Filtros por categoría y distancia',
+                    'Búsqueda por productos específicos',
+                    'Notificaciones de ofertas cercanas'
+                ]
+            ],
+            [
+                'step' => '3',
+                'title' => 'Compra Consciente',
+                'description' => 'Los usuarios compran productos con descuento, ahorrando dinero y reduciendo desperdicio.',
+                'icon' => 'fas fa-shopping-cart',
+                'details' => [
+                    'Precios reducidos hasta 70%',
+                    'Productos de calidad garantizada',
+                    'Compra directa en el establecimiento',
+                    'Contribución al medio ambiente'
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Obtener beneficios de CADUxCOM
+     */
+    private function getBenefits(): array
+    {
+        return [
+            [
+                'title' => 'Para Consumidores',
+                'icon' => 'fas fa-user',
+                'color' => '#90D575',
+                'benefits' => [
+                    'Ahorra hasta 70% en productos de calidad',
+                    'Descubre ofertas cercanas a tu ubicación',
+                    'Contribuye a reducir el desperdicio de alimentos',
+                    'Accede a productos frescos a precios accesibles'
+                ]
+            ],
+            [
+                'title' => 'Para Empresas',
+                'icon' => 'fas fa-building',
+                'color' => '#AA5FC7',
+                'benefits' => [
+                    'Reduce pérdidas por productos próximos a caducar',
+                    'Aumenta el flujo de clientes en tu establecimiento',
+                    'Mejora tu imagen de responsabilidad social',
+                    'Genera ingresos adicionales'
+                ]
+            ],
+            [
+                'title' => 'Para el Medio Ambiente',
+                'icon' => 'fas fa-globe',
+                'color' => '#49874E',
+                'benefits' => [
+                    'Reduce el desperdicio de alimentos',
+                    'Disminuye las emisiones de gases de efecto invernadero',
+                    'Promueve el consumo responsable',
+                    'Contribuye a la economía circular'
+                ]
+            ]
+        ];
     }
 }

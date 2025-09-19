@@ -140,25 +140,33 @@ Route::post('/logout', [CustomLoginController::class, 'logout'])->name('logout')
 Route::get('/navbar', [CategoriaController::class, 'navbar'])->name('navbar');
 Route::get('/subcategorias/{id}', [CategoriaController::class, 'getSubcategorias']);
 
-// Rutas del carrito de compras
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
-Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+// Ruta pública para obtener el contador del carrito (sin autenticación)
 Route::get('/cart/count', [CartController::class, 'getCount'])->name('cart.count');
 
-// Rutas del sistema de checkout
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+// Rutas del carrito de compras (requieren autenticación)
+Route::middleware('auth')->group(function () {
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+    Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+});
 
-// Rutas del sistema de cupones
-Route::post('/coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
-Route::post('/coupons/apply', [CouponController::class, 'apply'])->name('coupons.apply');
-Route::post('/coupons/remove', [CouponController::class, 'remove'])->name('coupons.remove');
-Route::get('/coupons/applied', [CouponController::class, 'getApplied'])->name('coupons.applied');
-Route::get('/coupons/available', [CouponController::class, 'getAvailable'])->name('coupons.available');
-Route::post('/coupons/check-product', [CouponController::class, 'checkProduct'])->name('coupons.check-product');
+// Rutas del sistema de checkout (requieren autenticación)
+Route::middleware('auth')->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+});
+
+// Rutas del sistema de cupones (requieren autenticación)
+Route::middleware('auth')->group(function () {
+    Route::post('/coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
+    Route::post('/coupons/apply', [CouponController::class, 'apply'])->name('coupons.apply');
+    Route::post('/coupons/remove', [CouponController::class, 'remove'])->name('coupons.remove');
+    Route::get('/coupons/applied', [CouponController::class, 'getApplied'])->name('coupons.applied');
+    Route::get('/coupons/available', [CouponController::class, 'getAvailable'])->name('coupons.available');
+    Route::post('/coupons/check-product', [CouponController::class, 'checkProduct'])->name('coupons.check-product');
+});
 
 // Rutas del sistema de wishlist (solo para usuarios autenticados)
 Route::middleware('auth')->group(function () {
@@ -169,6 +177,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/wishlist/status', [WishlistController::class, 'status'])->name('wishlist.status');
     Route::get('/wishlist/count', [WishlistController::class, 'count'])->name('wishlist.count');
     Route::delete('/wishlist/clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
+    Route::post('/wishlist/clear', [WishlistController::class, 'clear'])->name('wishlist.clear.post');
     Route::post('/wishlist/multiple-status', [WishlistController::class, 'getMultipleStatus'])->name('wishlist.multiple-status');
 });
 

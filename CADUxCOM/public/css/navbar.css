@@ -5,10 +5,12 @@
   justify-content: space-between;
   background-color: #49874E; /* Verde */
   color: white;
-  padding: 1rem 2rem;
+  padding: 1rem 1rem;
   flex-wrap: wrap;
-  position: relative;
-  z-index: 10;
+  position: sticky;
+  top: 110px; /* Debajo del header fijo */
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Botón de categorías */
@@ -133,7 +135,7 @@
   border: 2px solid #49874E;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  z-index: 50;
+  z-index: 150;
   min-width: 240px;
   max-width: 320px;
   animation: fadeIn 0.3s ease;
@@ -174,24 +176,37 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+    padding: 0.8rem 1rem;
+    position: sticky;
+    top: 90px;
   }
 
   .categories {
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1rem;
+    padding: 0 1rem;
+    flex-wrap: wrap;
   }
 
   .categories li {
-    font-size: 1rem;
+    font-size: 0.9rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 0.2rem;
   }
 
   .categories img {
-    height: 24px;
+    height: 20px;
   }
 
   .toggle-submenu {
     justify-content: center;
     width: 100%;
+    font-size: 1rem;
+  }
+
+  .toggle-submenu img {
+    height: 24px;
   }
 
   .submenu {
@@ -202,9 +217,23 @@
     min-width: 100%;
     border-radius: 0;
     box-shadow: none;
+    margin-top: 0.5rem;
   }
 
   .submenu span {
     width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .map-link-item,
+  .education-link-item {
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
+
+  .map-link-item svg,
+  .education-link-item svg {
+    width: 16px;
+    height: 16px;
   }
 }

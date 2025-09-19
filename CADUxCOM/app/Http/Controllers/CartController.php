@@ -70,9 +70,21 @@ class CartController extends Controller
 
     public function add(Request $request)
     {
+        // Verificar que el usuario esté autenticado
+        if (!Auth::check()) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false, 
+                    'error' => 'Debes iniciar sesión para agregar productos al carrito',
+                    'redirect' => route('login')
+                ], 401);
+            }
+            return redirect()->route('login')->with('error', 'Debes iniciar sesión para agregar productos al carrito.');
+        }
+
         $validated = $request->validate([
             'product_id' => ['required', 'integer', 'exists:productos,Id_Producto'],
-            'quantity' => ['nullable', 'integer', 'min:1', 'max:10']
+            'quantity' => ['nullable', 'integer', 'min:1']
         ]);
 
         $productId = (int) $validated['product_id'];
@@ -81,18 +93,26 @@ class CartController extends Controller
         // Verificar que el producto existe y está disponible
         $product = Producto::find($productId);
         if (!$product) {
-            if ($request->wantsJson()) {
-                return response()->json(['error' => 'Producto no encontrado'], 404);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'error' => 'Producto no encontrado'], 404);
             }
             return back()->with('error', 'Producto no encontrado.');
         }
 
+        // Verificar si el producto está disponible
+        if ($product->Cantidad <= 0) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'error' => 'Este producto está agotado'], 400);
+            }
+            return back()->with('error', 'Este producto está agotado.');
+        }
+
         // Verificar stock disponible
         if ($product->Cantidad < $quantity) {
-            if ($request->wantsJson()) {
-                return response()->json(['error' => 'Stock insuficiente'], 400);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'error' => 'No puedes agregar más de la cantidad disponible de este producto. Solo quedan ' . $product->Cantidad . ' unidades'], 400);
             }
-            return back()->with('error', 'Stock insuficiente para este producto.');
+            return back()->with('error', 'No puedes agregar más de la cantidad disponible de este producto.');
         }
 
         $cart = session()->get('cart', []);
@@ -101,10 +121,10 @@ class CartController extends Controller
             $newQuantity = $cart[$productId]['quantity'] + $quantity;
             // Verificar que no exceda el stock total
             if ($newQuantity > $product->Cantidad) {
-                if ($request->wantsJson()) {
-                    return response()->json(['error' => 'No se puede agregar más cantidad. Stock disponible: ' . $product->Cantidad], 400);
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'error' => 'No puedes agregar más de la cantidad disponible de este producto. Stock disponible: ' . $product->Cantidad . ' unidades'], 400);
                 }
-                return back()->with('error', 'No se puede agregar más cantidad. Stock disponible: ' . $product->Cantidad);
+                return back()->with('error', 'No puedes agregar más de la cantidad disponible de este producto.');
             }
             $cart[$productId]['quantity'] = $newQuantity;
         } else {
@@ -116,7 +136,7 @@ class CartController extends Controller
 
         session()->put('cart', $cart);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() || $request->ajax()) {
             $count = array_sum(array_column($cart, 'quantity'));
             return response()->json([
                 'success' => true, 
@@ -132,7 +152,7 @@ class CartController extends Controller
     {
         $validated = $request->validate([
             'product_id' => ['required', 'integer', 'exists:productos,Id_Producto'],
-            'quantity' => ['required', 'integer', 'min:1', 'max:10']
+            'quantity' => ['required', 'integer', 'min:1']
         ]);
 
         $productId = (int) $validated['product_id'];
@@ -141,17 +161,17 @@ class CartController extends Controller
         // Verificar stock disponible
         $product = Producto::find($productId);
         if (!$product) {
-            if ($request->wantsJson()) {
-                return response()->json(['error' => 'Producto no encontrado'], 404);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'error' => 'Producto no encontrado'], 404);
             }
             return back()->with('error', 'Producto no encontrado.');
         }
 
         if ($product->Cantidad < $quantity) {
-            if ($request->wantsJson()) {
-                return response()->json(['error' => 'Stock insuficiente'], 400);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'error' => 'No puedes agregar más de la cantidad disponible de este producto. Solo quedan ' . $product->Cantidad . ' unidades'], 400);
             }
-            return back()->with('error', 'Stock insuficiente para este producto.');
+            return back()->with('error', 'No puedes agregar más de la cantidad disponible de este producto.');
         }
 
         $cart = session('cart', []);
@@ -160,8 +180,13 @@ class CartController extends Controller
             session()->put('cart', $cart);
         }
 
-        if ($request->wantsJson()) {
-            return response()->json(['success' => true, 'message' => 'Cantidad actualizada']);
+        if ($request->wantsJson() || $request->ajax()) {
+            $count = array_sum(array_column($cart, 'quantity'));
+            return response()->json([
+                'success' => true, 
+                'message' => 'Cantidad actualizada',
+                'count' => $count
+            ]);
         }
         
         return back()->with('success', 'Cantidad actualizada exitosamente.');
@@ -170,7 +195,7 @@ class CartController extends Controller
     public function remove(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => ['required', 'integer']
+            'product_id' => ['required', 'integer', 'exists:productos,Id_Producto']
         ]);
         
         $cart = session('cart', []);
@@ -180,14 +205,19 @@ class CartController extends Controller
             unset($cart[$productId]);
             session()->put('cart', $cart);
             
-            if ($request->wantsJson()) {
-                return response()->json(['success' => true, 'message' => 'Producto eliminado del carrito']);
+            if ($request->wantsJson() || $request->ajax()) {
+                $count = array_sum(array_column($cart, 'quantity'));
+                return response()->json([
+                    'success' => true, 
+                    'message' => 'Producto eliminado del carrito',
+                    'count' => $count
+                ]);
             }
             return back()->with('success', 'Producto eliminado del carrito.');
         }
 
-        if ($request->wantsJson()) {
-            return response()->json(['error' => 'Producto no encontrado en el carrito'], 404);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'error' => 'Producto no encontrado en el carrito'], 404);
         }
         return back()->with('error', 'Producto no encontrado en el carrito.');
     }
@@ -196,7 +226,7 @@ class CartController extends Controller
     {
         session()->forget('cart');
         
-        if (request()->wantsJson()) {
+        if (request()->wantsJson() || request()->ajax()) {
             return response()->json(['success' => true, 'message' => 'Carrito vaciado']);
         }
         
@@ -205,6 +235,7 @@ class CartController extends Controller
 
     public function getCount()
     {
+        // Obtener el carrito de la sesión (funciona tanto para usuarios autenticados como no autenticados)
         $cart = session('cart', []);
         $count = array_sum(array_column($cart, 'quantity'));
         

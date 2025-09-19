@@ -38,16 +38,6 @@
         </div>
 
         <img src="{{ asset('images/icon-help.png') }}" alt="Ayuda" class="header-icon">
-        <x-notification-bell />
-        
-        <!-- Enlace a favoritos - Solo para usuarios autenticados -->
-        @auth
-            <a href="{{ route('wishlist.index') }}" class="header-icon-link" title="Mis Favoritos">
-                <img src="{{ asset('images/favoritos.png') }}" alt="Favoritos" class="header-icon">
-                <span class="wishlist-count" id="wishlist-count">0</span>
-            </a>
-        @endauth
-        
         <x-cart-counter />
     </div>
 </header>
@@ -73,23 +63,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Cargar contador de favoritos solo si el usuario está autenticado
-    @auth
-        loadWishlistCount();
-    @endauth
 });
-
-function loadWishlistCount() {
-    fetch('{{ route("wishlist.count") }}')
-    .then(response => response.json())
-    .then(data => {
-        const wishlistCount = document.getElementById('wishlist-count');
-        if (wishlistCount) {
-            wishlistCount.textContent = data.count;
-        }
-    })
-    .catch(error => {
-        console.error('Error loading wishlist count:', error);
-    });
-}
 </script>

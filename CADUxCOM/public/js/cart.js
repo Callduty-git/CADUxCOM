@@ -25,30 +25,70 @@ class CartManager {
         }
 
         try {
+            // Obtener token CSRF
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                             document.querySelector('input[name="_token"]')?.value;
+            
+            if (!csrfToken) {
+                console.error('CSRF token not found');
+                this.showNotification('Error de seguridad. Recarga la página.', 'error');
+                return false;
+            }
+
             const response = await fetch('/cart/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: `product_id=${productId}&quantity=${quantity}`
             });
 
+            if (!response.ok) {
+                // Si es un error 401 (no autenticado), redirigir al login
+                if (response.status === 401) {
+                    this.showNotification('Debes iniciar sesión para agregar productos al carrito', 'error');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                    return false;
+                }
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const data = await response.json();
+            
 
             if (data.success) {
-                this.showNotification('Producto agregado al carrito', 'success');
+                this.showNotification(data.message || 'Producto agregado al carrito', 'success');
                 this.updateCartCounter();
                 this.animateCartIcon(button);
                 return true;
             } else {
-                this.showNotification(data.error || 'Error al agregar el producto', 'error');
+                // Manejar diferentes tipos de errores
+                let errorMessage = 'Error al agregar el producto';
+                if (data.error) {
+                    errorMessage = data.error;
+                } else if (data.message) {
+                    errorMessage = data.message;
+                }
+                
+                // Si es un error de autenticación, redirigir al login
+                if (data.redirect && data.redirect.includes('login')) {
+                    this.showNotification('Debes iniciar sesión para agregar productos al carrito', 'error');
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 2000);
+                } else {
+                    this.showNotification(errorMessage, 'error');
+                }
                 return false;
             }
         } catch (error) {
             console.error('Error:', error);
-            this.showNotification('Error al agregar el producto', 'error');
+            this.showNotification('Error de conexión. Intenta nuevamente.', 'error');
             return false;
         } finally {
             if (button) {
@@ -160,23 +200,55 @@ class CartManager {
     async updateCartCounter() {
         try {
             const response = await fetch('/cart/count');
+            
+            // Si la respuesta no es exitosa, no hacer nada (evitar errores en consola)
+            if (!response.ok) {
+                return;
+            }
+            
             const data = await response.json();
             
+            const cartBadge = document.getElementById('cart-count');
+            const cartBadgeNumber = cartBadge?.querySelector('.cart-badge-number');
+            
+            if (cartBadge && cartBadgeNumber) {
+                const count = data.count || 0;
+                const displayCount = count > 99 ? '99+' : count;
+                
+                // Actualizar el número
+                cartBadgeNumber.textContent = displayCount;
+                cartBadge.setAttribute('data-count', count);
+                
+                // Mostrar/ocultar badge
+                if (count > 0) {
+                    cartBadge.style.display = 'flex';
+                    // Agregar animación de actualización
+                    cartBadge.classList.add('update');
+                    setTimeout(() => {
+                        cartBadge.classList.remove('update');
+                    }, 500);
+                } else {
+                    cartBadge.style.display = 'none';
+                }
+            }
+            
+            // Mantener compatibilidad con elementos antiguos
             const cartCountElements = document.querySelectorAll('.cart-count');
             cartCountElements.forEach(element => {
-                element.textContent = data.count;
-                element.style.display = data.count > 0 ? 'flex' : 'none';
+                element.textContent = data.count || 0;
+                element.style.display = (data.count || 0) > 0 ? 'flex' : 'none';
             });
 
             // También actualizar elementos con ID específico
             const cartCountById = document.getElementById('cart-count');
             if (cartCountById) {
-                cartCountById.textContent = data.count;
-                cartCountById.style.display = data.count > 0 ? 'block' : 'none';
+                cartCountById.textContent = data.count || 0;
+                cartCountById.style.display = (data.count || 0) > 0 ? 'block' : 'none';
             }
 
         } catch (error) {
-            console.error('Error updating cart counter:', error);
+            // Silenciar errores del contador del carrito para evitar problemas en el login
+            console.log('Cart counter not available (user not authenticated)');
         }
     }
 
@@ -318,64 +390,342 @@ class CartManager {
     }
 
     /**
+     * Mostrar modal de confirmación personalizado
+     * @param {string} title - Título del modal
+     * @param {string} message - Mensaje del modal
+     * @param {function} onConfirm - Función a ejecutar al confirmar
+     * @param {function} onCancel - Función a ejecutar al cancelar (opcional)
+     */
+    showConfirmModal(title, message, onConfirm, onCancel = null) {
+        // Crear contenedor del modal si no existe
+        let modalContainer = document.getElementById('modal-container');
+        if (!modalContainer) {
+            modalContainer = document.createElement('div');
+            modalContainer.id = 'modal-container';
+            modalContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 20000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                pointer-events: none;
+            `;
+            document.body.appendChild(modalContainer);
+        }
+
+        // Crear overlay de fondo
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        `;
+
+        // Crear modal
+        const modal = document.createElement('div');
+        modal.className = 'custom-modal';
+        modal.style.cssText = `
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f5f8 100%);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(73, 135, 78, 0.3);
+            max-width: 400px;
+            width: 90%;
+            max-height: 90vh;
+            overflow: hidden;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(73, 135, 78, 0.1);
+        `;
+
+        modal.innerHTML = `
+            <div class="modal-header" style="
+                padding: 24px 24px 16px 24px;
+                border-bottom: 1px solid rgba(73, 135, 78, 0.1);
+                background: linear-gradient(135deg, #49874E 0%, #90D575 100%);
+                color: white;
+                text-align: center;
+            ">
+                <h3 style="
+                    margin: 0;
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: white;
+                ">${title}</h3>
+            </div>
+            
+            <div class="modal-body" style="
+                padding: 24px;
+                text-align: center;
+            ">
+                <p style="
+                    margin: 0 0 24px 0;
+                    color: #333333;
+                    font-size: 15px;
+                    line-height: 1.5;
+                ">${message}</p>
+                
+                <div class="modal-actions" style="
+                    display: flex;
+                    gap: 12px;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                ">
+                    <button class="modal-btn modal-btn-cancel" style="
+                        padding: 12px 24px;
+                        border: 2px solid #666666;
+                        background: transparent;
+                        color: #666666;
+                        border-radius: 8px;
+                        font-weight: 600;
+                        font-size: 14px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        min-width: 100px;
+                    ">
+                        Cancelar
+                    </button>
+                    
+                    <button class="modal-btn modal-btn-confirm" style="
+                        padding: 12px 24px;
+                        border: 2px solid #49874E;
+                        background: #49874E;
+                        color: white;
+                        border-radius: 8px;
+                        font-weight: 600;
+                        font-size: 14px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        min-width: 100px;
+                    ">
+                        Aceptar
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Agregar elementos al contenedor
+        modalContainer.innerHTML = '';
+        modalContainer.appendChild(overlay);
+        modalContainer.appendChild(modal);
+
+        // Mostrar modal con animación
+        requestAnimationFrame(() => {
+            modalContainer.style.opacity = '1';
+            modalContainer.style.visibility = 'visible';
+            modalContainer.style.pointerEvents = 'auto';
+            modal.style.transform = 'scale(1) translateY(0)';
+        });
+
+        // Event listeners
+        const cancelBtn = modal.querySelector('.modal-btn-cancel');
+        const confirmBtn = modal.querySelector('.modal-btn-confirm');
+
+        const closeModal = () => {
+            modalContainer.style.opacity = '0';
+            modalContainer.style.visibility = 'hidden';
+            modalContainer.style.pointerEvents = 'none';
+            modal.style.transform = 'scale(0.9) translateY(20px)';
+            
+            setTimeout(() => {
+                if (modalContainer.parentElement) {
+                    modalContainer.remove();
+                }
+            }, 300);
+        };
+
+        cancelBtn.addEventListener('click', () => {
+            closeModal();
+            if (onCancel) onCancel();
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            closeModal();
+            if (onConfirm) onConfirm();
+        });
+
+        overlay.addEventListener('click', () => {
+            closeModal();
+            if (onCancel) onCancel();
+        });
+
+        // Efectos hover para botones
+        cancelBtn.addEventListener('mouseenter', () => {
+            cancelBtn.style.background = '#666666';
+            cancelBtn.style.color = 'white';
+            cancelBtn.style.transform = 'translateY(-2px)';
+            cancelBtn.style.boxShadow = '0 4px 12px rgba(102, 102, 102, 0.3)';
+        });
+
+        cancelBtn.addEventListener('mouseleave', () => {
+            cancelBtn.style.background = 'transparent';
+            cancelBtn.style.color = '#666666';
+            cancelBtn.style.transform = 'translateY(0)';
+            cancelBtn.style.boxShadow = 'none';
+        });
+
+        confirmBtn.addEventListener('mouseenter', () => {
+            confirmBtn.style.background = '#90D575';
+            confirmBtn.style.borderColor = '#90D575';
+            confirmBtn.style.transform = 'translateY(-2px)';
+            confirmBtn.style.boxShadow = '0 4px 12px rgba(73, 135, 78, 0.4)';
+        });
+
+        confirmBtn.addEventListener('mouseleave', () => {
+            confirmBtn.style.background = '#49874E';
+            confirmBtn.style.borderColor = '#49874E';
+            confirmBtn.style.transform = 'translateY(0)';
+            confirmBtn.style.boxShadow = 'none';
+        });
+
+        // Cerrar con Escape
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                if (onCancel) onCancel();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+    }
+
+    /**
      * Mostrar notificación
      * @param {string} message - Mensaje a mostrar
      * @param {string} type - Tipo de notificación (success, error, info)
      */
     showNotification(message, type = 'info') {
+        // Crear contenedor de notificaciones si no existe
+        let notificationContainer = document.getElementById('notification-container');
+        if (!notificationContainer) {
+            notificationContainer = document.createElement('div');
+            notificationContainer.id = 'notification-container';
+            notificationContainer.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                z-index: 10000;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                max-width: 400px;
+                width: 100%;
+                pointer-events: none;
+            `;
+            document.body.appendChild(notificationContainer);
+        }
+
         // Crear elemento de notificación
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
+        
+        // Iconos según el tipo
+        const icons = {
+            success: '✓',
+            error: '✗',
+            info: 'ℹ',
+            warning: '⚠'
+        };
+
         notification.innerHTML = `
             <div class="notification-content">
-                <span class="notification-message">${message}</span>
-                <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                <div class="notification-icon">${icons[type] || icons.info}</div>
+                <div class="notification-body">
+                    <span class="notification-message">${message}</span>
+                </div>
+                <button class="notification-close" onclick="this.closest('.notification').remove()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
+            <div class="notification-progress"></div>
         `;
 
-        // Estilos de la notificación
+        // Estilos base de la notificación con paleta corporativa
         notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            padding: 16px 20px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f5f8 100%);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(73, 135, 78, 0.15);
+            border-left: 4px solid;
             transform: translateX(100%);
-            transition: transform 0.3s ease;
-            max-width: 400px;
-            word-wrap: break-word;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            pointer-events: auto;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
         `;
 
-        // Colores según el tipo
+        // Colores corporativos de CADUxCOM
         const colors = {
-            success: '#10B981',
-            error: '#EF4444',
-            info: '#3B82F6',
-            warning: '#F59E0B'
+            success: '#49874E',  // Verde corporativo principal
+            error: '#EF4444',    // Rojo para errores (mantenido para legibilidad)
+            info: '#AA5FC7',     // Morado corporativo
+            warning: '#F59E0B'   // Naranja para advertencias (mantenido para legibilidad)
         };
-        notification.style.backgroundColor = colors[type] || colors.info;
+        notification.style.borderLeftColor = colors[type] || colors.info;
 
-        // Agregar al DOM
-        document.body.appendChild(notification);
+        // Agregar al contenedor
+        notificationContainer.appendChild(notification);
 
         // Animar entrada
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             notification.style.transform = 'translateX(0)';
-        }, 100);
+            notification.style.opacity = '1';
+        });
+
+        // Barra de progreso
+        const progressBar = notification.querySelector('.notification-progress');
+        progressBar.style.cssText = `
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: ${colors[type] || colors.info};
+            width: 100%;
+            transform: scaleX(1);
+            transform-origin: left;
+            transition: transform 4s linear;
+        `;
+
+        // Iniciar animación de la barra de progreso
+        requestAnimationFrame(() => {
+            progressBar.style.transform = 'scaleX(0)';
+        });
 
         // Auto-remover después de 4 segundos
         setTimeout(() => {
             notification.style.transform = 'translateX(100%)';
+            notification.style.opacity = '0';
             setTimeout(() => {
                 if (notification.parentElement) {
                     notification.remove();
                 }
-            }, 300);
+            }, 400);
         }, 4000);
+
+        // Hover para pausar la animación
+        notification.addEventListener('mouseenter', () => {
+            progressBar.style.animationPlayState = 'paused';
+        });
+
+        notification.addEventListener('mouseleave', () => {
+            progressBar.style.animationPlayState = 'running';
+        });
     }
 }
 
@@ -396,7 +746,7 @@ window.updateCartCount = function() {
     return window.cartManager.updateCartCounter();
 };
 
-// CSS para el spinner de carga y animaciones
+// CSS para el spinner de carga, animaciones y notificaciones mejoradas
 const style = document.createElement('style');
 style.textContent = `
     .loading-spinner {
@@ -419,31 +769,138 @@ style.textContent = `
         50% { opacity: 0.7; }
     }
     
+    /* Estilos mejorados para notificaciones */
     .notification-content {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        align-items: flex-start;
         gap: 12px;
+        padding: 16px 20px;
+        position: relative;
+    }
+    
+    .notification-icon {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+        color: white;
+        margin-top: 2px;
+    }
+    
+    .notification-success .notification-icon {
+        background: #49874E;
+    }
+    
+    .notification-error .notification-icon {
+        background: #EF4444;
+    }
+    
+    .notification-info .notification-icon {
+        background: #AA5FC7;
+    }
+    
+    .notification-warning .notification-icon {
+        background: #F59E0B;
+    }
+    
+    .notification-body {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .notification-message {
+        color: #333333;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.4;
+        word-wrap: break-word;
+        display: block;
     }
     
     .notification-close {
+        flex-shrink: 0;
         background: none;
         border: none;
-        color: white;
-        font-size: 20px;
+        color: #666666;
         cursor: pointer;
-        padding: 0;
+        padding: 4px;
         width: 24px;
         height: 24px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%;
-        transition: background-color 0.2s;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        margin-top: 2px;
     }
     
     .notification-close:hover {
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: #f8f5f8;
+        color: #333333;
+    }
+    
+    .notification-close:active {
+        transform: scale(0.95);
+    }
+    
+    .notification-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, currentColor, transparent);
+        opacity: 0.3;
+    }
+    
+    /* Responsive design para notificaciones */
+    @media (max-width: 768px) {
+        #notification-container {
+            top: 80px !important;
+            right: 16px !important;
+            left: 16px !important;
+            max-width: none !important;
+        }
+        
+        .notification-content {
+            padding: 14px 16px;
+        }
+        
+        .notification-message {
+            font-size: 13px;
+        }
+        
+        .notification-icon {
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+        }
+        
+        .notification-close {
+            width: 20px;
+            height: 20px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        #notification-container {
+            top: 70px !important;
+            right: 12px !important;
+            left: 12px !important;
+        }
+        
+        .notification-content {
+            padding: 12px 14px;
+            gap: 10px;
+        }
+        
+        .notification-message {
+            font-size: 12px;
+        }
     }
     
     /* Animaciones para el carrito */
@@ -453,6 +910,95 @@ style.textContent = `
     
     .cart-count {
         transition: transform 0.3s ease;
+    }
+    
+    /* Animación de entrada mejorada */
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+    
+    /* Efecto de hover para notificaciones con paleta corporativa */
+    .notification:hover {
+        transform: translateX(-4px);
+        box-shadow: 0 12px 40px rgba(73, 135, 78, 0.2);
+    }
+    
+    /* Animación de la barra de progreso */
+    @keyframes progressBar {
+        from {
+            transform: scaleX(1);
+        }
+        to {
+            transform: scaleX(0);
+        }
+    }
+    
+    /* Estilos responsivos para el modal */
+    @media (max-width: 768px) {
+        .custom-modal {
+            max-width: 95% !important;
+            margin: 20px !important;
+        }
+        
+        .modal-header h3 {
+            font-size: 16px !important;
+        }
+        
+        .modal-body p {
+            font-size: 14px !important;
+        }
+        
+        .modal-actions {
+            flex-direction: column !important;
+            gap: 8px !important;
+        }
+        
+        .modal-btn {
+            width: 100% !important;
+            min-width: auto !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .custom-modal {
+            max-width: 98% !important;
+            margin: 10px !important;
+        }
+        
+        .modal-header {
+            padding: 20px 20px 12px 20px !important;
+        }
+        
+        .modal-body {
+            padding: 20px !important;
+        }
+        
+        .modal-header h3 {
+            font-size: 15px !important;
+        }
+        
+        .modal-body p {
+            font-size: 13px !important;
+            margin-bottom: 20px !important;
+        }
     }
 `;
 document.head.appendChild(style);

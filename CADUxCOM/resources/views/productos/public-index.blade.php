@@ -16,6 +16,29 @@
     
     <!-- JavaScript del carrito -->
     <script src="{{ asset('js/cart.js') }}"></script>
+    
+    <!-- Estilos específicos para la página de productos -->
+    <style>
+        /* Espaciado superior específico para la página de productos */
+        .page-container {
+            padding-top: 90px; /* Espacio mínimo para el header fijo */
+        }
+        
+        main {
+            margin-top: 10px; /* Espacio adicional reducido */
+        }
+        
+        /* Responsive para el espaciado */
+        @media (max-width: 768px) {
+            .page-container {
+                padding-top: 100px; /* Espacio reducido en móviles */
+            }
+            
+            main {
+                margin-top: 5px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="page-container">
@@ -229,8 +252,9 @@
 
                                                 @if($producto->Cantidad > 0)
                                                     <button type="button" class="add-to-cart-btn" 
-                                                            onclick="addToCart({{ $producto->Id_Producto }})">
-                                                        Agregar
+                                                            onclick="addToCart({{ $producto->Id_Producto }})"
+                                                            id="add-cart-btn-{{ $producto->Id_Producto }}">
+                                                        <span class="btn-text">Agregar</span>
                                                     </button>
                                                 @else
                                                     <button disabled class="add-to-cart-btn">
@@ -274,6 +298,9 @@
         <x-footer />
     </div>
 
+    {{-- Scripts centralizados del carrito --}}
+    <x-cart-scripts />
+
     <script>
         // Función para aumentar cantidad
         function increaseQty(productId) {
@@ -294,37 +321,6 @@
             }
         }
 
-        // Función para agregar al carrito (usando sistema unificado)
-        function addToCart(productId) {
-            window.cartManager.addToCart(productId, 1);
-        }
-
-        // Función para mostrar notificaciones
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white font-medium transform transition-all duration-300 ${
-                type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            }`;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            // Animar entrada
-            setTimeout(() => {
-                notification.style.transform = 'translateX(0)';
-            }, 100);
-            
-            // Remover después de 3 segundos
-            setTimeout(() => {
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 3000);
-        }
-
-        // La función updateCartCounter ahora está en cart.js
-
         // Función para ir arriba
         function scrollToTop() {
             window.scrollTo({
@@ -342,85 +338,6 @@
                 scrollButton.style.display = 'none';
             }
         });
-
-        // Función para manejar favoritos
-        function toggleFavorites(productId) {
-            fetch('{{ route("wishlist.add") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: 1
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification('Producto agregado a tus favoritos', 'success');
-                    updateWishlistCount();
-                    // Cambiar el icono a favorito lleno
-                    const btn = document.getElementById(`favorites-btn-${productId}`);
-                    if (btn) {
-                        const img = btn.querySelector('img');
-                        img.src = '{{ asset("images/heart-filled-icon.svg") }}';
-                        btn.title = 'Eliminar de favoritos';
-                    }
-                } else if (data.redirect) {
-                    // Redirigir al login si no está autenticado
-                    window.location.href = data.redirect;
-                } else {
-                    showNotification(data.error || 'Error al agregar a favoritos', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error al agregar a favoritos', 'error');
-            });
-        }
-
-        // Función para actualizar contador de favoritos
-        function updateWishlistCount() {
-            fetch('{{ route("wishlist.count") }}')
-            .then(response => response.json())
-            .then(data => {
-                const wishlistCount = document.getElementById('wishlist-count');
-                if (wishlistCount) {
-                    wishlistCount.textContent = data.count;
-                }
-            })
-            .catch(error => {
-                console.error('Error updating wishlist count:', error);
-            });
-        }
-
-        // Función para mostrar notificaciones
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg max-w-sm ${
-                type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
-                type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' :
-                'bg-blue-100 text-blue-800 border border-blue-200'
-            }`;
-            
-            notification.innerHTML = `
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        ${type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' :
-                          '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'}
-                    </svg>
-                    <span class="text-sm font-medium">${message}</span>
-                </div>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 5000);
-        }
 
         // Inicializar
         document.addEventListener('DOMContentLoaded', function() {

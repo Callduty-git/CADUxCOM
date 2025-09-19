@@ -286,6 +286,6 @@ class Producto extends Model
         $amount = number_format($discount['discount_amount'], 0, ',', '.');
         $percentage = round($discount['discount_percentage'], 0);
         
-        return "Ahorras $${amount} ({$percentage}%)";
+        return "Ahorras \${$amount} ({$percentage}%)";
     }
 }
