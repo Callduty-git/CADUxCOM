@@ -7,20 +7,23 @@
         <span class="logo-text">CADUxCOM</span>
     </div>
 
-
     <div class="right-section">
         <div class="dropdown">
             <img src="{{ asset('images/icon-user.png') }}" alt="Usuario" class="header-icon" id="cuUserIcon">
 
             <div class="dropdown-menu" id="cuUserMenu">
                 <!-- Info de empresa -->
+                @php
+                    $empresa = Auth::guard('empresa')->user();
+                @endphp
+
                 <div class="dropdown-user-info">
-                    @if(Auth::guard('empresa')->user()->Foto)
-                        <img src="{{ asset('storage/' . Auth::guard('empresa')->user()->Foto) }}" alt="Empresa" class="dropdown-company-icon">
+                    @if($empresa && $empresa->Foto)
+                        <img src="{{ asset('storage/' . $empresa->Foto) }}" alt="Empresa" class="dropdown-company-icon">
                     @else
                         <img src="{{ asset('images/icon-company.png') }}" alt="Empresa" class="dropdown-company-icon">
                     @endif
-                    <p class="dropdown-company-name">Empresa {{ Auth::guard('empresa')->user()->Nombre ?? 'x' }}</p>
+                    <p class="dropdown-company-name">Empresa {{ $empresa->Nombre ?? 'Invitado' }}</p>
                 </div>
 
                 <!-- Opciones -->
@@ -63,7 +66,6 @@
         </div>
     </div>
 </header>
-
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

@@ -99,6 +99,12 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->name('regi
 Route::get('/login', [CustomLoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [CustomLoginController::class, 'login']);
 Route::post('/logout', [CustomLoginController::class, 'logout'])->name('logout');
+
+// Rutas de verificación de email
+Route::get('/verify-email/{id}/{hash}', [\App\Http\Controllers\Auth\UserEmailVerificationController::class, 'verify'])
+    ->name('verification.verify');
+Route::post('/resend-verification', [\App\Http\Controllers\Auth\UserEmailVerificationController::class, 'resend'])
+    ->name('verification.resend');
 Route::get('/navbar', [CategoriaController::class, 'navbar'])->name('navbar');
 Route::get('/subcategorias/{id}', [CategoriaController::class, 'getSubcategorias']);
 
@@ -138,9 +144,10 @@ Route::get('/wishlist/count', [WishlistController::class, 'getCount'])->name('wi
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    // Esta ruta fue modificada para que funcione correctamente con empresa
+    Route::get('/dashboard', [EmpresaDashboardController::class, 'index'])
+        ->middleware(['auth:empresa'])
+        ->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -168,6 +175,30 @@ Route::post('/empresa/logout', function () {
     request()->session()->regenerateToken();
     return redirect('/login');
 })->name('empresa.logout');
+
+/*
+|--------------------------------------------------------------------------
+| Rutas de administración de empresas
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/empresas/pending', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'index'])
+        ->name('empresas.pending');
+    Route::get('/empresas/{empresa}', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'show'])
+        ->name('empresas.show');
+    Route::post('/empresas/{empresa}/approve', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'approve'])
+        ->name('empresas.approve');
+    Route::post('/empresas/{empresa}/reject', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'reject'])
+        ->name('empresas.reject');
+    Route::get('/empresas/approved', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'approved'])
+        ->name('empresas.approved');
+    Route::get('/empresas/rejected', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'rejected'])
+        ->name('empresas.rejected');
+    Route::get('/empresas/{empresa}/certificado', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'downloadCertificado'])
+        ->name('empresas.certificado');
+    Route::get('/empresas/{empresa}/foto', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'viewFoto'])
+        ->name('empresas.foto');
+});
 
 /*
 |--------------------------------------------------------------------------

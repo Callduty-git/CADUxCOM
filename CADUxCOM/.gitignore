@@ -23,3 +23,4 @@ yarn-error.log
 /.zed
 # Evitar carpeta duplicada
 CADUxCOM/.DS_Store
+.DS_Store

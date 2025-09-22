@@ -23,42 +23,137 @@
             flex: 1;
         }
         
-        /* ====== SIDEBAR CONTAINER ====== */
-        .sidebar-container {
-            position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 450px;
-            height: 80vh;
-            z-index: 1000;
-            transition: all 0.3s ease;
+         /* ====== SIDEBAR CONTAINER ====== */
+         .sidebar-container {
+            position: fixed !important;
+            left: 20px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 100px !important;
+            height: auto !important;
+            z-index: 9999 !important;
+            transition: all 0.3s ease !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            right: auto !important;
+            bottom: auto !important;
         }
         
         .sidebar {
-            position: absolute;
-            top: 0;
-            left: 0;
+            width: 100px;
+            background-color: #ffffff;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 20px;
+            border: 2px solid rgba(0, 0, 0, 0.178);
+            position: relative;
             z-index: 1001;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             opacity: 0.95;
+            overflow: hidden;
         }
         
         .sidebar:hover {
+            width: 280px !important;
             opacity: 1;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-            transform: scale(1.02);
+        }
+        
+        .sidebar:hover .nav-buttons .btn span {
+            opacity: 1 !important;
         }
         
         .sidebar-container:hover {
-            transform: translateY(-50%) scale(1.02);
+            width: 280px !important;
+        }
+        
+        .nav-buttons {
+            width: 100%;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 35px;
+            align-items: center;
+        }
+        
+        .nav-buttons .btn {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
+            background-color: #d88ef0;
+            color: white;
+            padding: 15px 20px;
+            text-align: left;
+            border-radius: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            width: 60px;
+            min-width: 60px;
+            white-space: nowrap;
+        }
+        
+        .sidebar:hover .nav-buttons .btn {
+            width: 240px !important;
+            justify-content: flex-start !important;
+        }
+        
+        .nav-buttons .btn i {
+            font-size: 20px !important;
+            opacity: 0.9 !important;
+            min-width: 20px !important;
+            text-align: center !important;
+        }
+        
+        .nav-buttons .btn span {
+            opacity: 0 !important;
+            transition: opacity 0.3s ease !important;
+            font-size: 14px !important;
+        }
+        
+        .nav-buttons .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-buttons .btn:hover::before {
+            left: 100%;
+        }
+        
+        .nav-buttons .btn:hover {
+            background-color: #b963d1;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(185, 99, 209, 0.4);
+            border-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-buttons .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(185, 99, 209, 0.3);
         }
         
         .dashboard-panel {
             width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 1200px; /* Mantener el tamaño original */
+            margin: 0 auto; /* Centrar el panel */
         }
+
         
         .edit-container {
             background: white;

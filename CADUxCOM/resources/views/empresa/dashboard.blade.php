@@ -14,33 +14,49 @@
         
         /* ====== SIDEBAR CONTAINER ====== */
         .sidebar-container {
-            position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 450px;
-            height: 80vh;
-            z-index: 1000;
-            transition: all 0.3s ease;
+            position: fixed !important;
+            left: 20px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 80px !important;
+            height: auto !important;
+            z-index: 9999 !important;
+            transition: all 0.3s ease !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            right: auto !important;
+            bottom: auto !important;
         }
         
         .sidebar {
-            position: absolute;
-            top: 0;
-            left: 0;
+            width: 80px;
+            background-color: #ffffff;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 20px;
+            border: 2px solid rgba(0, 0, 0, 0.178);
+            position: relative;
             z-index: 1001;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             opacity: 0.95;
+            overflow: hidden;
         }
         
         .sidebar:hover {
+            width: 280px !important;
             opacity: 1;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-            transform: scale(1.02);
+        }
+        
+        .sidebar:hover .nav-buttons .btn span {
+            opacity: 1 !important;
         }
         
         .sidebar-container:hover {
-            transform: translateY(-50%) scale(1.02);
+            width: 280px !important;
         }
         
         .dashboard-panel {
@@ -453,7 +469,124 @@
             margin: 10px 0;
             opacity: 0.95;
         }
+        
+        .nav-buttons {
+            width: 100%;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 35px;
+            align-items: center;
+        }
+        
+        .nav-buttons .btn {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
+            background-color: #d88ef0;
+            color: white;
+            padding: 15px 20px;
+            text-align: left;
+            border-radius: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            width: 50px;
+            min-width: 50px;
+            white-space: nowrap;
+        }
+        
+        .sidebar:hover .nav-buttons .btn {
+            width: 240px !important;
+            justify-content: flex-start !important;
+        }
+        
+        .nav-buttons .btn i {
+            font-size: 20px !important;
+            opacity: 0.9 !important;
+            min-width: 20px !important;
+            text-align: center !important;
+        }
+        
+        .nav-buttons .btn span {
+            opacity: 0 !important;
+            transition: opacity 0.3s ease !important;
+            font-size: 14px !important;
+        }
+        
+        .nav-buttons .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-buttons .btn:hover::before {
+            left: 100%;
+        }
+        
+        .nav-buttons .btn:hover {
+            background-color: #b963d1;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(185, 99, 209, 0.4);
+            border-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-buttons .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(185, 99, 209, 0.3);
+        }
+        
     </style>
+    
+    <!-- SCRIPT INMEDIATO PARA ALINEAR SIDEBAR A LA IZQUIERDA -->
+    <script>
+        // Ejecutar inmediatamente, antes de que se cargue cualquier otro script
+        (function() {
+            function forceLeftAlign() {
+                const container = document.querySelector('.sidebar-container');
+                if (container) {
+                    container.style.cssText = `
+                        position: fixed !important;
+                        left: 20px !important;
+                        top: 50% !important;
+                        transform: translateY(-50%) !important;
+                        width: 80px !important;
+                        height: auto !important;
+                        z-index: 9999 !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        right: auto !important;
+                        bottom: auto !important;
+                    `;
+                }
+            }
+            
+            // Ejecutar inmediatamente
+            forceLeftAlign();
+            
+            // Ejecutar cuando el DOM esté listo
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', forceLeftAlign);
+            } else {
+                forceLeftAlign();
+            }
+            
+            // Ejecutar continuamente
+            setInterval(forceLeftAlign, 100);
+        })();
+    </script>
 </head>
 <body>
     
@@ -463,12 +596,24 @@
     <div class="sidebar-container">
         <aside class="sidebar" id="sidebar">
             <nav class="nav-buttons">
-                <a href="{{ route('empresa.dashboard') }}" class="btn">Inicio</a>
-                <a href="{{ route('empresa.productos.index') }}" class="btn">Productos</a>
-                <a href="{{ route('empresa.facturas') }}" class="btn">Log de Productos</a>
-                <form method="POST" action="{{ route('empresa.logout') }}" style="margin-top: 10px;">
+                <a href="{{ route('empresa.dashboard') }}" class="btn">
+                    <i class="fas fa-home"></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="{{ route('empresa.productos.index') }}" class="btn">
+                    <i class="fas fa-box"></i>
+                    <span>Productos</span>
+                </a>
+                <a href="{{ route('empresa.facturas') }}" class="btn">
+                    <i class="fas fa-list-alt"></i>
+                    <span>Log de Productos</span>
+                </a>
+                <form method="POST" action="{{ route('empresa.logout') }}" style="margin: 0;">
                     @csrf
-                    <button type="submit" class="btn" aria-label="Cerrar sesión">Salir</button>
+                    <button type="submit" class="btn" aria-label="Cerrar sesión">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Salir</span>
+                    </button>
                 </form>
             </nav>
         </aside>
@@ -772,29 +917,41 @@
             }, 5000); // 5000 milisegundos = 5 segundos
         }
         
-        // Funcionalidad del sidebar deslizable
-        const sidebar = document.getElementById('sidebar');
-        let sidebarTimeout;
-        
-        // Mostrar sidebar al hacer hover en el área izquierda
-        document.addEventListener('mousemove', function(e) {
-            if (e.clientX <= 20) { // Área de 20px desde el borde izquierdo
-                clearTimeout(sidebarTimeout);
-                sidebar.style.left = '0';
+        // Funcionalidad del sidebar alineado a la izquierda - FORZADO
+        function forceLeftAlignSidebar() {
+            const sidebarContainer = document.querySelector('.sidebar-container');
+            if (sidebarContainer) {
+                sidebarContainer.style.cssText = `
+                    position: fixed !important;
+                    left: 20px !important;
+                    top: 50% !important;
+                    transform: translateY(-50%) !important;
+                    width: 80px !important;
+                    height: auto !important;
+                    z-index: 9999 !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    right: auto !important;
+                    bottom: auto !important;
+                `;
             }
-        });
+        }
         
-        // Ocultar sidebar cuando el mouse sale del área
-        sidebar.addEventListener('mouseleave', function() {
-            sidebarTimeout = setTimeout(function() {
-                sidebar.style.left = '-250px';
-            }, 300); // Delay de 300ms antes de ocultar
-        });
+        // Aplicar inmediatamente
+        forceLeftAlignSidebar();
         
-        // Cancelar ocultar si el mouse vuelve al sidebar
-        sidebar.addEventListener('mouseenter', function() {
-            clearTimeout(sidebarTimeout);
-        });
+        // Aplicar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', forceLeftAlignSidebar);
+        
+        // Aplicar cuando la ventana se carga
+        window.addEventListener('load', forceLeftAlignSidebar);
+        
+        // Aplicar continuamente
+        setInterval(forceLeftAlignSidebar, 50);
+        
+        // Aplicar en cualquier cambio
+        const observer = new MutationObserver(forceLeftAlignSidebar);
+        observer.observe(document.body, { childList: true, subtree: true });
     });
     </script>
 

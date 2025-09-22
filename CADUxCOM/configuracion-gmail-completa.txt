@@ -1,0 +1,84 @@
+# CONFIGURACIÓN COMPLETA DE GMAIL PARA CADUxCOM
+# ================================================
+
+# 1. CONFIGURACIÓN EN TU ARCHIVO .env
+# ====================================
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=caduxcom.store@gmail.com
+MAIL_PASSWORD=AQUI_VA_TU_CONTRASEÑA_DE_APLICACION
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="caduxcom.store@gmail.com"
+MAIL_FROM_NAME="CADUxCOM"
+
+# 2. PASOS PARA OBTENER LA CONTRASEÑA DE APLICACIÓN
+# ================================================
+
+# Paso 1: Ve a tu cuenta de Google (caduxcom.store@gmail.com)
+# Paso 2: Ve a "Seguridad" en tu cuenta de Google
+# Paso 3: Activa "Verificación en 2 pasos" (si no está activada)
+# Paso 4: Busca "Contraseñas de aplicaciones"
+# Paso 5: Selecciona "Mail" como aplicación
+# Paso 6: Copia la contraseña generada (16 caracteres sin espacios)
+# Paso 7: Pega esa contraseña en MAIL_PASSWORD en tu .env
+
+# 3. CONFIGURACIÓN ALTERNATIVA (SI NO FUNCIONA)
+# =============================================
+
+# Si tienes problemas, prueba con estas configuraciones:
+
+# Opción A: Puerto 465 con SSL
+# MAIL_PORT=465
+# MAIL_ENCRYPTION=ssl
+
+# Opción B: Usar Mailtrap para pruebas (temporal)
+# MAIL_MAILER=smtp
+# MAIL_HOST=smtp.mailtrap.io
+# MAIL_PORT=2525
+# MAIL_USERNAME=tu_usuario_mailtrap
+# MAIL_PASSWORD=tu_password_mailtrap
+# MAIL_ENCRYPTION=tls
+
+# 4. COMANDOS PARA APLICAR LA CONFIGURACIÓN
+# =========================================
+
+# Después de cambiar el .env, ejecuta:
+# php artisan config:clear
+# php artisan config:cache
+
+# 5. PROBAR EL SISTEMA
+# ====================
+
+# Para probar que funciona:
+# php artisan test:email-notifications caduxcom.store@gmail.com
+
+# Para ver las vistas previas de los emails:
+# php artisan email:preview
+
+# 6. SOLUCIÓN DE PROBLEMAS
+# ========================
+
+# Si ves el error "Username and Password not accepted":
+# 1. Verifica que la verificación en 2 pasos esté activada
+# 2. Asegúrate de usar la contraseña de aplicación, no tu contraseña normal
+# 3. La contraseña debe ser de 16 caracteres sin espacios
+
+# Si ves el error "Less secure app access":
+# 1. No uses "Acceso de aplicaciones menos seguras"
+# 2. Usa siempre contraseñas de aplicación
+
+# 7. CONFIGURACIÓN DE PRODUCCIÓN
+# ==============================
+
+# Para producción, considera usar:
+# - SendGrid
+# - Mailgun
+# - Amazon SES
+# - Postmark
+
+# Estos servicios son más confiables que Gmail SMTP
+
+
+

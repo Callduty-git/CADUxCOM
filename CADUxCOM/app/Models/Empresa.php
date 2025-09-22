@@ -27,6 +27,10 @@ class Empresa extends Authenticatable
         'NIT',
         'Certificado_Camara_de_comercio',
         'password',
+        'status',
+        'approved_at',
+        'rejected_at',
+        'rejection_reason',
     ];
 
     protected $hidden = [
@@ -37,6 +41,8 @@ class Empresa extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'approved_at' => 'datetime',
+        'rejected_at' => 'datetime',
     ];
 
     /**

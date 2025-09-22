@@ -3,26 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard Empresa</title>
+    
+    <!-- Estilos y scripts -->
     <link rel="stylesheet" href="{{ asset('css/empresa-dashboard.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+        }
+
         .header {
             border-bottom: 3px solid #006400;
         }
-        /* ====== MODAL ESTILOS ====== */
-        .modal { display: none; position: fixed; z-index: 2000; padding-top: 60px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);}
-        .modal-content { background-color: #fff; margin: auto; padding: 20px; border-radius: 10px; width: 500px; max-width: 90%; box-shadow: 0px 4px 8px rgba(0,0,0,0.3);}
-        .close { color: #aaa; float: right; font-size: 24px; font-weight: bold; cursor: pointer;}
-        .modal-content label { display: block; margin-top: 10px; font-weight: bold;}
-        .modal-content input { width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid #ccc;}
-        .save-btn { margin-top: 15px; padding: 10px 15px; background-color: purple; color: white; border: none; border-radius: 6px; cursor: pointer;}
-        /* ====== ESTILOS MODAL BIENVENIDA ====== */
-        .modal-bienvenida {
-            display: none; /* Oculto por defecto */
+
+        /* ========== SIDEBAR ANIMADO ========== */
+        .sidebar-container {
+            position: fixed !important;
+            left: 20px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 100px !important;
+            z-index: 9999 !important;
+        }
+
+        .sidebar {
+            width: 100px;
+            background-color: #ffffff;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 20px;
+            border: 2px solid rgba(0, 0, 0, 0.178);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            opacity: 0.95;
+            overflow: hidden;
+        }
+
+        .sidebar:hover {
+            width: 280px !important;
+            opacity: 1;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar:hover .nav-buttons .btn span {
+            opacity: 1 !important;
+        }
+
+        .sidebar-container:hover {
+            width: 280px !important;
+        }
+
+        .nav-buttons {
+            width: 100%;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 35px;
+            align-items: center;
+        }
+
+        .nav-buttons .btn {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
+            background-color: #d88ef0;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            font-size: 16px;
+            width: 60px;
+            min-width: 60px;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .sidebar:hover .nav-buttons .btn {
+            width: 240px !important;
+        }
+
+        .nav-buttons .btn i {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        .nav-buttons .btn span {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 14px;
+        }
+
+        .nav-buttons .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-buttons .btn:hover::before {
+            left: 100%;
+        }
+
+        .nav-buttons .btn:hover {
+            background-color: #b963d1;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(185, 99, 209, 0.4);
+            border-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-panel {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ========== MODAL ESTILOS ========== */
+        .modal {
+            display: none;
             position: fixed;
-            z-index: 3000; /* Z-index alto para estar encima de otros modales */
+            z-index: 2000;
+            padding-top: 60px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .save-btn {
+            margin-top: 15px;
+            padding: 10px 15px;
+            background-color: purple;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* ========== MODAL BIENVENIDA ========== */
+        .modal-bienvenida {
+            display: none;
+            position: fixed;
+            z-index: 3000;
             left: 0;
             top: 0;
             width: 100%;
@@ -32,9 +210,11 @@
             justify-content: center;
             align-items: center;
         }
+
         .modal-visible {
-            display: flex; /* Muestra el modal */
+            display: flex;
         }
+
         .modal-contenido-bienvenida {
             background-color: #333;
             color: #fff;
@@ -44,36 +224,40 @@
             width: 400px;
             max-width: 90%;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-            border: 2px solid #8B4513; /* Borde estilo madera */
-            position: relative;
+            border: 2px solid #8B4513;
             font-family: 'Inter', sans-serif;
         }
+
         .header-modal-bienvenida {
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 10px;
         }
+
         .header-modal-bienvenida .logo {
             width: 50px;
             height: auto;
             margin-right: 10px;
         }
+
         .title-modal {
             font-size: 1.5rem;
             font-weight: 700;
         }
+
         .body-modal-bienvenida h3 {
             font-size: 1.25rem;
             font-weight: 600;
             margin: 10px 0;
         }
+
         .body-modal-bienvenida p {
             font-size: 1rem;
             font-weight: 400;
         }
     </style>
-</head>
+    </head>
 <body>
     
     <!-- NUEVO HEADER -->

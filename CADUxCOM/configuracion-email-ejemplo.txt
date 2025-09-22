@@ -1,0 +1,30 @@
+# Configuración de Email para CADUxCOM
+# Copia estas configuraciones a tu archivo .env
+
+# Configuración de correo
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=caduxcom.store@gmail.com
+MAIL_PASSWORD=tu-contraseña-de-aplicación-de-gmail
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="caduxcom.store@gmail.com"
+MAIL_FROM_NAME="CADUxCOM"
+
+# Email del administrador (donde llegan las notificaciones de registro)
+ADMIN_EMAIL=caduxcom.store@gmail.com
+
+# Configuración de colas (opcional para mejor rendimiento)
+QUEUE_CONNECTION=database
+
+# INSTRUCCIONES:
+# 1. Copia estas líneas a tu archivo .env
+# 2. Reemplaza "tu-contraseña-de-aplicación-de-gmail" con la contraseña de aplicación de Gmail
+# 3. Para obtener la contraseña de aplicación:
+#    - Ve a tu cuenta de Google
+#    - Activa la verificación en 2 pasos
+#    - Genera una contraseña de aplicación
+#    - Usa esa contraseña en MAIL_PASSWORD
+
+
+

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Empresa;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class CustomLoginController extends Controller
@@ -27,6 +28,16 @@ class CustomLoginController extends Controller
             'email' => $credentials['email'],
             'password' => $credentials['password'],
         ], $request->filled('remember'))) {
+            $user = Auth::guard('web')->user();
+            
+            // Verificar si el email está verificado
+            if (!$user->email_verified) {
+                Auth::guard('web')->logout();
+                return back()->withErrors([
+                    'email' => 'Debes verificar tu email antes de poder iniciar sesión. Revisa tu correo electrónico.',
+                ])->onlyInput('email');
+            }
+            
             $request->session()->regenerate();
             return redirect()->intended(route('dashboard'));
         }
@@ -36,6 +47,23 @@ class CustomLoginController extends Controller
             'email' => $credentials['email'],
             'password' => $credentials['password'],
         ], $request->filled('remember'))) {
+            $empresa = Auth::guard('empresa')->user();
+            
+            // Verificar si la empresa está aprobada
+            if ($empresa->status !== 'approved') {
+                Auth::guard('empresa')->logout();
+                
+                $message = match($empresa->status) {
+                    'pending' => 'Tu cuenta está pendiente de aprobación. Recibirás una notificación por correo electrónico una vez que se complete la verificación.',
+                    'rejected' => 'Tu cuenta ha sido rechazada. Contacta al administrador para más información.',
+                    default => 'Tu cuenta no está disponible en este momento.'
+                };
+                
+                return back()->withErrors([
+                    'email' => $message,
+                ])->onlyInput('email');
+            }
+            
             $request->session()->regenerate();
             return redirect()->intended(route('empresa.dashboard'));
         }
