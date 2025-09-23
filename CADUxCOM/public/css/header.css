@@ -1,5 +1,5 @@
 /* === RESET BÁSICO PARA QUITAR ESPACIOS POR DEFECTO === */
-*{
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -17,7 +17,7 @@ body {
 
 /* Asegurar que el contenido principal no quede oculto detrás del header fijo */
 .page-container {
-  padding-top: 100px; /* Compensar el header fijo */
+  padding-top: 110px; /* Compensar el header fijo (coincide con altura del header) */
 }
 
 /* Para layouts que ya tienen su propio espaciado */
@@ -37,7 +37,8 @@ ul, li {
 /* === ESTILOS DEL HEADER === */
 .main-header {
   background-color: #90D575;
-  padding: 20px 40px 20px 0px;
+  min-height: 110px; /* altura mínima */
+  padding: 15px 40px 15px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -52,19 +53,30 @@ ul, li {
 }
 
 /* Altura declarativa para cálculo del navbar sticky */
-:root { --header-h: 100px; }
+:root { --header-h: 110px; }
 
 .left-section {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-left: -20px;
+  gap: 10px;
   padding-left: 0;
 }
 
+/* ==== LOGO ==== */
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
 .logo {
-  height: 72px;
+  max-height: 80px; /* asegura que no se corte */
+  height: auto;
   width: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .logo-text {
@@ -74,15 +86,8 @@ ul, li {
   font-family: Arial, sans-serif;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
-.logo-link {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none; /* quita subrayado */
-  color: inherit; /* mantiene el color del texto */
-}
 
-
+/* ==== BARRA DE BÚSQUEDA ==== */
 .search-bar {
   position: relative;
   display: flex;
@@ -96,30 +101,6 @@ ul, li {
   min-width: 250px;
   height: 44px;
   overflow: hidden;
-}
-
-.home-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  color: #333;
-  border-radius: 10px;
-  border: 2px solid #000;
-  background: #fff;
-  text-decoration: none;
-  transition: transform 0.15s ease, background 0.2s ease;
-}
-
-.home-link:hover {
-  background: #90D575;
-  transform: scale(1.05);
-}
-
-.home-icon {
-  width: 24px;
-  height: 24px;
 }
 
 .search-input {
@@ -143,32 +124,74 @@ ul, li {
   pointer-events: none;
 }
 
+/* ==== ICONOS DERECHA ==== */
 .right-section {
   display: flex;
-  align-items: center;
-  gap: 30px;
-}
-
-.header-icon {
+  align-items: flex-end;
+  gap: 32px;
   height: 40px;
-  width: 40px;
-  border-radius: 8px;
-  transition: transform 0.2s ease;
-  cursor: pointer;
-  object-fit: contain;
 }
 
-/* Asegurar que todos los íconos del header tengan el mismo tamaño */
-.right-section img {
+.right-section img.header-icon {
   width: 40px !important;
   height: 40px !important;
   object-fit: contain;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  box-sizing: border-box;
+}
+
+.header-icon {
+  width: 40px !important;
+  height: 40px !important;
+  object-fit: contain;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+  vertical-align: bottom;
+  display: inline-block;
 }
 
 .header-icon:hover {
   transform: scale(1.1);
 }
 
+/* Ícono corazón morado y alineación/estilo contador (restaurado) */
+.header-icon-link {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px; /* separación entre corazón y contador */
+  height: 40px;
+}
+
+.header-icon-link .header-icon[alt="Favoritos"] {
+  width: 40px !important;
+  height: 40px !important;
+  object-fit: contain;
+  border-radius: 8px;
+  /* Morado #AA5FC7 usando filter SVG */
+  filter: invert(32%) sepia(80%) saturate(600%) hue-rotate(230deg);
+  transition: transform 0.2s, filter 0.2s;
+  margin-bottom: 0;
+}
+
+.header-icon-link .header-icon[alt="Favoritos"]:hover {
+  filter: invert(32%) sepia(80%) saturate(600%) hue-rotate(230deg) brightness(1.2);
+  transform: scale(1.1);
+}
+
+.wishlist-count {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #AA5FC7;
+  margin-left: 0;
+  display: flex;
+  align-items: flex-end;
+  height: 40px;
+}
+
+/* ==== DROPDOWN ==== */
 .dropdown {
   position: relative;
   display: inline-block;
@@ -205,19 +228,24 @@ ul, li {
   display: block;
 }
 
+/* ==== RESPONSIVIDAD ==== */
 @media screen and (max-width: 768px) {
   .main-header {
     flex-direction: column;
     align-items: stretch;
     gap: 15px;
-    padding: 15px 20px 15px 0px;
+    padding: 15px 20px;
+    min-height: auto;
   }
 
   .left-section {
     justify-content: center;
     margin-bottom: 10px;
-    margin-left: -10px;
     gap: 12px;
+  }
+
+  .logo {
+    max-height: 65px; /* más pequeño en móvil */
   }
 
   .search-bar {
@@ -264,7 +292,6 @@ ul, li {
   height: 44px;
   transition: transform 0.2s ease;
   cursor: pointer;
-  /* Completamente transparente - sin ningún efecto visual */
   border: none !important;
   outline: none !important;
   background: transparent !important;
@@ -275,12 +302,8 @@ ul, li {
 
 /* Sobrescribir específicamente el estilo header-icon para el carrito */
 .cart-icon-container .cart-icon {
-  border-radius: 0 !important;
-  background: transparent !important;
-  border: none !important;
   width: 40px !important;
   height: 40px !important;
-  box-shadow: none !important;
 }
 
 .cart-icon:hover {
@@ -303,8 +326,6 @@ ul, li {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: cartBadgePop 0.4s ease-out;
-  /* Sin bordes blancos */
-  border: none;
 }
 
 .cart-badge-number {
@@ -320,128 +341,35 @@ ul, li {
 
 /* Animación de entrada del badge */
 @keyframes cartBadgePop {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-/* Animación cuando cambia el número */
-.cart-badge.update {
-  animation: cartBadgeUpdate 0.5s ease-out;
-}
+.cart-badge.update { animation: cartBadgeUpdate 0.5s ease-out; }
 
 @keyframes cartBadgeUpdate {
-  0% {
-    transform: scale(1);
-  }
-  25% {
-    transform: scale(1.3);
-  }
-  50% {
-    transform: scale(0.9);
-  }
-  75% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  25% { transform: scale(1.3); }
+  50% { transform: scale(0.9); }
+  75% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }
 
-/* Hover effect para el badge */
 .cart-badge:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(170, 95, 199, 0.5), 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Responsive design para el carrito */
 @media (max-width: 768px) {
-  .cart-icon-container {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .cart-icon {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .cart-badge {
-    min-width: 16px;
-    min-height: 16px;
-    top: -5px;
-    right: -5px;
-  }
-  
-  .cart-badge-number {
-    font-size: 0.65rem;
-    padding: 1px 3px;
-  }
+  .cart-icon-container { width: 40px; height: 40px; }
+  .cart-icon { width: 40px; height: 40px; }
+  .cart-badge { min-width: 16px; min-height: 16px; top: -5px; right: -5px; }
+  .cart-badge-number { font-size: 0.65rem; padding: 1px 3px; }
 }
 
 @media (max-width: 480px) {
-  .cart-icon-container {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .cart-icon {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .cart-badge {
-    min-width: 14px;
-    min-height: 14px;
-    top: -4px;
-    right: -4px;
-  }
-  
-  .cart-badge-number {
-    font-size: 0.6rem;
-    padding: 1px 2px;
-  }
-}
-
-@keyframes cartPulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 4px 15px rgba(170, 95, 199, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
-  50% {
-    transform: scale(1.15);
-    box-shadow: 0 6px 20px rgba(170, 95, 199, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 4px 15px rgba(170, 95, 199, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
-}
-
-.cart-count:hover {
-  animation: none;
-  transform: scale(1.2);
-  box-shadow: 0 8px 25px rgba(170, 95, 199, 0.7), 0 6px 15px rgba(0, 0, 0, 0.4);
-  background: linear-gradient(135deg, #BB6FD0 0%, #9F7AEA 100%);
-}
-
-/* Responsive para el contador del carrito */
-@media screen and (max-width: 768px) {
-  .cart-count {
-    top: -8px;
-    right: -8px;
-    min-width: 20px;
-    height: 20px;
-    font-size: 0.75rem;
-    border: 2px solid #90D575;
-    box-shadow: 0 3px 12px rgba(170, 95, 199, 0.4), 0 2px 6px rgba(0, 0, 0, 0.2);
-  }
+  .cart-icon-container { width: 36px; height: 36px; }
+  .cart-icon { width: 36px; height: 36px; }
+  .cart-badge { min-width: 14px; min-height: 14px; top: -4px; right: -4px; }
+  .cart-badge-number { font-size: 0.6rem; padding: 1px 2px; }
 }

@@ -1,0 +1,112 @@
+/* ====== CONTENEDOR GENERAL ====== */
+.profile-container {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+}
+
+/* ====== TÍTULO ====== */
+.profile-title {
+    text-align: center;
+    color: #49874E;
+    margin-bottom: 20px;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* ====== ALERTAS ====== */
+.alert-success {
+    background-color: #89CF6D;
+    color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* ====== CARD ====== */
+.profile-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 30px;
+}
+
+/* ====== GRID ====== */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* ====== CAMPOS ====== */
+.form-group label {
+    color: #49874E;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.error {
+    color: red;
+    font-size: 14px;
+}
+
+/* ====== BOTONES ====== */
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.btn-save {
+    background-color: #49874E;
+    color: #fff;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-save:hover {
+    background-color: #3c6e3e;
+}
+
+.btn-delete {
+    background-color: #AA5FC7;
+    color: #fff;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-delete:hover {
+    background-color: #8c4ea6;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 768px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn-save, .btn-delete {
+        width: 100%;
+        text-align: center;
+    }
+}

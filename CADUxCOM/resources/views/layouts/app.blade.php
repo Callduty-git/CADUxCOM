@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="{{ asset('css/subcategorias.css') }}">
     <link rel="stylesheet" href="{{ asset('css/favorites.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
+
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
@@ -40,6 +42,6 @@
 
         <!-- FOOTER -->
         <x-footer />
-    </div>
-</body>
+        </div>
+    </body>
 </html>

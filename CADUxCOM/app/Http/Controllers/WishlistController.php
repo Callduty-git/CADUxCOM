@@ -188,49 +188,39 @@ class WishlistController extends Controller
      */
     public function clear(Request $request)
     {
-        try {
-            $userId = Auth::id();
-            
-            if (!$userId) {
-                if ($request->wantsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Usuario no autenticado'
-                    ], 401);
-                }
-                return redirect()->route('login')->with('error', 'Debes iniciar sesión para realizar esta acción.');
-            }
+        \Log::info('WishlistController::clear called');
 
-            $success = Wishlist::clearUserWishlist($userId);
+        $userId = Auth::id();
+        \Log::info('User ID:', ['user_id' => $userId]);
 
-            if ($success) {
-                if ($request->wantsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Lista de favoritos limpiada correctamente',
-                        'wishlist_count' => 0
-                    ]);
-                }
-                return redirect()->route('wishlist.index')->with('success', 'Lista de favoritos limpiada correctamente');
-            }
-
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error al limpiar la lista de favoritos'
-                ], 500);
-            }
-            return redirect()->route('wishlist.index')->with('error', 'Error al limpiar la lista de favoritos');
-        } catch (\Exception $e) {
-            \Log::error('Error in WishlistController::clear: ' . $e->getMessage());
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error interno del servidor'
-                ], 500);
-            }
-            return redirect()->route('wishlist.index')->with('error', 'Error interno del servidor');
+        if (!$userId) {
+            \Log::warning('User not authenticated in clear method');
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no autenticado'
+            ], 401);
         }
+
+        $countBefore = Wishlist::getWishlistCount($userId);
+        \Log::info('Items before clear:', ['count' => $countBefore]);
+
+        $success = Wishlist::clearUserWishlist($userId);
+
+        $countAfter = Wishlist::getWishlistCount($userId);
+        \Log::info('Items after clear:', ['count' => $countAfter, 'success' => $success]);
+
+        if ($success) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Lista de favoritos limpiada correctamente',
+                'wishlist_count' => 0
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al limpiar la lista de favoritos'
+        ], 500);
     }
 
     /**

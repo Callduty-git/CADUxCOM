@@ -117,6 +117,8 @@ Route::get('/about', function () {
     return view('about');
 })->name('about');
 
+
+
 // Rutas de páginas legales y de ayuda
 Route::get('/ayuda', function () {
     return view('help');

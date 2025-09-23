@@ -13,7 +13,6 @@
         <div class="dropdown">
             @auth
                 <img src="{{ asset('images/icon-user.png') }}" alt="Usuario" class="header-icon" id="userIcon">
-
                 <div class="dropdown-menu" id="userMenu">
                     @if(Auth::guard('empresa')->check())
                         <a href="{{ route('empresa.dashboard') }}">Perfil empresa</a>
@@ -36,7 +35,10 @@
                 </div>
             @endauth
         </div>
-
+        <a href="{{ route('wishlist.index') }}" class="header-icon-link" title="Mis Favoritos">
+            <img src="{{ asset('images/heart-icon.svg') }}" alt="Favoritos" class="header-icon">
+            <span class="wishlist-count" id="wishlist-count">0</span>
+        </a>
         <img src="{{ asset('images/icon-help.png') }}" alt="Ayuda" class="header-icon">
         <x-cart-counter />
     </div>
@@ -46,7 +48,30 @@
 <script src="{{ asset('js/cart.js') }}"></script>
 
 <script>
+function updateWishlistCountHeader() {
+    // Solo actualizar contador si el usuario está autenticado
+    @auth
+    fetch("{{ route('wishlist.count') }}")
+        .then(response => response.json())
+        .then(data => {
+            const countElement = document.getElementById('wishlist-count');
+            if (countElement) {
+                countElement.textContent = data.count;
+                countElement.style.display = data.count > 0 ? 'flex' : 'none';
+                // Animación micro-interacción
+                countElement.classList.add('update');
+                setTimeout(() => countElement.classList.remove('update'), 500);
+            }
+        })
+        .catch(error => {
+            console.log('Error al obtener contador de wishlist:', error);
+        });
+    @endauth
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    updateWishlistCountHeader();
+
     const userIcon = document.getElementById('userIcon');
     const userMenu = document.getElementById('userMenu');
 

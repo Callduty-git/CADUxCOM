@@ -1000,10 +1000,10 @@ class MapManager {
             warning: 'bg-yellow-500',
             info: 'bg-blue-500'
         };
-        
+
         notification.className = `notification-toast fixed top-4 right-4 z-50 px-6 py-4 rounded-lg text-white font-medium transform transition-all duration-300 shadow-lg ${colors[type] || colors.info}`;
         notification.style.transform = 'translateX(100%)';
-        
+
         notification.innerHTML = `
             <div class="flex items-center gap-3">
                 <i class="fas ${icons[type] || icons.info} text-lg"></i>
@@ -1013,14 +1013,14 @@ class MapManager {
                 </button>
             </div>
         `;
-        
+
         document.body.appendChild(notification);
-        
+
         // Animación de entrada
         setTimeout(() => {
             notification.style.transform = 'translateX(0)';
         }, 100);
-        
+
         // Auto-remover después de 4 segundos
         setTimeout(() => {
             if (notification.parentElement) {

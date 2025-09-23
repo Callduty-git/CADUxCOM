@@ -1,13 +1,13 @@
 /* ========================================
    ESTILOS MEJORADOS PARA WISHLIST
-   Paleta de colores: Blanco, Verde oscuro (#49874E), Verde claro (#90D575), Morado (#AA5FC7)
+   Paleta de colores: Blanco, Verde oscuro (#49874E), Verde claro (var(--color-green-light)), Morado (#AA5FC7)
    ======================================== */
 
 /* Variables CSS para consistencia */
 :root {
     --color-white: #FFFFFF;
     --color-green-dark: #49874E;
-    --color-green-light: #90D575;
+    --color-green-light: #89CF6D;
     --color-purple: #AA5FC7;
     --color-gray-light: #F8F9FA;
     --color-gray-medium: #6C757D;
@@ -118,9 +118,7 @@ html, body {
 .wishlist-icon img {
     width: 38px;
     height: 38px;
-    filter: brightness(0) invert(1);
-    z-index: 1;
-    transition: transform 0.3s ease;
+    filter: invert(32%) sepia(80%) saturate(600%) hue-rotate(230deg);
 }
 
 .wishlist-icon:hover img {
@@ -201,6 +199,11 @@ html, body {
     box-shadow: 0 6px 20px rgba(170, 95, 199, 0.4);
 }
 
+.btn-clear-wishlist:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(170, 95, 199, 0.2);
+}
+
 .btn-icon {
     width: 18px;
     height: 18px;
@@ -271,7 +274,7 @@ html, body {
 .stat-icon-img {
     width: 28px;
     height: 28px;
-    filter: brightness(0) invert(1);
+    filter: invert(32%) sepia(80%) saturate(600%) hue-rotate(230deg);
 }
 
 .stat-content {
@@ -310,6 +313,11 @@ html, body {
     background: var(--color-green-dark);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(144, 213, 117, 0.4);
+}
+
+.btn-add-all:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(170, 95, 199, 0.2);
 }
 
 /* ========================================
@@ -412,7 +420,19 @@ html, body {
 .favorite-icon {
     width: 24px;
     height: 24px;
-    filter: brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1352%) hue-rotate(234deg) brightness(119%) contrast(119%);
+    filter: invert(32%) sepia(80%) saturate(600%) hue-rotate(230deg);
+}
+
+.remove-favorite-btn .favorite-icon {
+    width: 24px;
+    height: 24px;
+    filter: invert(32%) sepia(80%) saturate(600%) hue-rotate(230deg);
+    transition: transform 0.2s, filter 0.2s;
+}
+
+.remove-favorite-btn:hover .favorite-icon {
+    transform: scale(1.1);
+    filter: invert(32%) sepia(80%) saturate(600%) hue-rotate(230deg) brightness(1.2);
 }
 
 /* ========================================
@@ -747,6 +767,19 @@ html, body {
     animation: slideOut 0.3s ease-in;
 }
 
+.notification-success {
+    background: var(--color-green-dark) !important;
+    color: var(--color-white) !important;
+}
+.notification-error {
+    background: var(--color-red) !important;
+    color: var(--color-white) !important;
+}
+.notification-info {
+    background: var(--color-purple) !important;
+    color: var(--color-white) !important;
+}
+
 .wishlist-item {
     animation: fadeIn 0.5s ease-out;
 }
@@ -904,6 +937,18 @@ html, body {
     }
 }
 
+/* Responsive: grid y cards */
+@media (max-width: 900px) {
+    .wishlist-grid {
+        grid-template-columns: 1fr;
+    }
+    .wishlist-header {
+        flex-direction: column;
+        gap: 24px;
+        padding: 24px;
+    }
+}
+
 /* ========================================
    MEJORAS DE ACCESIBILIDAD
    ======================================== */
@@ -958,4 +1003,162 @@ html, body {
 /* Eliminar margen inferior del contenedor cuando está vacío */
 .wishlist-container:has(.empty-wishlist) {
     padding-bottom: 0;
+}
+
+/* Íconos de favoritos SVG coherentes con la identidad visual */
+.heart-icon,
+.stat-icon-img,
+.favorite-icon,
+.empty-heart {
+    width: 28px;
+    height: 28px;
+    display: inline-block;
+    filter: invert(32%) sepia(80%) saturate(600%) hue-rotate(230deg);
+    transition: transform 0.2s, filter 0.2s;
+}
+
+/* ========================================
+    MICRO-INTERACCIONES MEJORADAS
+    ======================================== */
+
+/* Botones principales con efectos avanzados */
+.btn-clear-wishlist,
+.btn-add-all,
+.btn-add-to-cart,
+.btn-view-details {
+    position: relative;
+    overflow: hidden;
+    transform: translateZ(0); /* Fuerza aceleración por hardware */
+}
+
+.btn-clear-wishlist::before,
+.btn-add-all::before,
+.btn-add-to-cart::before,
+.btn-view-details::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+.btn-clear-wishlist:hover::before,
+.btn-add-all:hover::before,
+.btn-add-to-cart:hover::before,
+.btn-view-details:hover::before {
+    left: 100%;
+}
+
+/* Efectos de escala y sombra mejorados */
+.btn-clear-wishlist:active,
+.btn-add-all:active,
+.btn-add-to-cart:active,
+.btn-view-details:active {
+    transform: scale(0.96) translateY(1px);
+    box-shadow: 0 1px 4px rgba(170, 95, 199, 0.3);
+    transition-duration: 0.1s;
+}
+
+/* Efectos de hover para tarjetas de producto */
+.wishlist-item {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, box-shadow;
+}
+
+.wishlist-item:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(72, 135, 78, 0.25);
+}
+
+/* Efectos para el botón de remover favorito */
+.remove-favorite-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(12px);
+}
+
+.remove-favorite-btn:hover {
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+}
+
+/* Animación de pulso para elementos importantes */
+@keyframes gentle-pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 6px 20px rgba(170, 95, 199, 0.4);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 8px 25px rgba(170, 95, 199, 0.6);
+    }
+}
+
+.btn-clear-wishlist {
+    animation: gentle-pulse 3s infinite;
+}
+
+/* Efectos de foco mejorados para accesibilidad */
+.btn-clear-wishlist:focus-visible,
+.btn-add-all:focus-visible,
+.btn-add-to-cart:focus-visible,
+.btn-view-details:focus-visible {
+    outline: 3px solid var(--color-purple);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(170, 95, 199, 0.2);
+}
+
+/* Transiciones suaves para cambios de estado */
+.wishlist-item.removing {
+    animation: fadeOutScale 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeOutScale {
+    0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.8) translateY(-20px);
+    }
+}
+
+/* Efectos de carga mejorados */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: var(--border-radius);
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-green-light);
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Efectos de éxito */
+.success-flash {
+    animation: successFlash 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes successFlash {
+    0% { background-color: var(--color-white); }
+    50% { background-color: rgba(137, 207, 109, 0.1); }
+    100% { background-color: var(--color-white); }
 }

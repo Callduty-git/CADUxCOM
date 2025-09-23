@@ -58,7 +58,7 @@
         <div class="wishlist-header">
             <div class="wishlist-title-section">
                 <div class="wishlist-icon">
-                    <img src="{{ asset('images/favoritos.png') }}" alt="Favoritos" class="heart-icon">
+                    <img src="{{ asset('images/heart-icon.svg') }}" alt="Favoritos" class="heart-icon">
                 </div>
                 <div class="wishlist-title-content">
                     <h1 class="wishlist-title">Mis Favoritos</h1>
@@ -81,7 +81,7 @@
             <div class="wishlist-stats">
                 <div class="stat-card">
                     <div class="stat-icon">
-                        <img src="{{ asset('images/favoritos.png') }}" alt="Total" class="stat-icon-img">
+                        <img src="{{ asset('images/heart-icon.svg') }}" alt="Total" class="stat-icon-img">
                     </div>
                     <div class="stat-content">
                         <p class="stat-label">Total Favoritos</p>
@@ -124,7 +124,7 @@
                             
                             <!-- Botón de eliminar de favoritos -->
                             <button class="remove-favorite-btn" onclick="removeFromWishlist({{ $item->product->Id_Producto }})" title="Quitar de favoritos">
-                                <img src="{{ asset('images/favoritos.png') }}" alt="Quitar" class="favorite-icon">
+                                <img src="{{ asset('images/heart-filled-icon.svg') }}" alt="Quitar" class="favorite-icon">
                             </button>
                         </div>
                         
@@ -168,7 +168,7 @@
             <!-- ESTADO VACÍO -->
             <div class="empty-wishlist">
                 <div class="empty-icon">
-                    <img src="{{ asset('images/favoritos.png') }}" alt="Favoritos vacíos" class="empty-heart">
+                    <img src="{{ asset('images/heart-icon.svg') }}" alt="Favoritos vacíos" class="empty-heart">
                 </div>
                 <h2 class="empty-title">Tu lista de favoritos está vacía</h2>
                 <p class="empty-description">Agrega productos que te gusten para verlos aquí</p>
@@ -182,6 +182,134 @@
 
     <!-- SCRIPT DE FUNCIONALIDAD -->
     <script>
+        // ========================================
+        // FUNCIONES PRINCIPALES - DEFINIDAS AL INICIO
+        // ========================================
+
+        // Función para limpiar toda la wishlist
+        async function clearWishlist() {
+            console.log('Iniciando clearWishlist...');
+
+            // Usar confirmación simple del navegador por ahora
+            if (!confirm('¿Estás seguro de que quieres limpiar toda tu lista de favoritos?')) {
+                console.log('Usuario canceló la operación');
+                return;
+            }
+
+            console.log('Usuario confirmó, procediendo...');
+
+            try {
+                console.log('Enviando petición POST a:', '{{ route("wishlist.clear.post") }}');
+
+                const response = await fetch('{{ route("wishlist.clear.post") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                console.log('Respuesta del servidor:', response.status, response.statusText);
+
+                const responseText = await response.text();
+                console.log('Respuesta completa:', responseText);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${responseText}`);
+                }
+
+                const data = JSON.parse(responseText);
+                console.log('Datos parseados:', data);
+
+                if (data.success) {
+                    console.log('Éxito: actualizando interfaz');
+                    showNotification('Lista de favoritos limpiada correctamente', 'success');
+
+                    // Actualizar interfaz inmediatamente
+                    updateWishlistInterface();
+                    updateWishlistCountHeader();
+                } else {
+                    console.error('Error del servidor:', data.message);
+                    showNotification(data.message || 'Error al limpiar favoritos', 'error');
+                }
+            } catch (error) {
+                console.error('Error en clearWishlist:', error);
+                showNotification('Error al limpiar favoritos: ' + error.message, 'error');
+            }
+        }
+
+        // Función para agregar todos al carrito
+        function addAllToCart() {
+            const productButtons = document.querySelectorAll('.btn-add-to-cart');
+            const totalProducts = productButtons.length;
+
+            if (totalProducts === 0) {
+                showNotification('No hay productos para agregar', 'info');
+                return;
+            }
+
+            // Confirmación personalizada
+            showCustomConfirm(
+                '¿Agregar todos al carrito?',
+                `¿Quieres agregar los ${totalProducts} productos de tu lista de favoritos al carrito de compras?`,
+                'Agregar todos',
+                'Cancelar'
+            ).then(confirmed => {
+                if (!confirmed) return;
+
+                showLoadingOverlay();
+                showNotification(`Agregando ${totalProducts} productos al carrito...`, 'info');
+
+                let successCount = 0;
+                let errorCount = 0;
+                let processedCount = 0;
+
+                const processNext = () => {
+                    if (processedCount >= totalProducts) {
+                        // Todos los productos procesados
+                        hideLoadingOverlay();
+
+                        if (successCount > 0) {
+                            showSuccessAnimation();
+                            showNotification(`${successCount} de ${totalProducts} productos agregados al carrito`, 'success');
+                            window.cartManager?.updateCartCounter();
+                        } else {
+                            showNotification('No se pudieron agregar productos al carrito', 'error');
+                        }
+
+                        if (errorCount > 0) {
+                            showNotification(`${errorCount} productos no se pudieron agregar`, 'info');
+                        }
+                        return;
+                    }
+
+                    const button = productButtons[processedCount];
+                    const productId = button.getAttribute('onclick')?.match(/\d+/)?.[0];
+
+                    if (productId) {
+                        // Usar el cartManager existente
+                        const success = window.cartManager?.addToCart(productId, 1);
+                        if (success) {
+                            successCount++;
+                        } else {
+                            errorCount++;
+                        }
+                    } else {
+                        errorCount++;
+                    }
+
+                    processedCount++;
+
+                    // Procesar el siguiente producto después de un pequeño delay
+                    setTimeout(processNext, 100);
+                };
+
+                // Iniciar procesamiento
+                processNext();
+            });
+        }
+
         // Función para remover de favoritos
         async function removeFromWishlist(productId) {
             if (!confirm('¿Estás seguro de que quieres quitar este producto de favoritos?')) {
@@ -244,57 +372,6 @@
             }
         }
 
-        // Función para limpiar toda la wishlist
-        async function clearWishlist() {
-            if (!confirm('¿Estás seguro de que quieres limpiar toda tu lista de favoritos?')) {
-                return;
-            }
-
-            // Obtener token CSRF
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            if (!csrfToken) {
-                console.error('CSRF token not found');
-                showNotification('Error de seguridad. Recarga la página.', 'error');
-                return;
-            }
-
-            try {
-                // Mostrar notificación de carga
-                showNotification('Limpiando lista de favoritos...', 'info');
-
-                const response = await fetch('{{ route("wishlist.clear.post") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Mostrar notificación de éxito
-                    showNotification('Lista de favoritos limpiada correctamente', 'success');
-                    
-                    // Actualizar la interfaz inmediatamente
-                    updateWishlistInterface();
-                    
-                    // Actualizar contador en el header
-                    updateWishlistCount(0);
-                } else {
-                    showNotification(data.message || 'Error al limpiar favoritos', 'error');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('Error al limpiar favoritos: ' + error.message, 'error');
-            }
-        }
 
         // Función para actualizar la interfaz después de limpiar
         function updateWishlistInterface() {
@@ -346,7 +423,7 @@
                 
                 emptyState.innerHTML = `
                     <div class="empty-icon">
-                        <img src="{{ asset('images/favoritos.png') }}" alt="Favoritos vacíos" class="empty-heart">
+                        <img src="{{ asset('images/heart-icon.svg') }}" alt="Favoritos vacíos" class="empty-heart">
                     </div>
                     <h2 class="empty-title">Tu lista de favoritos está vacía</h2>
                     <p class="empty-description">Agrega productos que te gusten para verlos aquí</p>
@@ -375,15 +452,11 @@
             const productButtons = document.querySelectorAll('.btn-add-to-cart');
             let successCount = 0;
             let totalProducts = productButtons.length;
-            
             if (totalProducts === 0) {
                 showNotification('No hay productos para agregar', 'info');
                 return;
             }
-
-            // Mostrar notificación de inicio
             showNotification(`Agregando ${totalProducts} productos al carrito...`, 'info');
-            
             for (const button of productButtons) {
                 const productId = button.getAttribute('onclick').match(/\d+/)[0];
                 try {
@@ -393,20 +466,32 @@
                     console.error('Error adding product to cart:', error);
                 }
             }
-            
             if (successCount > 0) {
                 showNotification(`${successCount} de ${totalProducts} productos agregados al carrito`, 'success');
+                window.cartManager.updateCartCounter(); // Actualiza el contador del carrito
             } else {
                 showNotification('No se pudieron agregar productos al carrito', 'error');
             }
         }
 
-        // Función para actualizar contador de wishlist
+        // Función para actualizar contador de wishlist en header global
+        function updateWishlistCountHeader() {
+            fetch("{{ route('wishlist.count') }}")
+                .then(response => response.json())
+                .then(data => {
+                    const countElement = document.getElementById('wishlist-count');
+                    if (countElement) {
+                        countElement.textContent = data.count;
+                        countElement.style.display = data.count > 0 ? 'flex' : 'none';
+                        countElement.classList.add('update');
+                        setTimeout(() => countElement.classList.remove('update'), 500);
+                    }
+                });
+        }
+
+        // Sobrescribir updateWishlistCount para que actualice el header global
         function updateWishlistCount(count) {
-            const countElement = document.getElementById('wishlist-count');
-            if (countElement) {
-                countElement.textContent = count;
-            }
+            updateWishlistCountHeader();
         }
 
         // Función para mostrar notificaciones (usando el sistema unificado)
@@ -463,20 +548,246 @@
             }, 3000);
         }
 
-        // Agregar estilos de animación
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
+        // Agregar estilos de animación (solo si no existen)
+        if (!document.getElementById('wishlist-animations')) {
+            const animationStyle = document.createElement('style');
+            animationStyle.id = 'wishlist-animations';
+            animationStyle.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(animationStyle);
+        }
+
+        // ========================================
+        // FUNCIONES AUXILIARES PARA MEJOR UX
+        // ========================================
+
+        // Función para mostrar confirmación personalizada
+        function showCustomConfirm(title, message, confirmText, cancelText) {
+            return new Promise((resolve) => {
+                const modal = document.createElement('div');
+                modal.className = 'custom-confirm-modal';
+                modal.innerHTML = `
+                    <div class="confirm-overlay">
+                        <div class="confirm-dialog">
+                            <div class="confirm-header">
+                                <h3>${title}</h3>
+                            </div>
+                            <div class="confirm-body">
+                                <p>${message}</p>
+                            </div>
+                            <div class="confirm-footer">
+                                <button class="btn-cancel">${cancelText}</button>
+                                <button class="btn-confirm">${confirmText}</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+
+                // Animar entrada
+                setTimeout(() => modal.classList.add('show'), 10);
+
+                const confirmBtn = modal.querySelector('.btn-confirm');
+                const cancelBtn = modal.querySelector('.btn-cancel');
+
+                const cleanup = (result) => {
+                    modal.classList.remove('show');
+                    setTimeout(() => {
+                        if (modal.parentNode) {
+                            modal.parentNode.removeChild(modal);
+                        }
+                    }, 300);
+                    resolve(result);
+                };
+
+                confirmBtn.addEventListener('click', () => cleanup(true));
+                cancelBtn.addEventListener('click', () => cleanup(false));
+
+                // Cerrar con ESC
+                document.addEventListener('keydown', function escHandler(e) {
+                    if (e.key === 'Escape') {
+                        document.removeEventListener('keydown', escHandler);
+                        cleanup(false);
+                    }
+                });
+            });
+        }
+
+        // Función para mostrar overlay de carga
+        function showLoadingOverlay() {
+            const container = document.querySelector('.wishlist-container');
+            if (container) {
+                const overlay = document.createElement('div');
+                overlay.className = 'loading-overlay';
+                overlay.innerHTML = `
+                    <div class="loading-spinner"></div>
+                    <p style="margin-left: 16px; color: var(--color-green-dark); font-weight: 500;">Procesando...</p>
+                `;
+                container.appendChild(overlay);
             }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
+        }
+
+        // Función para ocultar overlay de carga
+        function hideLoadingOverlay() {
+            const overlay = document.querySelector('.loading-overlay');
+            if (overlay) {
+                overlay.remove();
             }
-        `;
-        document.head.appendChild(style);
+        }
+
+        // Función para mostrar animación de éxito
+        function showSuccessAnimation() {
+            return new Promise((resolve) => {
+                const container = document.querySelector('.wishlist-container');
+                if (container) {
+                    container.classList.add('success-flash');
+                    setTimeout(() => {
+                        container.classList.remove('success-flash');
+                        resolve();
+                    }, 600);
+                } else {
+                    resolve();
+                }
+            });
+        }
+
     </script>
+
+    <!-- CSS adicional para los modales personalizados -->
+    <style>
+        .custom-confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .custom-confirm-modal.show {
+            opacity: 1;
+        }
+
+        .confirm-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .confirm-dialog {
+            background: var(--color-white);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .custom-confirm-modal.show .confirm-dialog {
+            transform: scale(1);
+        }
+
+        .confirm-header {
+            padding: 24px 24px 0 24px;
+        }
+
+        .confirm-header h3 {
+            margin: 0;
+            color: var(--color-gray-dark);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .confirm-body {
+            padding: 16px 24px;
+        }
+
+        .confirm-body p {
+            margin: 0;
+            color: var(--color-gray-medium);
+            line-height: 1.5;
+        }
+
+        .confirm-footer {
+            padding: 0 24px 24px 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .confirm-footer button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-cancel {
+            background: var(--color-gray-light);
+            color: var(--color-gray-medium);
+        }
+
+        .btn-cancel:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .btn-confirm {
+            background: var(--color-green-light);
+            color: var(--color-white);
+            box-shadow: 0 4px 12px rgba(137, 207, 109, 0.3);
+        }
+
+        .btn-confirm:hover {
+            background: var(--color-green-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(137, 207, 109, 0.4);
+        }
+
+        .btn-confirm:active,
+        .btn-cancel:active {
+            transform: scale(0.96);
+        }
+
+        @media (max-width: 480px) {
+            .confirm-dialog {
+                margin: 20px;
+                max-width: none;
+            }
+
+            .confirm-footer {
+                flex-direction: column;
+            }
+
+            .confirm-footer button {
+                width: 100%;
+            }
+        }
+    </style>
 
     <!-- Footer -->
     <x-footer />

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Empresa;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class CustomLoginController extends Controller
 {
@@ -28,7 +29,12 @@ class CustomLoginController extends Controller
             'password' => $credentials['password'],
         ], $request->filled('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('home'));
+            // Evitar redirigir a endpoints JSON como /wishlist/count
+            $intended = session('url.intended');
+            if ($intended && $this->isSafeRedirect($intended)) {
+                return redirect()->intended(route('home'));
+            }
+            return redirect()->route('home');
         }
 
         // Intentar login como empresa
@@ -37,7 +43,11 @@ class CustomLoginController extends Controller
             'password' => $credentials['password'],
         ], $request->filled('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('empresa.dashboard'));
+            $intended = session('url.intended');
+            if ($intended && $this->isSafeRedirect($intended)) {
+                return redirect()->intended(route('empresa.dashboard'));
+            }
+            return redirect()->route('empresa.dashboard');
         }
 
         // Si ambos fallan
@@ -60,5 +70,31 @@ class CustomLoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    /**
+     * Determina si la URL intended es segura para redirigir (no endpoints JSON/API).
+     */
+    private function isSafeRedirect(string $url): bool
+    {
+        $path = parse_url($url, PHP_URL_PATH) ?? '';
+        // Endpoints que NO deben ser destino después de login
+        $blocked = [
+            '/wishlist/count',
+            '/wishlist/status',
+            '/wishlist/multiple-status',
+            '/cart/count',
+            '/cart/add',
+            '/cart/update',
+            '/cart/remove',
+            '/cart/clear',
+        ];
+
+        foreach ($blocked as $segment) {
+            if (Str::endsWith($path, $segment)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

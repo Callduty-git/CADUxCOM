@@ -630,7 +630,7 @@ class CartManager {
         // Crear elemento de notificación
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
-        
+
         // Iconos según el tipo
         const icons = {
             success: '✓',
