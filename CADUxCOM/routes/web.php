@@ -53,15 +53,19 @@ Route::middleware(['auth:empresa'])->group(function () {
     Route::post('/empresa/cambiar-contrasena', [EmpresaPasswordController::class, 'updatePassword'])
         ->name('empresa.password.update');
 
-    // Mostrar productos para empresa
-    Route::get('/empresa/productos', [ProductoController::class, 'index'])
-        ->name('empresa.productos.index');
-
-    // CRUD de productos para empresas
-    Route::resource('/productos', ProductoController::class);
+    // CRUD de productos para empresas (prefijo /empresa)
+    Route::resource('/empresa/productos', ProductoController::class)->names([
+        'index' => 'empresa.productos.index',
+        'create' => 'empresa.productos.create',
+        'store' => 'empresa.productos.store',
+        'show' => 'empresa.productos.show',
+        'edit' => 'empresa.productos.edit',
+        'update' => 'empresa.productos.update',
+        'destroy' => 'empresa.productos.destroy',
+    ]);
     
-    // Vista de detalles de producto para empresas (con opciones de edición)
-    Route::get('/empresa/productos/{id}', [ProductoController::class, 'show'])->name('empresa.productos.show');
+    // Vista de detalles de producto para empresas (con opciones de edición) - ya cubierta por resource
+    // Route::get('/empresa/productos/{id}', [ProductoController::class, 'show'])->name('empresa.productos.show');
 
     // Ruta para eliminar cuenta de empresa
     Route::delete('/empresa/eliminar', [EmpresaController::class, 'eliminarCuenta'])
@@ -204,13 +208,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Rutas del sistema de órdenes (requieren autenticación)
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
-    Route::post('/orders/{id}/refund', [OrderController::class, 'requestRefund'])->name('orders.refund');
-    Route::post('/orders/{id}/reorder', [OrderController::class, 'reorder'])->name('orders.reorder');
-    Route::get('/orders/{id}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');
+    // Definir primero rutas estáticas
     Route::get('/orders/stats', [OrderController::class, 'getStats'])->name('orders.stats');
-    Route::post('/orders/{id}/mark-received', [OrderController::class, 'markAsReceived'])->name('orders.mark-received');
+    // Restringir {id} a numérico para evitar colisiones
+    Route::get('/orders/{id}', [OrderController::class, 'show'])->whereNumber('id')->name('orders.show');
+    Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->whereNumber('id')->name('orders.cancel');
+    Route::post('/orders/{id}/refund', [OrderController::class, 'requestRefund'])->whereNumber('id')->name('orders.refund');
+    Route::post('/orders/{id}/reorder', [OrderController::class, 'reorder'])->whereNumber('id')->name('orders.reorder');
+    Route::get('/orders/{id}/invoice', [OrderController::class, 'downloadInvoice'])->whereNumber('id')->name('orders.invoice');
+    Route::post('/orders/{id}/mark-received', [OrderController::class, 'markAsReceived'])->whereNumber('id')->name('orders.mark-received');
 });
 
 /*
