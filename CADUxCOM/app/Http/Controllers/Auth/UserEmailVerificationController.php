@@ -40,7 +40,7 @@ class UserEmailVerificationController extends Controller
         // Hacer login automático del usuario
         Auth::login($user);
 
-        return redirect()->route('dashboard')
+        return redirect()->route('home')
             ->with('success', '¡Email verificado exitosamente! Bienvenido a CADUxCOM.');
     }
 

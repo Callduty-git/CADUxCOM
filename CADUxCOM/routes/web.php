@@ -144,10 +144,10 @@ Route::get('/wishlist/count', [WishlistController::class, 'getCount'])->name('wi
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Esta ruta fue modificada para que funcione correctamente con empresa
-    Route::get('/dashboard', [EmpresaDashboardController::class, 'index'])
-        ->middleware(['auth:empresa'])
-        ->name('dashboard');
+    // Dashboard para usuarios autenticados (no empresas): redirige al home
+    Route::get('/dashboard', function () {
+        return redirect()->route('home');
+    })->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

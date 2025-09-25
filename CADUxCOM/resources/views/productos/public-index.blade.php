@@ -6,10 +6,12 @@
     <title>Todos los Productos - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/empresa-dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
     <style>
         body { font-family: 'Inter', sans-serif; }
         .product-card { transition: all 0.3s ease; }
@@ -35,19 +37,20 @@
         
         .sidebar {
             width: 80px;
-            background-color: #ffffff;
-            padding: 20px 15px;
+            background-color: transparent; /* sin cuadro blanco */
+            padding: 0; /* que el alto dependa de los botones */
             display: flex;
             flex-direction: column;
             align-items: center;
-            border-radius: 20px;
-            border: 2px solid rgba(0, 0, 0, 0.178);
+            border-radius: 0;
+            border: none;
             position: relative;
             z-index: 1001;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: none;
             transition: all 0.3s ease;
             opacity: 0.95;
-            overflow: hidden;
+            overflow: visible; /* que crezca con el contenido */
+            max-height: none; /* sin tope de altura */
         }
         
         .sidebar:hover {

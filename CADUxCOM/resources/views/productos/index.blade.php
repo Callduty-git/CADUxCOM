@@ -2,16 +2,20 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Productos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos los Productos - CADUxCOM</title>
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/empresa-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/empresa-sidebar.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <style>
         body {
-            margin: 0;
+            margin: 0;  
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -26,36 +30,23 @@
         }
         
         /* ====== SIDEBAR CONTAINER ====== */
-        .sidebar-container {
-            position: fixed !important;
-            left: 20px !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            width: 100px !important;
-            height: auto !important;
-            z-index: 9999 !important;
-            transition: all 0.3s ease !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            right: auto !important;
-            bottom: auto !important;
-        }
+
         
         .sidebar {
             width: 100px;
-            background-color: #ffffff;
-            padding: 20px 15px;
+            padding: 0; /* que el alto dependa de los botones */
             display: flex;
             flex-direction: column;
             align-items: center;
-            border-radius: 20px;
-            border: 2px solid rgba(0, 0, 0, 0.178);
+            border-radius: 0;
+            border: none;
             position: relative;
             z-index: 1001;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: none;
             transition: all 0.3s ease;
             opacity: 0.95;
-            overflow: hidden;
+            overflow: visible; /* que crezca con el contenido */
+            max-height: none; /* sin tope de altura */
         }
         
         .sidebar:hover {
@@ -607,31 +598,7 @@
     <div class="main-content">
         <x-header-productos :categorias="$categorias" :subcategorias="$subcategorias" />
 
-        <div class="sidebar-container">
-            <aside class="sidebar" id="sidebar">
-                <nav class="nav-buttons">
-                    <a href="{{ route('empresa.dashboard') }}" class="btn">
-                        <i class="fas fa-home"></i>
-                        <span>Inicio</span>
-                    </a>
-                    <a href="{{ route('empresa.productos.index') }}" class="btn">
-                        <i class="fas fa-box"></i>
-                        <span>Productos</span>
-                    </a>
-                    <a href="{{ route('empresa.facturas') }}" class="btn">
-                        <i class="fas fa-list-alt"></i>
-                        <span>Log de Productos</span>
-                    </a>
-                    <form method="POST" action="{{ route('empresa.logout') }}" style="margin: 0;">
-                        @csrf
-                        <button type="submit" class="btn" aria-label="Cerrar sesión">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Salir</span>
-                        </button>
-                    </form>
-                </nav>
-            </aside>
-        </div>
+        <x-empresa-sidebar />
 
     <div class="main-container">
         <main class="dashboard-panel">
