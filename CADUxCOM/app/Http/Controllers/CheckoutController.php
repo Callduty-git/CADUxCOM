@@ -144,12 +144,38 @@ class CheckoutController extends Controller
             'payment_method' => 'required|in:credit_card,debit_card,bank_transfer,cash_on_delivery,digital_wallet',
             'notes' => 'nullable|string|max:1000',
             'same_as_shipping' => 'nullable|boolean',
+        ], [
+            'customer_name.required' => 'El nombre es obligatorio.',
+            'customer_email.required' => 'El correo es obligatorio.',
+            'customer_email.email' => 'El correo no es válido.',
+            'shipping_address.required' => 'La dirección de envío es obligatoria.',
+            'shipping_city.required' => 'La ciudad de envío es obligatoria.',
+            'shipping_state.required' => 'El departamento/estado de envío es obligatorio.',
+            'shipping_postal_code.required' => 'El código postal de envío es obligatorio.',
+            'shipping_country.required' => 'El país de envío es obligatorio.',
+            'payment_method.required' => 'El método de pago es obligatorio.',
+            'payment_method.in' => 'El método de pago seleccionado no es válido.'
         ]);
 
         $cart = Session::get('cart', []);
-        
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Tu carrito está vacío.');
+        }
+        // Validación extra: no permitir procesar si algún producto no existe o está agotado
+        $productIds = array_keys($cart);
+        $products = Producto::with(['empresa', 'subcategoria'])
+            ->whereIn('Id_Producto', $productIds)
+            ->get()
+            ->keyBy('Id_Producto');
+        foreach ($cart as $productId => $cartItem) {
+            $product = $products[$productId] ?? null;
+            if (!$product || $product->Cantidad < 1) {
+                return redirect()->route('cart.index')->with('error', 'Uno o más productos ya no están disponibles.');
+            }
+            $quantity = max(1, (int)($cartItem['quantity'] ?? 1));
+            if ($product->Cantidad < $quantity) {
+                return back()->with('error', "Solo hay {$product->Cantidad} unidades disponibles de {$product->Nombre}");
+            }
         }
 
         // Usar dirección de facturación igual a envío si se especifica

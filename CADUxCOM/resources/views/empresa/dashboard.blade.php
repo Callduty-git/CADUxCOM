@@ -73,6 +73,7 @@
             font-weight: 400;
         }
     </style>
+    <script src="{{ asset('js/modal-alert.js') }}"></script>
 </head>
 <body>
     
@@ -212,12 +213,24 @@
                 return response.json();
             })
             .then(data => {
-                alert("Perfil actualizado correctamente ✅");
-                location.reload();
+                showModalAlert({
+                    title: '¡Éxito!',
+                    message: 'Perfil actualizado correctamente ✅',
+                    confirmText: 'Aceptar',
+                    color: '#49874E',
+                    accent: '#AA5FC7',
+                    onConfirm: () => location.reload()
+                });
             })
             .catch(error => {
                 console.error(error);
-                alert("Hubo un problema al actualizar el perfil ❌");
+                showModalAlert({
+                    title: 'Error',
+                    message: 'Hubo un problema al actualizar el perfil ❌',
+                    confirmText: 'Cerrar',
+                    color: '#AA5FC7',
+                    accent: '#49874E'
+                });
             });
         });
 

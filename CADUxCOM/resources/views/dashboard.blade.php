@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/header-empresa.css') }}">
+    <script src="{{ asset('js/modal-alert.js') }}"></script>
     <style>
         .header {
             border-bottom: 3px solid #006400;
@@ -212,12 +213,24 @@
                 return response.json();
             })
             .then(data => {
-                alert("Perfil actualizado correctamente ✅");
-                location.reload();
+                showModalAlert({
+                    title: '¡Éxito!',
+                    message: 'Perfil actualizado correctamente ✅',
+                    confirmText: 'Aceptar',
+                    color: '#49874E',
+                    accent: '#AA5FC7',
+                    onConfirm: () => location.reload()
+                });
             })
             .catch(error => {
                 console.error(error);
-                alert("Hubo un problema al actualizar el perfil ❌");
+                showModalAlert({
+                    title: 'Error',
+                    message: 'Hubo un problema al actualizar el perfil ❌',
+                    confirmText: 'Cerrar',
+                    color: '#AA5FC7',
+                    accent: '#49874E'
+                });
             });
         });
 

@@ -175,24 +175,34 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Marcar todas como leídas
             document.getElementById('mark-all-read').addEventListener('click', function() {
-                if (confirm('¿Marcar todas las notificaciones como leídas?')) {
-                    fetch('{{ route("notifications.mark-all-read") }}', {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-                }
+                showModalAlert({
+                    title: 'Confirmar acción',
+                    message: '¿Marcar todas las notificaciones como leídas?',
+                    confirmText: 'Sí, marcar',
+                    cancelText: 'Cancelar',
+                    color: '#AA5FC7',
+                    accent: '#89CF6D',
+                    showCancel: true,
+                    onConfirm: () => {
+                        fetch('{{ route("notifications.mark-all-read") }}', {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            }
+                        });
+                    },
+                    onCancel: () => {
+                        return;
+                    }
+                });
+                return;
             });
 
             // Marcar como leída individual
@@ -224,24 +234,34 @@
                 button.addEventListener('click', function() {
                     const notificationId = this.getAttribute('data-id');
                     
-                    if (confirm('¿Eliminar esta notificación?')) {
-                        fetch(`/notificaciones/${notificationId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                location.reload();
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                    }
+                    showModalAlert({
+                        title: 'Confirmar acción',
+                        message: '¿Eliminar esta notificación?',
+                        confirmText: 'Sí, eliminar',
+                        cancelText: 'Cancelar',
+                        color: '#AA5FC7',
+                        accent: '#89CF6D',
+                        showCancel: true,
+                        onConfirm: () => {
+                            fetch(`/notificaciones/${notificationId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    location.reload();
+                                }
+                            });
+                        },
+                        onCancel: () => {
+                            return;
+                        }
+                    });
+                    return;
                 });
             });
 
@@ -264,5 +284,6 @@
             }
         });
     </script>
+    <script src="{{ asset('js/modal-alert.js') }}"></script>
 </body>
 </html>

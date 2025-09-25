@@ -36,7 +36,7 @@
             @endauth
         </div>
         <a href="{{ route('wishlist.index') }}" class="header-icon-link" title="Mis Favoritos">
-            <img src="{{ asset('images/heart-icon.svg') }}" alt="Favoritos" class="header-icon">
+            <img src="{{ asset('images/favoritos.png') }}" alt="Favoritos" class="header-icon">
             <span class="wishlist-count" id="wishlist-count">0</span>
         </a>
         <img src="{{ asset('images/icon-help.png') }}" alt="Ayuda" class="header-icon">

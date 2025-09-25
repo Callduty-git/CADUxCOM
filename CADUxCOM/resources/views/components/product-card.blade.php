@@ -31,7 +31,7 @@
                     class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-red-50 transition-colors group"
                     id="favorites-btn-{{ $product->Id_Producto }}"
                     title="Agregar a favoritos">
-                <img src="{{ asset('images/favoritos.png') }}" alt="Favoritos" class="w-4 h-4 text-gray-500 group-hover:text-red-500 transition-colors">
+                <img src="{{ asset('images/favoritos.png') }}" alt="Favoritos" class="w-4 h-4 favorite-icon transition-all duration-300" id="favorite-icon-{{ $product->Id_Producto }}">
             </button>
         @endif
     </div>

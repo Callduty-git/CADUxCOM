@@ -8,7 +8,7 @@
         title="{{ $isInWishlist ? 'Quitar de favoritos' : 'Agregar a favoritos' }}"
     >
         <img 
-            src="{{ asset('images/favoritos.png') }}" 
+            src="{{ asset($isInWishlist ? 'images/heart-filled-icon.svg' : 'images/heart-icon.svg') }}" 
             alt="Favoritos" 
             class="wishlist-icon {{ $isInWishlist ? 'active' : '' }}"
         >
@@ -20,7 +20,7 @@
         title="Inicia sesión para agregar a favoritos"
     >
         <img 
-            src="{{ asset('images/favoritos.png') }}" 
+            src="{{ asset('images/heart-icon.svg') }}" 
             alt="Favoritos" 
             class="wishlist-icon"
         >
@@ -156,10 +156,12 @@ function toggleWishlist(productId) {
             if (data.is_in_wishlist) {
                 button.classList.add('active');
                 icon.classList.add('active');
+                icon.src = "{{ asset('images/heart-filled-icon.svg') }}";
                 button.title = 'Quitar de favoritos';
             } else {
                 button.classList.remove('active');
                 icon.classList.remove('active');
+                icon.src = "{{ asset('images/heart-icon.svg') }}";
                 button.title = 'Agregar a favoritos';
             }
             
@@ -286,10 +288,12 @@ function loadWishlistStatus() {
                 if (data.is_in_wishlist) {
                     button.classList.add('active');
                     icon.classList.add('active');
+                    icon.src = "{{ asset('images/heart-filled-icon.svg') }}";
                     button.title = 'Quitar de favoritos';
                 } else {
                     button.classList.remove('active');
                     icon.classList.remove('active');
+                    icon.src = "{{ asset('images/heart-icon.svg') }}";
                     button.title = 'Agregar a favoritos';
                 }
             }

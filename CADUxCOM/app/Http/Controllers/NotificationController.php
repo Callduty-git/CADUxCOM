@@ -62,6 +62,14 @@ class NotificationController extends Controller
      */
     public function markAsRead(Request $request, Notification $notification)
     {
+        // Validar que la notificación pertenezca al usuario autenticado
+        if ($notification->user_id && $notification->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para modificar esta notificación.'
+            ], 403);
+        }
+
         $notification->markAsRead();
 
         if ($request->expectsJson()) {
@@ -112,6 +120,14 @@ class NotificationController extends Controller
      */
     public function destroy(Request $request, Notification $notification)
     {
+        // Validar que la notificación pertenezca al usuario autenticado
+        if ($notification->user_id && $notification->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para eliminar esta notificación.'
+            ], 403);
+        }
+
         $notification->delete();
 
         if ($request->expectsJson()) {

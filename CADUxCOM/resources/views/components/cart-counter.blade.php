@@ -5,7 +5,7 @@
 @endphp
 
 <div class="dropdown">
-    <a href="{{ route('cart.index') }}" class="cart-icon-link">
+    <a href="{{ route('cart.index') }}" class="cart-icon-link" title="Ver carrito de compras">
         <div class="cart-icon-container">
             <img src="{{ asset('images/icon-cart.png') }}" alt="Carrito" class="cart-icon">
             
@@ -15,6 +15,7 @@
                 </span>
             @endif
         </div>
+        <span class="cart-label">Carrito</span>
     </a>
 </div>
 

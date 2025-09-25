@@ -289,7 +289,13 @@
                 
                 // Verificar si ya está seleccionado
                 if (document.querySelector(`input[name="applicable_products[]"][value="${productId}"]`)) {
-                    alert('Este producto ya está seleccionado');
+                    showModalAlert({
+                        title: 'Producto duplicado',
+                        message: 'Este producto ya está seleccionado',
+                        confirmText: 'Aceptar',
+                        color: '#AA5FC7',
+                        accent: '#89CF6D'
+                    });
                     return;
                 }
                 
@@ -345,5 +351,6 @@
             }, 3000);
         }
     </script>
+    <script src="{{ asset('js/modal-alert.js') }}"></script>
 </body>
 </html>

@@ -36,9 +36,16 @@ class EmpresaProfileController extends Controller
                 'Contacto' => 'nullable|string|max:20',
                 'NIT' => 'nullable|string|max:50',
                 'Foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-                
-                // CAMBIO AQUI: Usar la validación mimetypes para PDFs
-                'Certificado_Camara_de_comercio' => 'nullable|file|max:4096',
+                'Certificado_Camara_de_comercio' => 'nullable|file|mimes:pdf|max:4096',
+            ], [
+                'Nombre.required' => 'El nombre de la empresa es obligatorio.',
+                'email.required' => 'El correo es obligatorio.',
+                'email.email' => 'El correo no es válido.',
+                'email.unique' => 'Este correo ya está registrado.',
+                'Foto.image' => 'La foto debe ser una imagen.',
+                'Foto.max' => 'La foto no debe superar los 2MB.',
+                'Certificado_Camara_de_comercio.mimes' => 'El certificado debe ser un archivo PDF.',
+                'Certificado_Camara_de_comercio.max' => 'El certificado no debe superar los 4MB.'
             ]);
 
             $empresa->Nombre = $request->Nombre;

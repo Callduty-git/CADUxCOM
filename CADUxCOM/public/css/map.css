@@ -16,10 +16,12 @@
 
 .map-container {
     display: flex;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 110px);
     background-color: #f8fafc;
     position: relative;
     overflow: hidden;
+    margin-top: 110px !important; /* Ajustado para coincidir con la altura del header fijo */
+    padding-top: 0 !important;
 }
 
 /* Panel de control */
@@ -97,24 +99,182 @@
 .filter-select {
     width: 100% !important;
     padding: 0.75rem 2.5rem 0.75rem 0.75rem !important;
-    border: 2px solid #90D575 !important;
+    border: 2px solid var(--primary-color) !important;
+    background-color: var(--white-color) !important;
+    color: var(--accent-color) !important;
+    font-weight: 600 !important;
     border-radius: 8px !important;
-    font-size: 0.875rem !important;
-    font-weight: 500 !important;
-    background: #FFFFFF !important;
-    color: #49874E !important;
-    cursor: pointer !important;
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
-    
-    /* Ícono personalizado del desplegable */
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2349874E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2349874E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: right 0.75rem center !important;
-    background-size: 1.25rem !important;
+    background-size: 1rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    font-size: 0.875rem !important;
+}
+
+.filter-select:hover {
+    border-color: var(--accent-color) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.filter-select:focus {
+    outline: none !important;
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 3px rgba(73, 135, 78, 0.2) !important;
+    font-weight: 500 !important;
+    background: #FFFFFF !important;
+}
+
+/* Mensaje de no hay empresas */
+.no-companies-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 600px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.no-companies-message h3 {
+    color: #49874E;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.no-companies-message p {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.no-companies-message button {
+    background-color: #90D575;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.no-companies-message button:hover {
+    background-color: #49874E;
+}
+
+/* Estilos responsivos para el mapa de ofertas */
+@media (max-width: 992px) {
+    .map-container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .map-controls {
+        width: 100%;
+        max-height: 50vh;
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    #map {
+        height: 50vh;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .no-companies-message {
+        margin: 10px;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .controls-header {
+        padding: 1.5rem;
+    }
+    
+    .filters-section {
+        padding: 1rem;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .filter-group {
+        margin-bottom: 0.75rem;
+        width: 100%;
+    }
+    
+    .map-container {
+        width: 100%;
+        padding: 0 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .controls-header h1.page-title {
+        font-size: 1.125rem;
+    }
+    .controls-header p.page-subtitle {
+        font-size: 0.8rem;
+    }
+    .filters-section {
+        padding: 0.75rem;
+    }
+    .filter-group {
+        margin-bottom: 0.75rem;
+    }
+    .filter-label {
+        font-size: 0.8rem;
+    }
+    .filter-select {
+        padding: 0.625rem 2rem 0.625rem 0.625rem !important;
+        font-size: 0.8rem !important;
+        border-radius: 6px !important;
+        color: #49874E !important;
+        cursor: pointer !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2349874E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 1.25rem !important;
+    }
+    .btn {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.8rem;
+    }
+    .results-section {
+        max-height: 150px;
+    }
+    .results-list {
+        max-height: 100px;
+        padding: 0.25rem;
+    }
+    .result-item {
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .product-preview {
+        padding: 0.25rem;
+    }
+    .product-thumb {
+        width: 28px;
+        height: 28px;
+    }
+    .info-window {
+        max-width: 250px;
+    }
 }
 
 /* Compatibilidad con navegadores */
@@ -900,9 +1060,21 @@
     }
 
     .filter-select {
-        padding: 0.625rem 2rem 0.625rem 0.625rem;
-        font-size: 0.8rem;
-        border-radius: 6px;
+        padding: 0.625rem 2rem 0.625rem 0.625rem !important;
+        font-size: 0.8rem !important;
+        border-radius: 6px !important;
+        color: #49874E !important;
+        cursor: pointer !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        /* Ícono personalizado del desplegable */
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2349874E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 1.25rem !important;
     }
 
     .btn {

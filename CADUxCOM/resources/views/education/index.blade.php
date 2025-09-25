@@ -21,16 +21,146 @@
     <style>
         /* Espaciado superior específico para la página de educación */
         .education-container {
-            margin-top: 90px; /* Espacio mínimo para el header fijo */
-            padding-top: 10px; /* Espacio adicional reducido */
+            margin-top: 90px;
+            padding-top: 10px;
+            padding-bottom: 40px;
+            width: 100%;
+            max-width: none;
+            margin-left: 0;
+            margin-right: 0;
+            background: #fff;
+            border-radius: 0;
+            box-shadow: none;
         }
-        
-        /* Responsive para el espaciado */
+        .container {
+            padding: 0 32px;
+        }
+        @media (max-width: 1024px) {
+            .education-container {
+                width: 100vw;
+                padding-bottom: 24px;
+            }
+            .container {
+                padding: 0 12px;
+            }
+        }
         @media (max-width: 768px) {
             .education-container {
-                margin-top: 100px; /* Espacio reducido en móviles */
+                margin-top: 100px;
                 padding-top: 5px;
+                padding-bottom: 12px;
             }
+            .container {
+                padding: 0 4vw;
+            }
+            .hero-title {
+                font-size: 2rem;
+            }
+            .section-header h2 {
+                font-size: 1.3rem;
+            }
+            .statistics-grid, .benefits-grid, .tips-grid, .articles-grid {
+                grid-template-columns: 1fr !important;
+                gap: 18px !important;
+            }
+        }
+        .section-header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        .section-header h2 {
+            margin-bottom: 8px;
+        }
+        .statistics-grid, .benefits-grid, .tips-grid, .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 32px;
+            width: 100%;
+        }
+        .stat-card, .benefit-card, .tip-card, .article-card {
+            margin-bottom: 0;
+            padding: 24px 18px;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(73,135,78,0.08);
+            background: #fff;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+        .stat-value, .stat-title, .stat-description, .benefit-list li, .tip-list li, .article-title, .article-excerpt {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        .calculator-card {
+            padding: 32px 18px;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(73,135,78,0.08);
+            background: #fff;
+            margin-bottom: 32px;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+        .calculator-form .form-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .calculator-form .form-group {
+            flex: 1 1 220px;
+            min-width: 220px;
+            margin-bottom: 18px;
+        }
+        @media (max-width: 600px) {
+            .calculator-form .form-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .calculator-card {
+                padding: 18px 4px;
+            }
+        }
+        .cta-section {
+            margin-top: 0;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .cta-content {
+            margin-bottom: 24px; /* Espaciado interno antes del cierre, no sobre el footer */
+            background: linear-gradient(135deg, #89CF6D 0%, #49874E 100%);
+            border-radius: 18px;
+            padding: 32px 24px;
+            color: #fff;
+            box-shadow: 0 2px 16px rgba(73,135,78,0.08);
+        }
+        .cta-text h2, .cta-text p {
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(73,135,78,0.18);
+        }
+        .cta-text p {
+            font-size: 1.15rem;
+            margin-bottom: 18px;
+        }
+        .cta-actions .btn {
+            box-shadow: 0 2px 8px rgba(73,135,78,0.10);
+        }
+        @media (max-width: 700px) {
+            .cta-content {
+                flex-direction: column;
+                gap: 18px;
+                padding: 18px 8px;
+            }
+            .cta-text {
+                text-align: center;
+            }
+            .cta-actions {
+                justify-content: center;
+            }
+        }
+        /* Eliminar espacio extra antes del footer */
+        .education-container {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
         }
     </style>
 </head>
@@ -312,58 +442,9 @@
             </div>
         </section>
 
-        <!-- Recetas Creativas -->
-        <section class="recipes-section" id="recetas">
-            <div class="container">
-                <div class="section-header">
-                    <h2>Recetas Creativas</h2>
-                    <p>Transforma productos próximos a caducar en deliciosas comidas</p>
-                </div>
-                
-                <div class="recipes-grid">
-                    @foreach($recipes as $recipe)
-                        <div class="recipe-card" data-aos="zoom-in" data-aos-delay="{{ $loop->index * 150 }}">
-                            <div class="recipe-image">
-                                <div class="recipe-placeholder">
-                                    <i class="fas fa-utensils"></i>
-                                    <span>{{ ucfirst($recipe['category']) }}</span>
-                                </div>
-                            </div>
-                            <div class="recipe-content">
-                                <h3 class="recipe-title">{{ $recipe['title'] }}</h3>
-                                <p class="recipe-description">{{ $recipe['description'] }}</p>
-                                <div class="recipe-meta">
-                                    <span class="recipe-time">
-                                        <i class="fas fa-clock"></i>
-                                        {{ $recipe['prep_time'] }} + {{ $recipe['cook_time'] }}
-                                    </span>
-                                    <span class="recipe-servings">
-                                        <i class="fas fa-users"></i>
-                                        {{ $recipe['servings'] }} porciones
-                                    </span>
-                                    <span class="recipe-difficulty">
-                                        <i class="fas fa-signal"></i>
-                                        {{ $recipe['difficulty'] }}
-                                    </span>
-                                </div>
-                                <div class="recipe-ingredients">
-                                    <strong>Ingredientes:</strong>
-                                    <ul>
-                                        @foreach($recipe['ingredients'] as $ingredient)
-                                            <li>{{ $ingredient }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
         <!-- Call to Action -->
         <section class="cta-section">
-            <div class="container">
+            <div class="container" style="display: flex; align-items: center; justify-content: center; height: 100%; min-height: 340px; padding: 0;">
                 <div class="cta-content">
                     <div class="cta-text">
                         <h2>¡Únete a la Lucha contra el Desperdicio!</h2>
@@ -416,7 +497,13 @@
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Error al calcular el impacto. Inténtalo de nuevo.');
+                    showModalAlert({
+                        title: 'Error',
+                        message: 'Error al calcular el impacto. Inténtalo de nuevo.',
+                        confirmText: 'Cerrar',
+                        color: '#AA5FC7',
+                        accent: '#49874E'
+                    });
                 }
             });
 
@@ -460,5 +547,6 @@
             });
         });
     </script>
+    <script src="{{ asset('js/modal-alert.js') }}"></script>
 </body>
 </html>

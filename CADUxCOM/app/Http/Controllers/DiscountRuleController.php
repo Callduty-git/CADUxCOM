@@ -75,10 +75,25 @@ class DiscountRuleController extends Controller
             'is_automatic' => 'boolean',
             'starts_at' => 'nullable|date',
             'expires_at' => 'nullable|date|after:starts_at',
+        ], [
+            'name.required' => 'El nombre de la regla es obligatorio.',
+            'days_before_expiry.required' => 'Los días antes de caducar son obligatorios.',
+            'days_before_expiry.min' => 'Debe ser al menos 1 día.',
+            'days_before_expiry.max' => 'No puede ser más de 30 días.',
+            'discount_type.required' => 'El tipo de descuento es obligatorio.',
+            'discount_type.in' => 'El tipo de descuento no es válido.',
+            'discount_value.required' => 'El valor del descuento es obligatorio.',
+            'discount_value.min' => 'El valor del descuento debe ser mayor a 0.',
+            'expires_at.after' => 'La fecha de expiración debe ser posterior a la de inicio.'
         ]);
 
         if ($request->discount_type === 'percentage' && $request->discount_value > 100) {
             return back()->withErrors(['discount_value' => 'El descuento porcentual no puede ser mayor al 100%.']);
+        }
+
+        // Validación extra: el descuento máximo no puede ser menor al mínimo
+        if ($request->maximum_discount !== null && $request->minimum_discount !== null && $request->maximum_discount < $request->minimum_discount) {
+            return back()->withErrors(['maximum_discount' => 'El descuento máximo no puede ser menor al mínimo.']);
         }
 
         try {

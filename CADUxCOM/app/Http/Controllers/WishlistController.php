@@ -12,21 +12,28 @@ use Illuminate\View\View;
 class WishlistController extends Controller
 {
     /**
-     * Constructor - Requerir autenticación para todas las acciones
+     * Constructor - (Eliminado middleware 'auth', protección se realiza en rutas)
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        // Protección de autenticación se realiza en las rutas web y api
     }
 
     /**
      * Mostrar la wishlist del usuario
      */
-    public function index(): View
+    public function index(Request $request)
     {
         $userId = Auth::id();
         $wishlistItems = Wishlist::getUserWishlist($userId);
         $wishlistCount = Wishlist::getWishlistCount($userId);
+
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json([
+                'wishlist' => $wishlistItems,
+                'wishlist_count' => $wishlistCount
+            ]);
+        }
 
         return view('wishlist.index', compact('wishlistItems', 'wishlistCount'));
     }
@@ -38,6 +45,10 @@ class WishlistController extends Controller
     {
         $request->validate([
             'product_id' => 'required|integer|exists:productos,Id_Producto',
+        ], [
+            'product_id.required' => 'El ID de producto es obligatorio.',
+            'product_id.integer' => 'El ID de producto debe ser un número.',
+            'product_id.exists' => 'El producto seleccionado no existe.'
         ]);
 
         $userId = Auth::id();
@@ -77,6 +88,10 @@ class WishlistController extends Controller
     {
         $request->validate([
             'product_id' => 'required|integer|exists:productos,Id_Producto',
+        ], [
+            'product_id.required' => 'El ID de producto es obligatorio.',
+            'product_id.integer' => 'El ID de producto debe ser un número.',
+            'product_id.exists' => 'El producto seleccionado no existe.'
         ]);
 
         $userId = Auth::id();
@@ -107,6 +122,10 @@ class WishlistController extends Controller
     {
         $request->validate([
             'product_id' => 'required|integer|exists:productos,Id_Producto',
+        ], [
+            'product_id.required' => 'El ID de producto es obligatorio.',
+            'product_id.integer' => 'El ID de producto debe ser un número.',
+            'product_id.exists' => 'El producto seleccionado no existe.'
         ]);
 
         $userId = Auth::id();
@@ -158,6 +177,10 @@ class WishlistController extends Controller
     {
         $request->validate([
             'product_id' => 'required|integer|exists:productos,Id_Producto',
+        ], [
+            'product_id.required' => 'El ID de producto es obligatorio.',
+            'product_id.integer' => 'El ID de producto debe ser un número.',
+            'product_id.exists' => 'El producto seleccionado no existe.'
         ]);
 
         $userId = Auth::id();
@@ -231,6 +254,11 @@ class WishlistController extends Controller
         $request->validate([
             'product_ids' => 'required|array',
             'product_ids.*' => 'integer|exists:productos,Id_Producto',
+        ], [
+            'product_ids.required' => 'Debes enviar un array de IDs de productos.',
+            'product_ids.array' => 'El formato de los IDs de productos no es válido.',
+            'product_ids.*.integer' => 'Cada ID de producto debe ser un número.',
+            'product_ids.*.exists' => 'Algún producto seleccionado no existe.'
         ]);
 
         $userId = Auth::id();

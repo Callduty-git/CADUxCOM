@@ -19,6 +19,7 @@
     
     <!-- JavaScript del carrito -->
     <script src="{{ asset('js/cart.js') }}"></script>
+    <script src="{{ asset('js/modal-alert.js') }}"></script>
     
     <style>
         * {
@@ -191,52 +192,62 @@
             console.log('Iniciando clearWishlist...');
 
             // Usar confirmación simple del navegador por ahora
-            if (!confirm('¿Estás seguro de que quieres limpiar toda tu lista de favoritos?')) {
-                console.log('Usuario canceló la operación');
-                return;
-            }
+            showModalAlert({
+                title: 'Confirmar acción',
+                message: '¿Estás seguro de que quieres limpiar toda tu lista de favoritos?',
+                confirmText: 'Sí, limpiar',
+                cancelText: 'Cancelar',
+                color: '#AA5FC7',
+                accent: '#89CF6D',
+                showCancel: true,
+                onConfirm: async () => {
+                    console.log('Usuario confirmó, procediendo...');
+                    try {
+                        console.log('Enviando petición POST a:', '{{ route("wishlist.clear.post") }}');
 
-            console.log('Usuario confirmó, procediendo...');
+                        const response = await fetch('{{ route("wishlist.clear.post") }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            }
+                        });
 
-            try {
-                console.log('Enviando petición POST a:', '{{ route("wishlist.clear.post") }}');
+                        console.log('Respuesta del servidor:', response.status, response.statusText);
 
-                const response = await fetch('{{ route("wishlist.clear.post") }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        const responseText = await response.text();
+                        console.log('Respuesta completa:', responseText);
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${responseText}`);
+                        }
+
+                        const data = JSON.parse(responseText);
+                        console.log('Datos parseados:', data);
+
+                        if (data.success) {
+                            console.log('Éxito: actualizando interfaz');
+                            showNotification('Lista de favoritos limpiada correctamente', 'success');
+
+                            // Actualizar interfaz inmediatamente
+                            updateWishlistInterface();
+                            updateWishlistCountHeader();
+                        } else {
+                            console.error('Error del servidor:', data.message);
+                            showNotification(data.message || 'Error al limpiar favoritos', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error en clearWishlist:', error);
+                        showNotification('Error al limpiar favoritos: ' + error.message, 'error');
                     }
-                });
-
-                console.log('Respuesta del servidor:', response.status, response.statusText);
-
-                const responseText = await response.text();
-                console.log('Respuesta completa:', responseText);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${responseText}`);
+                },
+                onCancel: () => {
+                    console.log('Usuario canceló la operación');
+                    return;
                 }
-
-                const data = JSON.parse(responseText);
-                console.log('Datos parseados:', data);
-
-                if (data.success) {
-                    console.log('Éxito: actualizando interfaz');
-                    showNotification('Lista de favoritos limpiada correctamente', 'success');
-
-                    // Actualizar interfaz inmediatamente
-                    updateWishlistInterface();
-                    updateWishlistCountHeader();
-                } else {
-                    console.error('Error del servidor:', data.message);
-                    showNotification(data.message || 'Error al limpiar favoritos', 'error');
-                }
-            } catch (error) {
-                console.error('Error en clearWishlist:', error);
-                showNotification('Error al limpiar favoritos: ' + error.message, 'error');
-            }
+            });
+            return;
         }
 
         // Función para agregar todos al carrito
@@ -312,64 +323,75 @@
 
         // Función para remover de favoritos
         async function removeFromWishlist(productId) {
-            if (!confirm('¿Estás seguro de que quieres quitar este producto de favoritos?')) {
-                return;
-            }
+            showModalAlert({
+                title: 'Confirmar acción',
+                message: '¿Estás seguro de que quieres quitar este producto de favoritos?',
+                confirmText: 'Sí, quitar',
+                cancelText: 'Cancelar',
+                color: '#AA5FC7',
+                accent: '#89CF6D',
+                showCancel: true,
+                onConfirm: async () => {
+                    try {
+                        // Mostrar notificación de carga
+                        showNotification('Removiendo de favoritos...', 'info');
 
-            try {
-                // Mostrar notificación de carga
-                showNotification('Removiendo de favoritos...', 'info');
+                        const response = await fetch('{{ route("wishlist.remove") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({
+                                product_id: productId
+                            })
+                        });
 
-                const response = await fetch('{{ route("wishlist.remove") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({
-                        product_id: productId
-                    })
-                });
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                        const data = await response.json();
 
-                const data = await response.json();
-
-                if (data.success) {
-                    // Remover el elemento del DOM con animación
-                    const item = document.querySelector(`[data-product-id="${productId}"]`);
-                    if (item) {
-                        item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                        item.style.opacity = '0';
-                        item.style.transform = 'scale(0.8)';
-                        setTimeout(() => {
-                            item.remove();
-                        }, 300);
+                        if (data.success) {
+                            // Remover el elemento del DOM con animación
+                            const item = document.querySelector(`[data-product-id="${productId}"]`);
+                            if (item) {
+                                item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                                item.style.opacity = '0';
+                                item.style.transform = 'scale(0.8)';
+                                setTimeout(() => {
+                                    item.remove();
+                                }, 300);
+                            }
+                            
+                            // Actualizar contador
+                            updateWishlistCount(data.wishlist_count);
+                            
+                            // Mostrar mensaje de éxito
+                            showNotification(data.message || 'Producto removido de favoritos', 'success');
+                            
+                            // Si no hay más elementos, mostrar estado vacío
+                            if (data.wishlist_count === 0) {
+                                setTimeout(() => {
+                                    updateWishlistInterface();
+                                }, 500);
+                            }
+                        } else {
+                            showNotification(data.message || 'Error al quitar de favoritos', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showNotification('Error al quitar de favoritos: ' + error.message, 'error');
                     }
-                    
-                    // Actualizar contador
-                    updateWishlistCount(data.wishlist_count);
-                    
-                    // Mostrar mensaje de éxito
-                    showNotification(data.message || 'Producto removido de favoritos', 'success');
-                    
-                    // Si no hay más elementos, mostrar estado vacío
-                    if (data.wishlist_count === 0) {
-                        setTimeout(() => {
-                            updateWishlistInterface();
-                        }, 500);
-                    }
-                } else {
-                    showNotification(data.message || 'Error al quitar de favoritos', 'error');
+                },
+                onCancel: () => {
+                    return;
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('Error al quitar de favoritos: ' + error.message, 'error');
-            }
+            });
+            return;
         }
 
 

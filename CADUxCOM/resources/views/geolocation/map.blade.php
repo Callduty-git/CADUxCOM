@@ -21,6 +21,18 @@
     <link rel="preload" href="{{ asset('js/map.js') }}" as="script">
     <link rel="preload" href="{{ asset('css/map.css') }}" as="style">
     
+    <!-- Google Maps API -->
+    <script>
+        // Variable global para la API key
+        window.googleMapsApiKey = 'AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik';
+        
+        // Función de inicialización del mapa
+        function initMap() {
+            if (window.mapManager) return;
+            window.mapManager = new MapManager();
+        }
+    </script>
+    
     <!-- Estilos inline para asegurar que se apliquen -->
     <style>
         .filter-select {
@@ -50,15 +62,18 @@
         
         /* Espaciado superior específico para la página del mapa */
         .map-container {
-            margin-top: 90px; /* Espacio mínimo para el header fijo */
-            padding-top: 10px; /* Espacio adicional reducido */
+            margin-top: 50px; /* Espacio mínimo necesario para el header fijo */
+            padding-top: 0; /* Eliminado el padding adicional */
+            position: relative;
+            z-index: 1;
         }
         
         /* Responsive para el espaciado */
         @media (max-width: 768px) {
             .map-container {
-                margin-top: 100px; /* Espacio reducido en móviles */
-                padding-top: 5px;
+                margin-top: 110px !important; /* Ajustado para coincidir con el header fijo en móviles */
+                padding-top: 0;
+                height: calc(100vh - 110px);
             }
         }
     </style>
@@ -199,13 +214,21 @@
 
         <!-- Mapa -->
         <div class="map-wrapper">
-            <div id="map" class="map">
+            <div id="map-container" style="position: relative; min-height: 400px;">
+                <div id="map" class="map" style="height: 100%; width: 100%;"></div>
                 <!-- Loading inicial -->
                 <div class="map-overlay" id="initial-loading">
                     <div class="loading-spinner">
                         <div class="spinner"></div>
                         <p>Cargando mapa...</p>
                     </div>
+                </div>
+                <div id="no-companies-message" class="no-companies-message" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 500px;">
+                    <h3>No hay empresas disponibles</h3>
+                    <p>Actualmente no hay empresas registradas en el mapa. Vuelve más tarde para ver las ofertas disponibles.</p>
+                    <button onclick="location.reload()">
+                        <i class="fas fa-sync-alt"></i> Recargar
+                    </button>
                 </div>
             </div>
             <div class="map-overlay" id="loading-spinner" style="display: none;">
@@ -223,7 +246,7 @@
     <script>
         // Datos globales para el mapa
         window.empresasData = @json($empresas);
-        window.googleMapsApiKey = '{{ config('services.google.maps_api_key', 'YOUR_API_KEY') }}';
+        window.googleMapsApiKey = '{{ config('services.google.maps_api_key', 'AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik') }}';
         window.defaultProductImage = '{{ asset('images/default-product.png') }}';
         
         // Verificar si la API Key está configurada
@@ -234,17 +257,22 @@
         // Función de callback global para Google Maps
         window.initMap = function() {
             console.log('Google Maps API cargada correctamente');
-            // El mapa se inicializará automáticamente cuando se cargue el script
+            // Inicializar el mapa manualmente
+            if (typeof MapManager === 'function') {
+                window.mapManager = new MapManager();
+            } else {
+                console.error('MapManager no está definido. Asegúrate de que map.js se cargue correctamente.');
+            }
         };
     </script>
     
-    <!-- Cargar Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key') }}&libraries=places,geometry&callback=initMap" async defer></script>
-    
-    <!-- Cargar MarkerClusterer -->
+    <!-- Cargar MarkerClusterer primero -->
     <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
     
-    <!-- Cargar script del mapa -->
+    <!-- Cargar script del mapa antes de la API -->
     <script src="{{ asset('js/map.js') }}"></script>
+    
+    <!-- Cargar Google Maps API al final -->
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key', 'AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik') }}&libraries=places,geometry&callback=initMap" async defer></script>
 </body>
 </html>

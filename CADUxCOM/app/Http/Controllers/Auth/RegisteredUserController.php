@@ -67,7 +67,7 @@ class RegisteredUserController extends Controller
 
             event(new Registered($user));
             Auth::login($user);
-            return redirect(route('home'));
+            return redirect()->route('dashboard'); // Redirige a /dashboard tras registro
         }
 
         // Registro empresa
@@ -93,7 +93,7 @@ class RegisteredUserController extends Controller
             Auth::guard('empresa')->login($empresa);
             Log::info('Empresa registrada exitosamente', $empresa->toArray());
 
-            return redirect()->route('productos.create');
+            return redirect()->route('empresa.dashboard'); // Redirige a dashboard de empresa tras registro
         }
 
         return back()->withErrors(['role' => 'Rol no válido']);

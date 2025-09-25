@@ -39,7 +39,7 @@ class AuthenticatedSessionController extends Controller
             'password' => $request->password,
         ], $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('/empresa/dashboard'); // Cambia si tienes otra ruta
+            return redirect()->intended('/empresa/dashboard');
         }
     }
 
@@ -49,7 +49,7 @@ class AuthenticatedSessionController extends Controller
         'password' => $request->password,
     ], $request->boolean('remember'))) {
         $request->session()->regenerate();
-        return redirect()->intended(route('home')); // Usuario normal
+        return redirect()->intended('/dashboard'); // Cambiado a /dashboard para unificar comportamiento
     }
 
     return back()->withErrors([

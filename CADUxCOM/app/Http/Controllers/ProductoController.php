@@ -100,6 +100,10 @@ class ProductoController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json(['productos' => $productos]);
+        }
+
         // Obtener categorías y subcategorías para el filtro
         $categorias = \App\Models\Categoria::all();
         $subcategorias = \App\Models\Subcategoria::with('categoria')->get();
@@ -130,13 +134,31 @@ class ProductoController extends Controller
         $request->validate([
             'Nombre' => 'required|string|max:255',
             'Marca' => 'required|string|max:255',
-            'PrecioOriginal' => 'required|numeric',
-            'Precio' => 'required|numeric',
+            'PrecioOriginal' => 'required|numeric|min:0',
+            'Precio' => 'required|numeric|min:0',
             'Fecha_Caducidad' => 'nullable|date',
             'Id_Empresa' => 'required|exists:empresas,Id_Empresa',
             'Id_Subcategoria' => 'required|exists:subcategorias,Id_Subcategoria',
             'Foto' => 'nullable|image|max:2048',
+        ], [
+            'Nombre.required' => 'El nombre es obligatorio.',
+            'Marca.required' => 'La marca es obligatoria.',
+            'PrecioOriginal.required' => 'El precio original es obligatorio.',
+            'Precio.required' => 'El precio es obligatorio.',
+            'PrecioOriginal.min' => 'El precio original no puede ser negativo.',
+            'Precio.min' => 'El precio no puede ser negativo.',
+            'Id_Empresa.required' => 'La empresa es obligatoria.',
+            'Id_Empresa.exists' => 'La empresa seleccionada no existe.',
+            'Id_Subcategoria.required' => 'La subcategoría es obligatoria.',
+            'Id_Subcategoria.exists' => 'La subcategoría seleccionada no existe.',
+            'Foto.image' => 'El archivo debe ser una imagen.',
+            'Foto.max' => 'La imagen no debe superar los 2MB.'
         ]);
+
+        // Validación extra: el precio no puede ser mayor al precio original
+        if ($request->Precio > $request->PrecioOriginal) {
+            return back()->withInput()->with('error', 'El precio de oferta no puede ser mayor al precio original.');
+        }
 
         $producto = new Producto($request->except('Foto'));
 
@@ -175,9 +197,12 @@ class ProductoController extends Controller
             : redirect()->route('productos.index')->with('success', 'Producto creado exitosamente.');
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
         $producto = Producto::findOrFail($id);
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json($producto);
+        }
         return view('productos.show', compact('producto'));
     }
 
@@ -210,13 +235,30 @@ class ProductoController extends Controller
         $request->validate([
             'Nombre' => 'required|string|max:255',
             'Marca' => 'required|string|max:255',
-            'PrecioOriginal' => 'required|numeric',
-            'Precio' => 'required|numeric',
+            'PrecioOriginal' => 'required|numeric|min:0',
+            'Precio' => 'required|numeric|min:0',
             'Fecha_Caducidad' => 'nullable|date',
             'Id_Empresa' => 'required|exists:empresas,Id_Empresa',
             'Id_Subcategoria' => 'required|exists:subcategorias,Id_Subcategoria',
             'Foto' => 'nullable|image|max:2048',
+        ], [
+            'Nombre.required' => 'El nombre es obligatorio.',
+            'Marca.required' => 'La marca es obligatoria.',
+            'PrecioOriginal.required' => 'El precio original es obligatorio.',
+            'Precio.required' => 'El precio es obligatorio.',
+            'PrecioOriginal.min' => 'El precio original no puede ser negativo.',
+            'Precio.min' => 'El precio no puede ser negativo.',
+            'Id_Empresa.required' => 'La empresa es obligatoria.',
+            'Id_Empresa.exists' => 'La empresa seleccionada no existe.',
+            'Id_Subcategoria.required' => 'La subcategoría es obligatoria.',
+            'Id_Subcategoria.exists' => 'La subcategoría seleccionada no existe.',
+            'Foto.image' => 'El archivo debe ser una imagen.',
+            'Foto.max' => 'La imagen no debe superar los 2MB.'
         ]);
+
+        if ($request->Precio > $request->PrecioOriginal) {
+            return back()->withInput()->with('error', 'El precio de oferta no puede ser mayor al precio original.');
+        }
 
         $producto = Producto::findOrFail($id);
         $producto->fill($request->except('Foto'));

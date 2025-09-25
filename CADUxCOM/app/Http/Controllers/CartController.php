@@ -70,11 +70,10 @@ class CartController extends Controller
 
     public function add(Request $request)
     {
-        // Verificar que el usuario esté autenticado
         if (!Auth::check()) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
-                    'success' => false, 
+                    'success' => false,
                     'error' => 'Debes iniciar sesión para agregar productos al carrito',
                     'redirect' => route('login')
                 ], 401);
@@ -85,12 +84,18 @@ class CartController extends Controller
         $validated = $request->validate([
             'product_id' => ['required', 'integer', 'exists:productos,Id_Producto'],
             'quantity' => ['nullable', 'integer', 'min:1']
+        ], [
+            'product_id.required' => 'El ID de producto es obligatorio.',
+            'product_id.integer' => 'El ID de producto debe ser un número.',
+            'product_id.exists' => 'El producto seleccionado no existe.',
+            'quantity.integer' => 'La cantidad debe ser un número entero.',
+            'quantity.min' => 'La cantidad mínima es 1.'
         ]);
 
         $productId = (int) $validated['product_id'];
         $quantity = (int) ($validated['quantity'] ?? 1);
+        if ($quantity < 1) $quantity = 1;
 
-        // Verificar que el producto existe y está disponible
         $product = Producto::find($productId);
         if (!$product) {
             if ($request->wantsJson() || $request->ajax()) {
@@ -98,31 +103,31 @@ class CartController extends Controller
             }
             return back()->with('error', 'Producto no encontrado.');
         }
-
-        // Verificar si el producto está disponible
         if ($product->Cantidad <= 0) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'error' => 'Este producto está agotado'], 400);
             }
             return back()->with('error', 'Este producto está agotado.');
         }
-
-        // Verificar stock disponible
         if ($product->Cantidad < $quantity) {
             if ($request->wantsJson() || $request->ajax()) {
-                return response()->json(['success' => false, 'error' => 'No puedes agregar más de la cantidad disponible de este producto. Solo quedan ' . $product->Cantidad . ' unidades'], 400);
+                return response()->json([
+                    'success' => false,
+                    'error' => 'No puedes agregar más de la cantidad disponible de este producto. Solo quedan ' . $product->Cantidad . ' unidades'
+                ], 400);
             }
             return back()->with('error', 'No puedes agregar más de la cantidad disponible de este producto.');
         }
 
         $cart = session()->get('cart', []);
-        
         if (isset($cart[$productId])) {
-            $newQuantity = $cart[$productId]['quantity'] + $quantity;
-            // Verificar que no exceda el stock total
+            $newQuantity = max(1, (int)$cart[$productId]['quantity']) + $quantity;
             if ($newQuantity > $product->Cantidad) {
                 if ($request->wantsJson() || $request->ajax()) {
-                    return response()->json(['success' => false, 'error' => 'No puedes agregar más de la cantidad disponible de este producto. Stock disponible: ' . $product->Cantidad . ' unidades'], 400);
+                    return response()->json([
+                        'success' => false,
+                        'error' => 'No puedes agregar más de la cantidad disponible de este producto. Stock disponible: ' . $product->Cantidad . ' unidades'
+                    ], 400);
                 }
                 return back()->with('error', 'No puedes agregar más de la cantidad disponible de este producto.');
             }
@@ -133,18 +138,17 @@ class CartController extends Controller
                 'added_at' => now()->toDateTimeString()
             ];
         }
-
         session()->put('cart', $cart);
-
         if ($request->wantsJson() || $request->ajax()) {
-            $count = array_sum(array_column($cart, 'quantity'));
+            $count = array_sum(array_map(function($row) {
+                return max(1, (int)($row['quantity'] ?? 1));
+            }, $cart));
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'count' => $count,
                 'message' => 'Producto agregado al carrito'
             ]);
         }
-        
         return back()->with('success', 'Producto agregado al carrito exitosamente.');
     }
 
@@ -153,12 +157,19 @@ class CartController extends Controller
         $validated = $request->validate([
             'product_id' => ['required', 'integer', 'exists:productos,Id_Producto'],
             'quantity' => ['required', 'integer', 'min:1']
+        ], [
+            'product_id.required' => 'El ID de producto es obligatorio.',
+            'product_id.integer' => 'El ID de producto debe ser un número.',
+            'product_id.exists' => 'El producto seleccionado no existe.',
+            'quantity.required' => 'La cantidad es obligatoria.',
+            'quantity.integer' => 'La cantidad debe ser un número entero.',
+            'quantity.min' => 'La cantidad mínima es 1.'
         ]);
 
         $productId = (int) $validated['product_id'];
         $quantity = (int) $validated['quantity'];
+        if ($quantity < 1) $quantity = 1;
 
-        // Verificar stock disponible
         $product = Producto::find($productId);
         if (!$product) {
             if ($request->wantsJson() || $request->ajax()) {
@@ -166,29 +177,37 @@ class CartController extends Controller
             }
             return back()->with('error', 'Producto no encontrado.');
         }
-
         if ($product->Cantidad < $quantity) {
             if ($request->wantsJson() || $request->ajax()) {
-                return response()->json(['success' => false, 'error' => 'No puedes agregar más de la cantidad disponible de este producto. Solo quedan ' . $product->Cantidad . ' unidades'], 400);
+                return response()->json([
+                    'success' => false,
+                    'error' => 'No puedes seleccionar más de la cantidad disponible. Solo quedan ' . $product->Cantidad . ' unidades'
+                ], 400);
             }
-            return back()->with('error', 'No puedes agregar más de la cantidad disponible de este producto.');
+            return back()->with('error', 'No puedes seleccionar más de la cantidad disponible.');
         }
-
         $cart = session('cart', []);
-        if (isset($cart[$productId])) {
-            $cart[$productId]['quantity'] = $quantity;
-            session()->put('cart', $cart);
+        if (!isset($cart[$productId])) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'El producto no está en el carrito.'
+                ], 404);
+            }
+            return back()->with('error', 'El producto no está en el carrito.');
         }
-
+        $cart[$productId]['quantity'] = $quantity;
+        session()->put('cart', $cart);
         if ($request->wantsJson() || $request->ajax()) {
-            $count = array_sum(array_column($cart, 'quantity'));
+            $count = array_sum(array_map(function($row) {
+                return max(1, (int)($row['quantity'] ?? 1));
+            }, $cart));
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Cantidad actualizada',
                 'count' => $count
             ]);
         }
-        
         return back()->with('success', 'Cantidad actualizada exitosamente.');
     }
 
@@ -196,28 +215,33 @@ class CartController extends Controller
     {
         $validated = $request->validate([
             'product_id' => ['required', 'integer', 'exists:productos,Id_Producto']
+        ], [
+            'product_id.required' => 'El ID de producto es obligatorio.',
+            'product_id.integer' => 'El ID de producto debe ser un número.',
+            'product_id.exists' => 'El producto seleccionado no existe.'
         ]);
-        
         $cart = session('cart', []);
         $productId = (int) $validated['product_id'];
-        
         if (isset($cart[$productId])) {
             unset($cart[$productId]);
             session()->put('cart', $cart);
-            
             if ($request->wantsJson() || $request->ajax()) {
-                $count = array_sum(array_column($cart, 'quantity'));
+                $count = array_sum(array_map(function($row) {
+                    return max(1, (int)($row['quantity'] ?? 1));
+                }, $cart));
                 return response()->json([
-                    'success' => true, 
+                    'success' => true,
                     'message' => 'Producto eliminado del carrito',
                     'count' => $count
                 ]);
             }
             return back()->with('success', 'Producto eliminado del carrito.');
         }
-
         if ($request->wantsJson() || $request->ajax()) {
-            return response()->json(['success' => false, 'error' => 'Producto no encontrado en el carrito'], 404);
+            return response()->json([
+                'success' => false,
+                'error' => 'Producto no encontrado en el carrito'
+            ], 404);
         }
         return back()->with('error', 'Producto no encontrado en el carrito.');
     }
@@ -225,11 +249,9 @@ class CartController extends Controller
     public function clear()
     {
         session()->forget('cart');
-        
         if (request()->wantsJson() || request()->ajax()) {
             return response()->json(['success' => true, 'message' => 'Carrito vaciado']);
         }
-        
         return back()->with('success', 'Carrito vaciado exitosamente.');
     }
 

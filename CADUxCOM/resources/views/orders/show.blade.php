@@ -258,11 +258,18 @@
                             </a>
                             
                             @if($order->canBeCancelled())
-                                <form action="{{ route('orders.cancel', $order->id) }}" method="POST">
+                                <form action="{{ route('orders.cancel', $order->id) }}" method="POST" onsubmit="event.preventDefault(); showModalAlert({
+                                    title: 'Cancelar Orden',
+                                    message: '¿Estás seguro de que quieres cancelar esta orden?',
+                                    confirmText: 'Sí, cancelar',
+                                    cancelText: 'No',
+                                    color: '#AA5FC7',
+                                    accent: '#89CF6D',
+                                    showCancel: true,
+                                    onConfirm: () => this.submit(),
+                                    onCancel: () => {} });">
                                     @csrf
-                                    <button type="submit" 
-                                            onclick="return confirm('¿Estás seguro de que quieres cancelar esta orden?')"
-                                            class="w-full inline-flex items-center justify-center px-4 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors">
+                                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
@@ -272,11 +279,18 @@
                             @endif
                             
                             @if($order->canBeRefunded())
-                                <form action="{{ route('orders.refund', $order->id) }}" method="POST">
+                                <form action="{{ route('orders.refund', $order->id) }}" method="POST" onsubmit="event.preventDefault(); showModalAlert({
+                                    title: 'Solicitar Reembolso',
+                                    message: '¿Estás seguro de que quieres solicitar un reembolso para esta orden?',
+                                    confirmText: 'Sí, solicitar',
+                                    cancelText: 'No',
+                                    color: '#AA5FC7',
+                                    accent: '#89CF6D',
+                                    showCancel: true,
+                                    onConfirm: () => this.submit(),
+                                    onCancel: () => {} });">
                                     @csrf
-                                    <button type="submit" 
-                                            onclick="return confirm('¿Estás seguro de que quieres solicitar un reembolso para esta orden?')"
-                                            class="w-full inline-flex items-center justify-center px-4 py-2 border border-orange-300 rounded-md text-sm font-medium text-orange-700 bg-white hover:bg-orange-50 transition-colors">
+                                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 border border-orange-300 rounded-md text-sm font-medium text-orange-700 bg-white hover:bg-orange-50 transition-colors">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                                         </svg>
@@ -286,11 +300,18 @@
                             @endif
                             
                             @if($order->status === 'shipped')
-                                <form action="{{ route('orders.mark-received', $order->id) }}" method="POST">
+                                <form action="{{ route('orders.mark-received', $order->id) }}" method="POST" onsubmit="event.preventDefault(); showModalAlert({
+                                    title: 'Marcar como Recibida',
+                                    message: '¿Confirmas que has recibido esta orden?',
+                                    confirmText: 'Sí, recibida',
+                                    cancelText: 'No',
+                                    color: '#49874E',
+                                    accent: '#AA5FC7',
+                                    showCancel: true,
+                                    onConfirm: () => this.submit(),
+                                    onCancel: () => {} });">
                                     @csrf
-                                    <button type="submit" 
-                                            onclick="return confirm('¿Confirmas que has recibido esta orden?')"
-                                            class="w-full inline-flex items-center justify-center px-4 py-2 border border-green-300 rounded-md text-sm font-medium text-green-700 bg-white hover:bg-green-50 transition-colors">
+                                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 border border-green-300 rounded-md text-sm font-medium text-green-700 bg-white hover:bg-green-50 transition-colors">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                         </svg>
@@ -324,5 +345,6 @@
         </div>
     </div>
 </div>
+<script src="{{ asset('js/modal-alert.js') }}"></script>
 @endsection
 

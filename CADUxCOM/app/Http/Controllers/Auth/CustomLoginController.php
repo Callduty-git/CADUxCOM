@@ -32,9 +32,9 @@ class CustomLoginController extends Controller
             // Evitar redirigir a endpoints JSON como /wishlist/count
             $intended = session('url.intended');
             if ($intended && $this->isSafeRedirect($intended)) {
-                return redirect()->intended(route('home'));
+                return redirect()->intended(route('dashboard'));
             }
-            return redirect()->route('home');
+            return redirect()->route('dashboard');
         }
 
         // Intentar login como empresa

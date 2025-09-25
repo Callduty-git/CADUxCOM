@@ -41,18 +41,16 @@ function toggleFavorites(productId) {
         if (data.success) {
             window.cartManager.showNotification(data.message, 'success');
             updateWishlistCount();
-            // Cambiar el icono a favorito lleno
+            // Cambiar el estado del ícono de favorito
             const btn = document.getElementById(`favorites-btn-${productId}`);
             if (btn) {
-                const img = btn.querySelector('img');
+                const img = document.getElementById(`favorite-icon-${productId}`);
                 if (data.is_in_wishlist) {
-                    img.src = '{{ asset("images/favoritos.png") }}';
+                    img.classList.add('active');
                     btn.title = 'Eliminar de favoritos';
-                    btn.classList.add('active');
                 } else {
-                    img.src = '{{ asset("images/favoritos.png") }}';
+                    img.classList.remove('active');
                     btn.title = 'Agregar a favoritos';
-                    btn.classList.remove('active');
                 }
             }
         } else if (data.redirect) {

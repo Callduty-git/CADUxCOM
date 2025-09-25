@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/favorites.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
 
     <title>{{ config('app.name', 'Laravel') }}</title>

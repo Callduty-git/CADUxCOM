@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Http\Controllers\ProfileController;
@@ -112,6 +111,9 @@ Route::get('/productos', [ProductoController::class, 'publicIndex'])->name('prod
 // Ruta pública para usuarios (sin autenticación requerida)
 Route::get('/producto/{id}', [ProductoController::class, 'userShow'])->name('productos.user.show');
 
+// Ruta pública para ver detalles de un producto
+Route::get('/productos/{id}', [ProductoController::class, 'show'])->name('productos.show');
+
 // Rutas de contacto
 Route::get('/contacto', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/contacto', [ContactController::class, 'send'])->name('contact.send');
@@ -141,7 +143,7 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->name('regi
 
 // Login unificado para usuario y empresa
 Route::get('/login', [CustomLoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [CustomLoginController::class, 'login']);
+Route::post('/login', [CustomLoginController::class, 'login'])->middleware('throttle:10,1');
 Route::post('/logout', [CustomLoginController::class, 'logout'])->name('logout');
 Route::get('/navbar', [CategoriaController::class, 'navbar'])->name('navbar');
 Route::get('/subcategorias/{id}', [CategoriaController::class, 'getSubcategorias']);
@@ -175,7 +177,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Rutas del sistema de wishlist (solo para usuarios autenticados)
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add');
     Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove');
@@ -185,6 +187,19 @@ Route::middleware('auth')->group(function () {
     Route::delete('/wishlist/clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
     Route::post('/wishlist/clear', [WishlistController::class, 'clear'])->name('wishlist.clear.post');
     Route::post('/wishlist/multiple-status', [WishlistController::class, 'getMultipleStatus'])->name('wishlist.multiple-status');
+});
+
+// Rutas del sistema de productos (solo para empresas autenticadas)
+Route::middleware(['auth:empresa', 'throttle:60,1'])->group(function () {
+    Route::resource('/empresa/productos', ProductoController::class)->names([
+        'index' => 'empresa.productos.index',
+        'create' => 'empresa.productos.create',
+        'store' => 'empresa.productos.store',
+        'show' => 'empresa.productos.show',
+        'edit' => 'empresa.productos.edit',
+        'update' => 'empresa.productos.update',
+        'destroy' => 'empresa.productos.destroy',
+    ]);
 });
 
 /*

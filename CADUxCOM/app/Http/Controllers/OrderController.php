@@ -26,15 +26,16 @@ class OrderController extends Controller
     /**
      * Mostrar el historial de órdenes del usuario
      * 
-     * @return \Illuminate\View\View
+     * @param Request $request
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::with(['items.product', 'items.empresa'])
-            ->where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
+        $userId = Auth::id();
+        $orders = Order::where('user_id', $userId)->orderBy('created_at', 'desc')->get();
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json(['orders' => $orders]);
+        }
         return view('orders.index', compact('orders'));
     }
 
@@ -42,23 +43,22 @@ class OrderController extends Controller
      * Mostrar los detalles de una orden específica
      * 
      * @param int $id
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @param Request $request
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
-        $order = Order::with(['items.product', 'items.empresa', 'user'])
-            ->where('id', $id)
-            ->where(function ($query) {
-                $query->where('user_id', Auth::id())
-                      ->orWhere('customer_email', Auth::user()->email);
-            })
-            ->first();
-
+        $userId = Auth::id();
+        $order = Order::where('id', $id)->where('user_id', $userId)->first();
         if (!$order) {
-            return redirect()->route('orders.index')
-                ->with('error', 'Orden no encontrada.');
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['error' => 'Orden no encontrada'], 404);
+            }
+            return redirect()->route('orders.index')->with('error', 'Orden no encontrada.');
         }
-
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json($order);
+        }
         return view('orders.show', compact('order'));
     }
 
@@ -81,6 +81,11 @@ class OrderController extends Controller
 
         if (!$order->canBeCancelled()) {
             return back()->with('error', 'Esta orden no puede ser cancelada.');
+        }
+
+        // Validación extra: no permitir cancelar si ya está reembolsada
+        if ($order->status === Order::STATUS_REFUNDED) {
+            return back()->with('error', 'No puedes cancelar una orden ya reembolsada.');
         }
 
         $order->update([
@@ -118,6 +123,11 @@ class OrderController extends Controller
 
         if (!$order->canBeRefunded()) {
             return back()->with('error', 'Esta orden no puede ser reembolsada.');
+        }
+
+        // Validación extra: no permitir reembolsar si ya está cancelada
+        if ($order->status === Order::STATUS_CANCELLED) {
+            return back()->with('error', 'No puedes solicitar reembolso de una orden cancelada.');
         }
 
         $order->update([
@@ -163,8 +173,14 @@ class OrderController extends Controller
 
             $quantity = min($item->quantity, $product->Cantidad);
             
+            // Validación extra: no permitir agregar más de stock disponible
             if (isset($cart[$product->Id_Producto])) {
-                $cart[$product->Id_Producto]['quantity'] += $quantity;
+                $newQty = $cart[$product->Id_Producto]['quantity'] + $quantity;
+                if ($newQty > $product->Cantidad) {
+                    $errors[] = "No se pudo agregar {$product->Nombre}: stock insuficiente.";
+                    continue;
+                }
+                $cart[$product->Id_Producto]['quantity'] = $newQty;
             } else {
                 $cart[$product->Id_Producto] = [
                     'quantity' => $quantity,
