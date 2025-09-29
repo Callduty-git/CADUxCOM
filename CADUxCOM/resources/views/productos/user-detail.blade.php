@@ -6,39 +6,11 @@
     <title>{{ $producto->Nombre }} - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/product-detail.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/user-details.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- JavaScript del carrito -->
     <script src="{{ asset('js/cart.js') }}"></script>
-    
-    <!-- Estilos específicos para la página de detalles de productos -->
-    <style>
-        /* Espaciado superior específico para la página de detalles de productos */
-        .product-detail-container {
-            margin-top: 100px; /* Espacio justo para el header fijo */
-            padding-top: 0; /* Sin padding adicional */
-        }
-        
-        /* Espaciado específico para el breadcrumb */
-        .breadcrumb {
-            margin-top: 60px; /* Espacio aún mayor antes del breadcrumb */
-            padding-top: 15px; /* Padding adicional */
-        }
-        
-        /* Responsive para el espaciado */
-        @media (max-width: 768px) {
-            .product-detail-container {
-                margin-top: 110px; /* Espacio mínimo en móviles */
-                padding-top: 0;
-            }
-            
-            .breadcrumb {
-                margin-top: 45px; /* Espacio mayor en móviles */
-                padding-top: 12px;
-            }
-        }
-    </style>
 </head>
 <body>
     <x-header-pages />
@@ -141,10 +113,9 @@
                 <!-- Botones de acción -->
                 @if($producto->Cantidad > 0)
                     <div class="action-buttons">
-                        <button onclick="addToCart({{ $producto->Id_Producto }})" class="btn-add-cart"
-                                id="add-cart-btn-{{ $producto->Id_Producto }}">
+                        <button onclick="addToCart({{ $producto->Id_Producto }})" class="btn-add-cart">
                             <img src="{{ asset('images/carrito-de-compras.png') }}" alt="Carrito" class="btn-icon">
-                            <span class="btn-text">Agregar al Carrito</span>
+                            Agregar al Carrito
                         </button>
                         
                     </div>
@@ -253,9 +224,6 @@
 
     <x-footer />
 
-    {{-- Scripts centralizados del carrito --}}
-    <x-cart-scripts />
-
     <script>
         // Funcionalidad de tabs
         function showTab(tabName) {
@@ -276,13 +244,27 @@
             event.target.classList.add('active');
         }
 
-        // Funcionalidad del carrito (sobrescribir la función global para incluir cantidad)
+        // Funcionalidad del carrito
         function addToCart(productId) {
             const quantity = document.getElementById('quantity') ? document.getElementById('quantity').value : 1;
-            const button = document.getElementById(`add-cart-btn-${productId}`);
-            window.cartManager.addToCart(productId, quantity, button);
+            window.cartManager.addToCart(productId, quantity);
         }
+
+
+        // Función para mostrar notificaciones
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // La función updateCartCounter ahora está en cart.js
     </script>
 </body>
 </html>
-

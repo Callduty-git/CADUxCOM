@@ -157,7 +157,7 @@ class ProductoController extends Controller
     public function show($id)
     {
         $producto = Producto::findOrFail($id);
-        return view('productos.show', compact('producto'));
+        return view('productos.user-detail', compact('producto'));
     }
 
     /**
@@ -166,7 +166,8 @@ class ProductoController extends Controller
     public function showEmpresa($id)
     {
         $producto = Producto::findOrFail($id);
-        return view('productos.show.empresa', compact('producto'));
+        return view('productos.show-empresa', compact('producto'));
+
     }
 
     /**
@@ -195,25 +196,28 @@ class ProductoController extends Controller
     }
 
     /**
-     * Editar producto
-     */
-    public function edit($id)
-    {
-        $producto = Producto::findOrFail($id);
-        $subcategorias = Subcategoria::all();
-        
-        if (Auth::guard('empresa')->check()) {
-            $empresa = Auth::guard('empresa')->user();
-            return view('productos.edit', [
-                'producto' => $producto,
-                'subcategorias' => $subcategorias,
-                'empresas' => collect([$empresa])
-            ]);
-        }
+ * Editar producto
+ */
+public function edit($id)
+{
+    $producto = Producto::findOrFail($id);
+    $subcategorias = Subcategoria::all();
 
-        $empresas = Empresa::all();
-        return view('productos.edit', compact('producto', 'empresas', 'subcategorias'));
+    // Si quien edita es una empresa, usa la vista exclusiva de empresa
+    if (Auth::guard('empresa')->check()) {
+        $empresa = Auth::guard('empresa')->user();
+        return view('productos.edit-empresa', [
+            'producto' => $producto,
+            'subcategorias' => $subcategorias,
+            'empresas' => collect([$empresa]) // Solo la empresa autenticada
+        ]);
     }
+
+    // Si es un administrador u otro rol, muestra la vista general
+    $empresas = Empresa::all();
+    return view('productos.edit', compact('producto', 'empresas', 'subcategorias'));
+}
+
 
     /**
      * Actualizar producto

@@ -13,12 +13,12 @@ html, body {
 
 /* Asegurar que el contenido principal no quede oculto detrás del header fijo */
 .page-container {
-  padding-top: 110px; /* Compensar el header fijo (coincide con altura del header) */
+  padding-top: var(--header-h); /* Compensar el header fijo (usa variable) */
 }
 
 /* Para vistas de empresa que no usan page-container */
 body {
-  padding-top: 110px; /* Compensar el header fijo para todas las vistas */
+  padding-top: var(--header-h); /* Compensar el header fijo para todas las vistas */
 }
 
 /* Para layouts que ya tienen su propio espaciado */

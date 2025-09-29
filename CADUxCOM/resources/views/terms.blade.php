@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Términos de Servicio - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/terms.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
 </head>
 <body>
+    <div class="page-container">
     <x-header-pages />
 
     <div class="terms-container">
@@ -141,6 +142,7 @@
     </div>
 
     <x-footer />
+    </div>
 </body>
 </html>
 

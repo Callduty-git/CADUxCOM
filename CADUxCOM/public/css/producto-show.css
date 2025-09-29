@@ -1,0 +1,29 @@
+/* Estilos específicos para la vista de detalle de producto (usuario) */
+
+body { font-family: 'Inter', sans-serif; }
+
+.product-image { transition: transform 0.3s ease; }
+.product-image:hover { transform: scale(1.05); }
+
+.price-original { text-decoration: line-through; }
+
+/* Badge de descuento inline, sin posicionamiento absoluto */
+.discount-badge {
+  background: linear-gradient(135deg, #49874E 0%, #90D575 100%);
+  color: #FFFFFF;
+  display: inline-block;
+}
+
+/* Espaciados propios */
+.content nav {
+  margin-top: 60px;
+  padding-top: 15px;
+}
+
+@media (max-width: 768px) {
+  .content nav { margin-top: 45px; padding-top: 12px; }
+}
+
+
+
+

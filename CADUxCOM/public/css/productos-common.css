@@ -1,0 +1,23 @@
+/* Estilos comunes para vistas de productos que usan .header propio */
+
+.header {
+  background-color: #90D575;
+  min-height: 110px;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border-bottom: 2px solid #49874E;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header .logo { max-height: 80px; height: auto; width: auto; object-fit: contain; }
+
+
+
+

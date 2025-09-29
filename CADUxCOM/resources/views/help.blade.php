@@ -5,27 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Centro de Ayuda - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/help.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     
-    <!-- Estilos específicos para la página de ayuda -->
-    <style>
-        /* Espaciado superior específico para la página de ayuda */
-        .help-container {
-            margin-top: 90px; /* Espacio mínimo para el header fijo */
-            padding-top: 10px; /* Espacio adicional reducido */
-        }
-        
-        /* Responsive para el espaciado */
-        @media (max-width: 768px) {
-            .help-container {
-                margin-top: 100px; /* Espacio reducido en móviles */
-                padding-top: 5px;
-            }
-        }
-    </style>
 </head>
 <body>
+    <div class="page-container">
     <x-header-pages />
 
     <div class="help-container">
@@ -155,6 +140,7 @@
     </div>
 
     <x-footer />
+    </div>
 
     <script>
         // FAQ Toggle functionality

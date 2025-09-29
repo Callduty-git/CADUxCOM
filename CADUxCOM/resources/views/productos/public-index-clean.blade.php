@@ -18,7 +18,7 @@
     <div class="page-container">
         <x-header-pages />
         
-        <main class="content pt-8 pb-0" style="margin-bottom: 0 !important; padding-bottom: 0 !important;">
+        <main class="content pt-8 pb-0">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-0">
                 <!-- Header Mejorado -->
                 <div class="text-center mb-12">
@@ -141,7 +141,7 @@
 
                 @if($productos->count() > 0)
                     <!-- Grid de productos mejorado -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center" style="margin-bottom: 0 !important; padding-bottom: 0 !important;">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
                         @foreach($productos as $producto)
                             <div class="product-card">
                                 <!-- Imagen del producto -->
