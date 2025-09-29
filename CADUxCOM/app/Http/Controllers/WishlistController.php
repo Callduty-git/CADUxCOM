@@ -63,7 +63,8 @@ class WishlistController extends Controller
             ], 404);
         }
 
-        $success = Wishlist::addToWishlist($userId, $productId);
+        $wishlistItem = Wishlist::addToWishlist($productId, $userId);
+        $success = $wishlistItem !== null;
 
         if ($success) {
             $wishlistCount = Wishlist::getWishlistCount($userId);
@@ -149,7 +150,8 @@ class WishlistController extends Controller
             $isInWishlist = false;
         } else {
             // Agregar a la wishlist
-            $success = Wishlist::addToWishlist($userId, $productId);
+            $wishlistItem = Wishlist::addToWishlist($productId, $userId);
+            $success = $wishlistItem !== null;
             $message = 'Producto agregado a favoritos';
             $isInWishlist = true;
         }

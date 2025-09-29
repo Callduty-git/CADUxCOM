@@ -12,10 +12,10 @@ class Empresa extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = 'empresas'; // Asegura que apunta a la tabla correcta
-    protected $primaryKey = 'Id_Empresa'; // Clave primaria personalizada
-    public $incrementing = true;   // Laravel sabe que es autoincremental
-    protected $keyType = 'int';    // Y que es de tipo entero
+    protected $table = 'empresas';
+    protected $primaryKey = 'Id_Empresa';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'Nombre',
@@ -28,6 +28,7 @@ class Empresa extends Authenticatable
         'NIT',
         'Certificado_Camara_de_comercio',
         'password',
+        // Campos de ubicación
         'latitude',
         'longitude',
         'city',
@@ -37,6 +38,11 @@ class Empresa extends Authenticatable
         'coverage_radius',
         'location_verified',
         'location_updated_at',
+        // Campos de aprobación
+        'status',
+        'approved_at',
+        'rejected_at',
+        'rejection_reason',
     ];
 
     protected $hidden = [
@@ -52,20 +58,20 @@ class Empresa extends Authenticatable
         'coverage_radius' => 'integer',
         'location_verified' => 'boolean',
         'location_updated_at' => 'datetime',
+        'approved_at' => 'datetime',
+        'rejected_at' => 'datetime',
     ];
 
     /**
      * Devuelve el nombre de la clave primaria usada para autenticación.
-     * Esto evita que Laravel intente usar 'email' o 'user_id' incorrectamente.
      */
     public function getAuthIdentifierName()
     {
-        return $this->primaryKey; // 'Id_Empresa'
+        return $this->primaryKey;
     }
 
     /**
      * Devuelve el valor de la clave primaria del usuario autenticado.
-     * Esto asegura que se use correctamente en la sesión.
      */
     public function getAuthIdentifier()
     {
@@ -73,23 +79,20 @@ class Empresa extends Authenticatable
     }
 
     /**
-     * Relación: Una empresa tiene muchos productos
+     * Relaciones
      */
     public function productos(): HasMany
     {
         return $this->hasMany(Producto::class, 'Id_Empresa', 'Id_Empresa');
     }
 
-    /**
-     * Relación: Una empresa tiene muchas reglas de descuento
-     */
     public function discountRules(): HasMany
     {
         return $this->hasMany(DiscountRule::class, 'empresa_id', 'Id_Empresa');
     }
 
     /**
-     * Verificar si la empresa tiene coordenadas válidas
+     * Funciones de ubicación
      */
     public function hasValidCoordinates(): bool
     {
@@ -98,14 +101,9 @@ class Empresa extends Authenticatable
                $this->longitude >= -180 && $this->longitude <= 180;
     }
 
-    /**
-     * Obtener coordenadas como array
-     */
     public function getCoordinates(): ?array
     {
-        if (!$this->hasValidCoordinates()) {
-            return null;
-        }
+        if (!$this->hasValidCoordinates()) return null;
 
         return [
             'latitude' => (float) $this->latitude,
@@ -113,16 +111,11 @@ class Empresa extends Authenticatable
         ];
     }
 
-    /**
-     * Calcular distancia a otra ubicación usando la fórmula de Haversine
-     */
     public function calculateDistanceTo(float $latitude, float $longitude): ?float
     {
-        if (!$this->hasValidCoordinates()) {
-            return null;
-        }
+        if (!$this->hasValidCoordinates()) return null;
 
-        $earthRadius = 6371; // Radio de la Tierra en kilómetros
+        $earthRadius = 6371;
 
         $latFrom = deg2rad($this->latitude);
         $lonFrom = deg2rad($this->longitude);
@@ -132,31 +125,20 @@ class Empresa extends Authenticatable
         $latDelta = $latTo - $latFrom;
         $lonDelta = $lonTo - $lonFrom;
 
-        $a = sin($latDelta / 2) * sin($latDelta / 2) +
+        $a = sin($latDelta / 2) ** 2 +
              cos($latFrom) * cos($latTo) *
-             sin($lonDelta / 2) * sin($lonDelta / 2);
+             sin($lonDelta / 2) ** 2;
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
         return $earthRadius * $c;
     }
 
-    /**
-     * Verificar si una ubicación está dentro del radio de cobertura
-     */
     public function isWithinCoverage(float $latitude, float $longitude): bool
     {
         $distance = $this->calculateDistanceTo($latitude, $longitude);
-        
-        if ($distance === null) {
-            return false;
-        }
-
-        return $distance <= $this->coverage_radius;
+        return $distance !== null && $distance <= $this->coverage_radius;
     }
 
-    /**
-     * Obtener dirección completa formateada
-     */
     public function getFullAddress(): string
     {
         $parts = array_filter([
@@ -170,9 +152,6 @@ class Empresa extends Authenticatable
         return implode(', ', $parts);
     }
 
-    /**
-     * Obtener información de ubicación para mostrar en el mapa
-     */
     public function getMapInfo(): array
     {
         return [
@@ -183,14 +162,12 @@ class Empresa extends Authenticatable
             'coverage_radius' => $this->coverage_radius,
             'location_verified' => $this->location_verified,
             'products_count' => $this->productos()->count(),
-            'discounted_products_count' => $this->productos()->get()->filter(function ($producto) {
-                return $producto->hasDiscount();
-            })->count(),
+            'discounted_products_count' => $this->productos()->get()->filter(fn($p) => $p->hasDiscount())->count(),
         ];
     }
 
     /**
-     * Scope: Filtrar empresas con coordenadas válidas
+     * Scopes
      */
     public function scopeWithValidCoordinates($query)
     {
@@ -202,9 +179,6 @@ class Empresa extends Authenticatable
                     ->where('longitude', '<=', 180);
     }
 
-    /**
-     * Scope: Filtrar empresas por proximidad
-     */
     public function scopeNearTo($query, float $latitude, float $longitude, float $radiusKm = 10)
     {
         return $query->withValidCoordinates()
@@ -219,17 +193,11 @@ class Empresa extends Authenticatable
                     ->orderBy('distance');
     }
 
-    /**
-     * Scope: Filtrar empresas por ciudad
-     */
     public function scopeInCity($query, string $city)
     {
         return $query->where('city', 'like', "%{$city}%");
     }
 
-    /**
-     * Scope: Filtrar empresas verificadas
-     */
     public function scopeVerified($query)
     {
         return $query->where('location_verified', true);

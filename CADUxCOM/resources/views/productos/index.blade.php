@@ -2,14 +2,149 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Productos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos los Productos - CADUxCOM</title>
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/empresa-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/empresa-sidebar.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/header-empresa.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <style>
+        body {
+            margin: 0;  
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content {
+            flex: 1;
+        }
+        
         .header {
             border-bottom: 3px solid #006400;
+        }
+        
+        /* ====== SIDEBAR CONTAINER ====== */
+
+        
+        .sidebar {
+            width: 100px;
+            padding: 0; /* que el alto dependa de los botones */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 0;
+            border: none;
+            position: relative;
+            z-index: 1001;
+            box-shadow: none;
+            transition: all 0.3s ease;
+            opacity: 0.95;
+            overflow: visible; /* que crezca con el contenido */
+            max-height: none; /* sin tope de altura */
+        }
+        
+        .sidebar:hover {
+            width: 280px !important;
+            opacity: 1;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .sidebar:hover .nav-buttons .btn span {
+            opacity: 1 !important;
+        }
+        
+        .sidebar-container:hover {
+            width: 280px !important;
+        }
+        
+        .nav-buttons {
+            width: 100%;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 35px;
+            align-items: center;
+        }
+        
+        .nav-buttons .btn {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
+            background-color: #d88ef0;
+            color: white;
+            padding: 15px 20px;
+            text-align: left;
+            border-radius: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            width: 60px;
+            min-width: 60px;
+            white-space: nowrap;
+        }
+        
+        .sidebar:hover .nav-buttons .btn {
+            width: 240px !important;
+            justify-content: flex-start !important;
+        }
+        
+        .nav-buttons .btn i {
+            font-size: 20px !important;
+            opacity: 0.9 !important;
+            min-width: 20px !important;
+            text-align: center !important;
+        }
+        
+        .nav-buttons .btn span {
+            opacity: 0 !important;
+            transition: opacity 0.3s ease !important;
+            font-size: 14px !important;
+        }
+        
+        .nav-buttons .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-buttons .btn:hover::before {
+            left: 100%;
+        }
+        
+        .nav-buttons .btn:hover {
+            background-color: #b963d1;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(185, 99, 209, 0.4);
+            border-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-buttons .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(185, 99, 209, 0.3);
+        }
+        
+        .dashboard-panel {
+            width: 100%;
+            max-width: 1200px; /* Mantener el tamaño original */
+            margin: 0 auto; /* Centrar el panel */
         }
 
         /* ====== MODAL ESTILOS ====== */
@@ -460,22 +595,12 @@
     </style>
 </head>
 <body>
-    
-    <x-header-productos :categorias="$categorias" :subcategorias="$subcategorias" />
+    <div class="main-content">
+        <x-header-productos :categorias="$categorias" :subcategorias="$subcategorias" />
+
+        <x-empresa-sidebar />
 
     <div class="main-container">
-        <aside class="sidebar">
-            <nav class="nav-buttons">
-                <a href="{{ route('empresa.dashboard') }}" class="btn">Inicio</a>
-                <a href="{{ route('empresa.productos.index') }}" class="btn">Productos</a>
-                <a href="{{ route('empresa.facturas') }}" class="btn">Facturas</a>
-                <form method="POST" action="{{ route('empresa.logout') }}" style="margin-top: 10px;">
-                    @csrf
-                    <button type="submit" class="btn">Salir</button>
-                </form>
-            </nav>
-        </aside>
-
         <main class="dashboard-panel">
             <div class="header-productos">
                 <h2>PRODUCTOS</h2>
@@ -501,7 +626,15 @@
                         <div class="producto-info">
                             <strong>{{ $producto->Nombre }}</strong><br>
                             <span>Marca: {{ $producto->Marca }}</span><br>
-                            <span>Caduca: {{ \Carbon\Carbon::parse($producto->Fecha_Caducidad)->format('d/m/Y') }}</span>
+                            <span>Caduca: {{ \Carbon\Carbon::parse($producto->Fecha_Caducidad)->format('d/m/Y') }}</span><br>
+                            @php
+                                $fechaCaducidad = \Carbon\Carbon::parse($producto->Fecha_Caducidad);
+                                $hoy = \Carbon\Carbon::now();
+                                $estaDisponible = $fechaCaducidad->isFuture() && $producto->Cantidad > 0;
+                            @endphp
+                            <span style="color: {{ $estaDisponible ? '#28a745' : '#dc3545' }}; font-weight: bold;">
+                                {{ $estaDisponible ? '✓ DISPONIBLE' : '✗ NO DISPONIBLE' }}
+                            </span>
                         </div>
 
                         <div class="product-actions">
@@ -652,7 +785,92 @@
             // Redirigir sin filtros
             window.location.href = '{{ route("empresa.productos.index") }}';
         }
+        
     </script>
 
+    <!-- SCRIPT INMEDIATO PARA ALINEAR SIDEBAR A LA IZQUIERDA -->
+    <script>
+        // Ejecutar inmediatamente, antes de que se cargue cualquier otro script
+        (function() {
+            function forceLeftAlign() {
+                const container = document.querySelector('.sidebar-container');
+                if (container) {
+                    container.style.cssText = `
+                        position: fixed !important;
+                        left: 20px !important;
+                        top: 50% !important;
+                        transform: translateY(-50%) !important;
+                        width: 100px !important;
+                        height: auto !important;
+                        z-index: 9999 !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        right: auto !important;
+                        bottom: auto !important;
+                    `;
+                }
+            }
+            
+            // Ejecutar inmediatamente
+            forceLeftAlign();
+            
+            // Ejecutar cuando el DOM esté listo
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', forceLeftAlign);
+            } else {
+                forceLeftAlign();
+            }
+            
+            // Ejecutar continuamente
+            setInterval(forceLeftAlign, 100);
+        })();
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Funcionalidad del sidebar alineado a la izquierda - FORZADO
+            function forceLeftAlignSidebar() {
+                const sidebarContainer = document.querySelector('.sidebar-container');
+                if (sidebarContainer) {
+                    sidebarContainer.style.cssText = `
+                        position: fixed !important;
+                        left: 20px !important;
+                        top: 50% !important;
+                        transform: translateY(-50%) !important;
+                        width: 100px !important;
+                        height: auto !important;
+                        z-index: 9999 !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        right: auto !important;
+                        bottom: auto !important;
+                    `;
+                }
+            }
+            
+            // Aplicar inmediatamente
+            forceLeftAlignSidebar();
+            
+            // Aplicar cuando el DOM esté listo
+            document.addEventListener('DOMContentLoaded', forceLeftAlignSidebar);
+            
+            // Aplicar cuando la ventana se carga
+            window.addEventListener('load', forceLeftAlignSidebar);
+            
+            // Aplicar continuamente
+            setInterval(forceLeftAlignSidebar, 50);
+            
+            // Aplicar en cualquier cambio
+            const observer = new MutationObserver(forceLeftAlignSidebar);
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
+    </script>
+    </div>
+
+    <!-- Footer -->
+    <x-footer />
+    
+    <!-- Scripts -->
+    <script src="{{ asset('js/notifications.js') }}"></script>
 </body>
 </html>

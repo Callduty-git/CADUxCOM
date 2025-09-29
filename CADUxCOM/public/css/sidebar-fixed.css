@@ -1,0 +1,384 @@
+/* ====== SIDEBAR ARREGLADO - CADUxCOM ====== */
+
+/* Reset y configuración base */
+* {
+    box-sizing: border-box;
+}
+
+/* Contenedor principal del layout */
+.layout-container {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* ====== SIDEBAR CONTAINER ====== */
+.sidebar-container {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 80px;
+    z-index: 1000;
+    transition: width 0.3s ease;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-right: 2px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-container:hover {
+    width: 280px;
+}
+
+/* ====== SIDEBAR ====== */
+.sidebar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Logo section */
+.sidebar-logo {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #89CF6D 0%, #49874E 100%);
+    border-radius: 15px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.sidebar-container:hover .sidebar-logo {
+    width: 240px;
+    justify-content: flex-start;
+    padding-left: 20px;
+}
+
+.sidebar-logo-text {
+    opacity: 0;
+    margin-left: 15px;
+    font-size: 18px;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+}
+
+.sidebar-container:hover .sidebar-logo-text {
+    opacity: 1;
+}
+
+/* Navigation buttons */
+.nav-buttons {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 0 10px;
+}
+
+.nav-buttons .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #d88ef0 0%, #b963d1 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 14px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(216, 142, 240, 0.3);
+}
+
+.sidebar-container:hover .nav-buttons .btn {
+    width: 240px;
+    justify-content: flex-start;
+    padding-left: 20px;
+}
+
+.nav-buttons .btn i {
+    font-size: 20px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.nav-buttons .btn span {
+    opacity: 0;
+    margin-left: 15px;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-container:hover .nav-buttons .btn span {
+    opacity: 1;
+}
+
+.nav-buttons .btn:hover {
+    background: linear-gradient(135deg, #b963d1 0%, #9a4fb8 100%);
+    transform: translateX(5px);
+    box-shadow: 0 6px 20px rgba(185, 99, 209, 0.4);
+}
+
+.nav-buttons .btn:active {
+    transform: translateX(3px);
+}
+
+/* Botón de logout especial */
+.nav-buttons .btn-logout {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    margin-top: auto;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.nav-buttons .btn-logout:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    box-shadow: 0 6px 20px rgba(200, 35, 51, 0.4);
+}
+
+/* ====== MAIN CONTENT ====== */
+.main-content {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+    min-height: 100vh;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    padding: 20px;
+    background-color: #f0f2f5;
+}
+
+/* Cuando el sidebar está expandido, ajustar el contenido */
+.sidebar-container:hover ~ .main-content {
+    margin-left: 280px;
+    width: calc(100% - 280px);
+}
+
+/* ====== RESPONSIVE DESIGN ====== */
+
+/* Tablets */
+@media (max-width: 1024px) {
+    .sidebar-container {
+        width: 70px;
+    }
+    
+    .sidebar-container:hover {
+        width: 250px;
+    }
+    
+    .main-content {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+    }
+    
+    .sidebar-container:hover ~ .main-content {
+        margin-left: 250px;
+        width: calc(100% - 250px);
+    }
+    
+    .nav-buttons .btn {
+        width: 50px;
+        height: 50px;
+        font-size: 12px;
+    }
+    
+    .sidebar-container:hover .nav-buttons .btn {
+        width: 210px;
+    }
+    
+    .sidebar-logo {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .sidebar-container:hover .sidebar-logo {
+        width: 210px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .sidebar-container {
+        width: 60px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease, width 0.3s ease;
+    }
+    
+    .sidebar-container.mobile-open {
+        transform: translateX(0);
+        width: 280px;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .sidebar-container.mobile-open ~ .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    /* Overlay para mobile */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    /* Botón hamburguesa para mobile */
+    .mobile-menu-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #89CF6D 0%, #49874E 100%);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        z-index: 1001;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(137, 207, 109, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .mobile-menu-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(137, 207, 109, 0.4);
+    }
+    
+    .mobile-menu-btn.active {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: flex;
+    }
+}
+
+/* ====== ANIMACIONES Y EFECTOS ====== */
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.sidebar-container {
+    animation: slideIn 0.5s ease-out;
+}
+
+/* ====== ESTADOS ACTIVOS ====== */
+.nav-buttons .btn.active {
+    background: linear-gradient(135deg, #89CF6D 0%, #49874E 100%);
+    box-shadow: 0 6px 20px rgba(137, 207, 109, 0.4);
+}
+
+.nav-buttons .btn.active:hover {
+    background: linear-gradient(135deg, #49874E 0%, #3a6b3e 100%);
+}
+
+/* ====== ACCESIBILIDAD ====== */
+.nav-buttons .btn:focus {
+    outline: 3px solid rgba(137, 207, 109, 0.5);
+    outline-offset: 2px;
+}
+
+.nav-buttons .btn-logout:focus {
+    outline: 3px solid rgba(220, 53, 69, 0.5);
+    outline-offset: 2px;
+}
+
+/* ====== TOOLTIPS PARA MOBILE ====== */
+@media (max-width: 768px) {
+    .nav-buttons .btn::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: 70px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1002;
+    }
+    
+    .nav-buttons .btn:hover::after {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* ====== MEJORAS DE PERFORMANCE ====== */
+.sidebar-container,
+.nav-buttons .btn,
+.main-content {
+    will-change: transform, width, margin-left;
+}
+
+/* ====== DARK MODE SUPPORT ====== */
+@media (prefers-color-scheme: dark) {
+    .sidebar-container {
+        background: rgba(30, 30, 30, 0.95);
+        border-right-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .main-content {
+        background-color: #1a1a1a;
+    }
+}

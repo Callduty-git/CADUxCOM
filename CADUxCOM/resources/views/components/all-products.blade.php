@@ -41,7 +41,7 @@
                     
                     <!-- Botón de favoritos -->
                     <x-wishlist-button :product-id="$producto->Id_Producto" />
-                    
+
                     <img src="{{ $img }}" alt="{{ $producto->Nombre }}" class="product-image">
                 </div>
 
@@ -63,17 +63,15 @@
                         Vence: {{ \Carbon\Carbon::parse($producto->Fecha_Caducidad)->format('d/m/Y') }}
                     </div>
                     <div class="footer-actions">
-                        <a href="{{ route('productos.user.show', $producto->Id_Producto) }}" class="btn btn-primary">Ver detalles</a>
+                        <a href="{{ route('productos.show', $producto->Id_Producto) }}" class="btn btn-primary">Ver detalles</a>
                         @if($producto->Cantidad > 0)
-                            <button type="button" class="btn btn-secondary" 
-                                    onclick="addToCart({{ $producto->Id_Producto }})"
-                                    id="add-cart-btn-{{ $producto->Id_Producto }}">
-                                <span class="btn-text">Agregar</span>
-                            </button>
+                            <form method="POST" action="{{ route('cart.add') }}" class="btn-cart-form" onsubmit="return addToCart(event, {{ $producto->Id_Producto }})">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $producto->Id_Producto }}">
+                                <button type="submit" class="btn btn-secondary">Agregar</button>
+                            </form>
                         @else
-                            <button type="button" class="btn btn-secondary" disabled>
-                                Agotado
-                            </button>
+                            <button type="button" class="btn btn-secondary" disabled>Agotado</button>
                         @endif
                     </div>
                 </div>
@@ -91,4 +89,58 @@
 
     {{-- Scripts centralizados del carrito --}}
     <x-cart-scripts />
+
+    <script>
+    async function addToCart(e, id){
+        e.preventDefault();
+        const form = e.target;
+        const data = new FormData(form);
+        const button = form.querySelector('button');
+        const originalText = button.innerHTML;
+
+        // Mostrar loader
+        button.innerHTML = '<span>Agregando...</span>';
+        button.disabled = true;
+
+        try {
+            const resp = await fetch(form.action, {
+                method:'POST',
+                headers:{
+                    'X-Requested-With':'XMLHttpRequest',
+                    'X-CSRF-TOKEN': data.get('_token')
+                },
+                body: data
+            });
+            const json = await resp.json();
+            
+            if (json && json.count !== undefined) {
+                const badge = document.querySelector('.cart-badge');
+                if (badge) badge.textContent = json.count;
+            }
+
+            if (json.success) {
+                showNotification('Producto agregado al carrito', 'success');
+            } else {
+                showNotification(json.error || 'Error al agregar al carrito', 'error');
+            }
+        } catch(err) {
+            console.error(err);
+            showNotification('Error al agregar al carrito', 'error');
+        } finally {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+        return false;
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium ${
+            type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        }`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+    </script>
 </div>

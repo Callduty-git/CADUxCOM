@@ -11,13 +11,14 @@ html, body {
   background-color: #fff;
 }
 
-body {
-  padding-top: 0; /* Sin padding-top para evitar empujar contenido */
-}
-
 /* Asegurar que el contenido principal no quede oculto detrás del header fijo */
 .page-container {
   padding-top: 110px; /* Compensar el header fijo (coincide con altura del header) */
+}
+
+/* Para vistas de empresa que no usan page-container */
+body {
+  padding-top: 110px; /* Compensar el header fijo para todas las vistas */
 }
 
 /* Para layouts que ya tienen su propio espaciado */

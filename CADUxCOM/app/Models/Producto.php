@@ -39,187 +39,111 @@ class Producto extends Model
         'Cantidad' => 'integer',
     ];
 
-    // Define la relación con la Empresa
+    // Relaciones
     public function empresa(): BelongsTo
     {
         return $this->belongsTo(Empresa::class, 'Id_Empresa', 'Id_Empresa');
     }
 
-    // Define la relación con la Subcategoria
     public function subcategoria(): BelongsTo
     {
         return $this->belongsTo(Subcategoria::class, 'Id_Subcategoria', 'Id_Subcategoria');
     }
 
-    /**
-     * Relación: Un producto puede tener múltiples reglas de descuento aplicables
-     */
     public function discountRules(): HasMany
     {
         return $this->hasMany(DiscountRule::class, 'empresa_id', 'Id_Empresa');
     }
 
-    /**
-     * Obtener el precio con descuento aplicado
-     */
+    // Métodos de descuento
     public function getDiscountedPrice(): array
     {
         return DiscountRule::getBestDiscount($this);
     }
 
-    /**
-     * Obtener el precio final (con descuento si aplica)
-     */
     public function getFinalPrice(): float
     {
-        $discount = $this->getDiscountedPrice();
-        return $discount['discounted_price'];
+        return $this->getDiscountedPrice()['discounted_price'];
     }
 
-    /**
-     * Obtener el monto del descuento aplicado
-     */
     public function getDiscountAmount(): float
     {
-        $discount = $this->getDiscountedPrice();
-        return $discount['discount_amount'];
+        return $this->getDiscountedPrice()['discount_amount'];
     }
 
-    /**
-     * Obtener el porcentaje de descuento aplicado
-     */
     public function getDiscountPercentage(): float
     {
-        $discount = $this->getDiscountedPrice();
-        return $discount['discount_percentage'];
+        return $this->getDiscountedPrice()['discount_percentage'];
     }
 
-    /**
-     * Verificar si el producto tiene descuento aplicado
-     */
     public function hasDiscount(): bool
     {
-        // Verificar descuento directo (PrecioOriginal vs Precio)
-        if ($this->PrecioOriginal > $this->Precio) {
-            return true;
-        }
-        
-        // Verificar descuento por reglas
+        if ($this->PrecioOriginal > $this->Precio) return true;
         return $this->getDiscountAmount() > 0;
     }
 
-    /**
-     * Obtener días hasta la caducidad
-     */
+    // Métodos de caducidad
     public function getDaysUntilExpiry(): int
     {
-        if (!$this->Fecha_Caducidad) {
-            return 999; // Producto sin fecha de caducidad
-        }
-
+        if (!$this->Fecha_Caducidad) return 999;
         return Carbon::parse($this->Fecha_Caducidad)->diffInDays(now());
     }
 
-    /**
-     * Verificar si el producto está próximo a caducar
-     */
     public function isNearExpiry(int $days = 7): bool
     {
         return $this->getDaysUntilExpiry() <= $days;
     }
 
-    /**
-     * Verificar si el producto ha caducado
-     */
     public function isExpired(): bool
     {
-        if (!$this->Fecha_Caducidad) {
-            return false;
-        }
-
+        if (!$this->Fecha_Caducidad) return false;
         return Carbon::parse($this->Fecha_Caducidad)->isPast();
     }
 
-    /**
-     * Obtener estado de caducidad del producto
-     */
     public function getExpiryStatus(): string
     {
-        if ($this->isExpired()) {
-            return 'expired';
-        }
-
+        if ($this->isExpired()) return 'expired';
         $days = $this->getDaysUntilExpiry();
-        
-        if ($days <= 1) {
-            return 'critical';
-        } elseif ($days <= 3) {
-            return 'urgent';
-        } elseif ($days <= 7) {
-            return 'near_expiry';
-        }
-
+        if ($days <= 1) return 'critical';
+        if ($days <= 3) return 'urgent';
+        if ($days <= 7) return 'near_expiry';
         return 'fresh';
     }
 
-    /**
-     * Obtener etiqueta de estado de caducidad
-     */
     public function getExpiryLabel(): string
     {
         switch ($this->getExpiryStatus()) {
-            case 'expired':
-                return 'Caducado';
-            case 'critical':
-                return 'Caduca hoy';
-            case 'urgent':
-                return 'Caduca pronto';
-            case 'near_expiry':
-                return 'Próximo a caducar';
-            default:
-                return 'Fresco';
+            case 'expired': return 'Caducado';
+            case 'critical': return 'Caduca hoy';
+            case 'urgent': return 'Caduca pronto';
+            case 'near_expiry': return 'Próximo a caducar';
+            default: return 'Fresco';
         }
     }
 
-    /**
-     * Obtener clase CSS para el estado de caducidad
-     */
     public function getExpiryClass(): string
     {
         switch ($this->getExpiryStatus()) {
-            case 'expired':
-                return 'expired';
-            case 'critical':
-                return 'critical';
-            case 'urgent':
-                return 'urgent';
-            case 'near_expiry':
-                return 'near-expiry';
-            default:
-                return 'fresh';
+            case 'expired': return 'expired';
+            case 'critical': return 'critical';
+            case 'urgent': return 'urgent';
+            case 'near_expiry': return 'near-expiry';
+            default: return 'fresh';
         }
     }
 
-    /**
-     * Scope: Filtrar productos próximos a caducar
-     */
+    // Scopes
     public function scopeNearExpiry($query, int $days = 7)
     {
         return $query->where('Fecha_Caducidad', '<=', now()->addDays($days))
-                    ->where('Fecha_Caducidad', '>', now());
+                     ->where('Fecha_Caducidad', '>', now());
     }
 
-    /**
-     * Scope: Filtrar productos caducados
-     */
     public function scopeExpired($query)
     {
         return $query->where('Fecha_Caducidad', '<', now());
     }
 
-    /**
-     * Scope: Filtrar productos con descuento aplicable
-     */
     public function scopeWithDiscount($query)
     {
         return $query->whereHas('empresa.discountRules', function ($q) {
@@ -227,18 +151,15 @@ class Producto extends Model
         });
     }
 
-    /**
-     * Obtener información completa de descuento para mostrar en la vista
-     */
+    // Información de descuento
     public function getDiscountInfo(): array
     {
         $daysUntilExpiry = $this->getDaysUntilExpiry();
-        
-        // Verificar si hay descuento directo
+
         if ($this->PrecioOriginal > $this->Precio) {
             $discountAmount = $this->PrecioOriginal - $this->Precio;
             $discountPercentage = ($discountAmount / $this->PrecioOriginal) * 100;
-            
+
             return [
                 'original_price' => $this->PrecioOriginal,
                 'discounted_price' => $this->Precio,
@@ -253,10 +174,9 @@ class Producto extends Model
                 'savings_message' => $this->getSavingsMessage(),
             ];
         }
-        
-        // Usar sistema de reglas de descuento
+
         $discount = $this->getDiscountedPrice();
-        
+
         return [
             'original_price' => $this->Precio,
             'discounted_price' => $discount['discounted_price'],
@@ -272,20 +192,14 @@ class Producto extends Model
         ];
     }
 
-    /**
-     * Obtener mensaje de ahorro
-     */
     public function getSavingsMessage(): string
     {
         $discount = $this->getDiscountedPrice();
-        
-        if ($discount['discount_amount'] <= 0) {
-            return '';
-        }
+        if ($discount['discount_amount'] <= 0) return '';
 
         $amount = number_format($discount['discount_amount'], 0, ',', '.');
         $percentage = round($discount['discount_percentage'], 0);
-        
+
         return "Ahorras \${$amount} ({$percentage}%)";
     }
 }

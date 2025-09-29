@@ -18,7 +18,6 @@ use App\Http\Controllers\empresa\LogEmpresaController;
 use App\Http\Controllers\EmpresaProfileController;
 use App\Http\Controllers\empresa\EmpresaPasswordController;
 use App\Http\Controllers\EmpresaController;
-use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DiscountRuleController;
 use App\Http\Controllers\GeolocationController;
 use App\Http\Controllers\NotificationController;
@@ -46,29 +45,20 @@ Route::middleware(['auth:empresa'])->group(function () {
         ->name('empresa.perfil.update');
     Route::patch('/empresa/perfil', [EmpresaProfileController::class, 'update']);
 
-    // NUEVAS RUTAS PARA CAMBIO DE CONTRASEÑA
+    // Cambio de contraseña
     Route::get('/empresa/cambiar-contrasena', [EmpresaPasswordController::class, 'showChangeForm'])
         ->name('empresa.password.change');
     Route::post('/empresa/cambiar-contrasena', [EmpresaPasswordController::class, 'updatePassword'])
         ->name('empresa.password.update');
 
     // CRUD de productos para empresas (prefijo /empresa)
-    Route::resource('/empresa/productos', ProductoController::class)->names([
-        'index' => 'empresa.productos.index',
-        'create' => 'empresa.productos.create',
-        'store' => 'empresa.productos.store',
-        'show' => 'empresa.productos.show',
-        'edit' => 'empresa.productos.edit',
-        'update' => 'empresa.productos.update',
-        'destroy' => 'empresa.productos.destroy',
-    ]);
-    
-    // Vista de detalles de producto para empresas (con opciones de edición) - ya cubierta por resource
-    // Route::get('/empresa/productos/{id}', [ProductoController::class, 'show'])->name('empresa.productos.show');
-
-    // Ruta para eliminar cuenta de empresa
-    Route::delete('/empresa/eliminar', [EmpresaController::class, 'eliminarCuenta'])
-        ->name('empresa.eliminar');
+    Route::get('/empresa/productos', [ProductoController::class, 'index'])->name('empresa.productos.index');
+    Route::post('/empresa/productos', [ProductoController::class, 'store'])->name('empresa.productos.store');
+    Route::get('/empresa/productos/create', [ProductoController::class, 'create'])->name('empresa.productos.create');
+    Route::get('/empresa/productos/{producto}', [ProductoController::class, 'showEmpresa'])->name('empresa.productos.show');
+    Route::get('/empresa/productos/{producto}/edit', [ProductoController::class, 'edit'])->name('empresa.productos.edit');
+    Route::put('/empresa/productos/{producto}', [ProductoController::class, 'update'])->name('empresa.productos.update');
+    Route::delete('/empresa/productos/{producto}', [ProductoController::class, 'destroy'])->name('empresa.productos.destroy');
 
     // Rutas para reglas de descuento progresivo
     Route::resource('/empresa/discount-rules', DiscountRuleController::class, [
@@ -78,6 +68,10 @@ Route::middleware(['auth:empresa'])->group(function () {
         ->name('discount-rules.create-defaults');
     Route::patch('/empresa/discount-rules/{id}/toggle', [DiscountRuleController::class, 'toggle'])
         ->name('discount-rules.toggle');
+
+    // Ruta para eliminar cuenta de empresa
+    Route::delete('/empresa/eliminar', [EmpresaController::class, 'eliminarCuenta'])
+        ->name('empresa.eliminar');
 });
 
 /*
@@ -88,10 +82,13 @@ Route::middleware(['auth:empresa'])->group(function () {
 Route::get('/empresa/facturas', [EmpresaDashboardController::class, 'facturas'])
     ->middleware(['auth:empresa'])
     ->name('empresa.facturas');
+Route::delete('/empresa/facturas/clear-logs', [EmpresaDashboardController::class, 'clearLogs'])
+    ->middleware(['auth:empresa'])
+    ->name('empresa.facturas.clear-logs');
 
 /*
 |--------------------------------------------------------------------------
-| Nueva ruta para ver logs en la vista factura.blade.php
+| Rutas para ver logs
 |--------------------------------------------------------------------------
 */
 Route::get('/empresa/logs', [LogEmpresaController::class, 'index'])
@@ -104,79 +101,81 @@ Route::get('/empresa/logs', [LogEmpresaController::class, 'index'])
 |--------------------------------------------------------------------------
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
-// Ruta pública para ver todos los productos
 Route::get('/productos', [ProductoController::class, 'publicIndex'])->name('productos.public.index');
-
-// Ruta pública para usuarios (sin autenticación requerida)
 Route::get('/producto/{id}', [ProductoController::class, 'userShow'])->name('productos.user.show');
 
-// Ruta pública para ver detalles de un producto
+// Rutas adicionales para productos (compatibilidad) - ORDEN IMPORTANTE: específicas antes que genéricas
+Route::get('/productos/index', [ProductoController::class, 'index'])->name('productos.index');
+Route::get('/productos/create', [ProductoController::class, 'create'])->name('productos.create');
+Route::post('/productos', [ProductoController::class, 'store'])->name('productos.store');
+Route::get('/productos/{id}/edit', [ProductoController::class, 'edit'])->name('productos.edit');
+Route::put('/productos/{id}', [ProductoController::class, 'update'])->name('productos.update');
+Route::delete('/productos/{id}', [ProductoController::class, 'destroy'])->name('productos.destroy');
 Route::get('/productos/{id}', [ProductoController::class, 'show'])->name('productos.show');
 
-// Rutas de contacto
-Route::get('/contacto', [ContactController::class, 'index'])->name('contact.index');
-Route::post('/contacto', [ContactController::class, 'send'])->name('contact.send');
+Route::get('/contacto', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
+Route::post('/contacto', [\App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
 
-// Ruta de about
-Route::get('/about', function () {
-    return view('about');
-})->name('about');
+Route::get('/about', function () { return view('about'); })->name('about');
+Route::get('/ayuda', function () { return view('help'); })->name('help');
+Route::get('/terminos', function () { return view('terms'); })->name('terms');
+Route::get('/privacidad', function () { return view('privacy'); })->name('privacy');
 
-
-
-// Rutas de páginas legales y de ayuda
-Route::get('/ayuda', function () {
-    return view('help');
-})->name('help');
-
-Route::get('/terminos', function () {
-    return view('terms');
-})->name('terms');
-
-Route::get('/privacidad', function () {
-    return view('privacy');
-})->name('privacy');
-
-// Registro único para usuarios y empresas
+/*
+|--------------------------------------------------------------------------
+| Registro y Login
+|--------------------------------------------------------------------------
+*/
 Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
-
-// Login unificado para usuario y empresa
 Route::get('/login', [CustomLoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [CustomLoginController::class, 'login'])->middleware('throttle:10,1');
 Route::post('/logout', [CustomLoginController::class, 'logout'])->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| Navbar y subcategorias
+|--------------------------------------------------------------------------
+*/
 Route::get('/navbar', [CategoriaController::class, 'navbar'])->name('navbar');
 Route::get('/subcategorias/{id}', [CategoriaController::class, 'getSubcategorias']);
 
-// Ruta pública para obtener el contador del carrito (sin autenticación)
+/*
+|--------------------------------------------------------------------------
+| Carrito de compras
+|--------------------------------------------------------------------------
+*/
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 Route::get('/cart/count', [CartController::class, 'getCount'])->name('cart.count');
 
-// Rutas del carrito de compras (requieren autenticación)
-Route::middleware('auth')->group(function () {
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
-    Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-});
+/*
+|--------------------------------------------------------------------------
+| Checkout
+|--------------------------------------------------------------------------
+*/
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 
-// Rutas del sistema de checkout (requieren autenticación)
-Route::middleware('auth')->group(function () {
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
-});
+/*
+|--------------------------------------------------------------------------
+| Cupones
+|--------------------------------------------------------------------------
+*/
+Route::post('/coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
+Route::post('/coupons/apply', [CouponController::class, 'apply'])->name('coupons.apply');
+Route::post('/coupons/remove', [CouponController::class, 'remove'])->name('coupons.remove');
+Route::get('/coupons/applied', [CouponController::class, 'getApplied'])->name('coupons.applied');
+Route::get('/coupons/available', [CouponController::class, 'getAvailable'])->name('coupons.available');
+Route::post('/coupons/check-product', [CouponController::class, 'checkProduct'])->name('coupons.check-product');
 
-// Rutas del sistema de cupones (requieren autenticación)
-Route::middleware('auth')->group(function () {
-    Route::post('/coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
-    Route::post('/coupons/apply', [CouponController::class, 'apply'])->name('coupons.apply');
-    Route::post('/coupons/remove', [CouponController::class, 'remove'])->name('coupons.remove');
-    Route::get('/coupons/applied', [CouponController::class, 'getApplied'])->name('coupons.applied');
-    Route::get('/coupons/available', [CouponController::class, 'getAvailable'])->name('coupons.available');
-    Route::post('/coupons/check-product', [CouponController::class, 'checkProduct'])->name('coupons.check-product');
-});
-
-// Rutas del sistema de wishlist (solo para usuarios autenticados)
+/*
+|--------------------------------------------------------------------------
+| Wishlist
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth'])->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add');
@@ -189,31 +188,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/wishlist/multiple-status', [WishlistController::class, 'getMultipleStatus'])->name('wishlist.multiple-status');
 });
 
-// Rutas del sistema de productos (solo para empresas autenticadas)
-Route::middleware(['auth:empresa', 'throttle:60,1'])->group(function () {
-    Route::resource('/empresa/productos', ProductoController::class)->names([
-        'index' => 'empresa.productos.index',
-        'create' => 'empresa.productos.create',
-        'store' => 'empresa.productos.store',
-        'show' => 'empresa.productos.show',
-        'edit' => 'empresa.productos.edit',
-        'update' => 'empresa.productos.update',
-        'destroy' => 'empresa.productos.destroy',
-    ]);
-});
-
 /*
 |--------------------------------------------------------------------------
-| Rutas autenticadas para usuarios
+| Dashboard y perfil de usuario
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
-        // Verificar si es una empresa autenticada
         if (Auth::guard('empresa')->check()) {
             return view('dashboard');
         }
-        // Si no es empresa, redirigir al home
         return redirect()->route('home');
     })->name('dashboard');
 
@@ -221,11 +205,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Rutas del sistema de órdenes (requieren autenticación)
+    // Órdenes
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    // Definir primero rutas estáticas
     Route::get('/orders/stats', [OrderController::class, 'getStats'])->name('orders.stats');
-    // Restringir {id} a numérico para evitar colisiones
     Route::get('/orders/{id}', [OrderController::class, 'show'])->whereNumber('id')->name('orders.show');
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->whereNumber('id')->name('orders.cancel');
     Route::post('/orders/{id}/refund', [OrderController::class, 'requestRefund'])->whereNumber('id')->name('orders.refund');
@@ -236,23 +218,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de geolocalización y mapa interactivo
+| Geolocalización y educación
 |--------------------------------------------------------------------------
 */
 Route::get('/mapa', [GeolocationController::class, 'map'])->name('mapa');
-
-/*
-|--------------------------------------------------------------------------
-| Rutas de educación sobre desperdicio de alimentos
-|--------------------------------------------------------------------------
-*/
 Route::get('/educacion', [EducationController::class, 'index'])->name('education.index');
 Route::get('/educacion/calculadora', [EducationController::class, 'impactCalculator'])->name('education.calculator');
 Route::post('/educacion/calcular-impacto', [EducationController::class, 'calculateImpact'])->name('education.calculate-impact');
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de notificaciones - Solo para usuarios autenticados
+| Notificaciones
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
@@ -265,43 +241,7 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Rutas API para descuentos progresivos
-|--------------------------------------------------------------------------
-*/
-Route::get('/api/product-discount', [DiscountRuleController::class, 'getProductDiscount'])
-    ->name('api.product-discount');
-Route::get('/api/empresa/{empresaId}/discounted-products', [DiscountRuleController::class, 'getDiscountedProducts'])
-    ->name('api.discounted-products');
-
-/*
-|--------------------------------------------------------------------------
-| Rutas API para geolocalización
-|--------------------------------------------------------------------------
-*/
-Route::post('/api/search-nearby', [GeolocationController::class, 'searchNearby'])
-    ->name('api.search-nearby');
-Route::post('/api/user-location', [GeolocationController::class, 'getUserLocation'])
-    ->name('api.user-location');
-Route::get('/api/geolocation-stats', [GeolocationController::class, 'getStats'])
-    ->name('api.geolocation-stats');
-
-/*
-|--------------------------------------------------------------------------
-| Rutas API para notificaciones - Solo para usuarios autenticados
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth'])->group(function () {
-    Route::get('/api/notifications/unread', [NotificationController::class, 'getUnread'])
-        ->name('api.notifications.unread');
-    Route::get('/api/notifications/stats', [NotificationController::class, 'getStats'])
-        ->name('api.notifications.stats');
-    Route::post('/api/notifications', [NotificationController::class, 'create'])
-        ->name('api.notifications.create');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Logout para empresa (solo POST)
+| Logout empresa
 |--------------------------------------------------------------------------
 */
 Route::post('/empresa/logout', function () {
@@ -313,7 +253,42 @@ Route::post('/empresa/logout', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de auth (breeze)
+| Rutas de administración de empresas
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/empresas/pending', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'index'])
+        ->name('empresas.pending');
+    Route::get('/empresas/{empresa}', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'show'])
+        ->name('empresas.show');
+    Route::post('/empresas/{empresa}/approve', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'approve'])
+        ->name('empresas.approve');
+    Route::post('/empresas/{empresa}/reject', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'reject'])
+        ->name('empresas.reject');
+    Route::get('/empresas/approved', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'approved'])
+        ->name('empresas.approved');
+    Route::get('/empresas/rejected', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'rejected'])
+        ->name('empresas.rejected');
+    Route::get('/empresas/{empresa}/certificado', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'downloadCertificado'])
+        ->name('empresas.certificado');
+    Route::get('/empresas/{empresa}/foto', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'viewFoto'])
+        ->name('empresas.foto');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Rutas de autenticación de empresa
+|--------------------------------------------------------------------------
+*/
+Route::middleware('guest:empresa')->group(function () {
+    Route::get('/empresa/login', [\App\Http\Controllers\Auth\EmpresaAuthController::class, 'showLoginForm'])
+        ->name('empresa.login');
+    Route::post('/empresa/login', [\App\Http\Controllers\Auth\EmpresaAuthController::class, 'login']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Auth Breeze
 |--------------------------------------------------------------------------
 */
 require __DIR__ . '/auth.php';

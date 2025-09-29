@@ -9,6 +9,12 @@
     position: sticky;
     top: 0;
     z-index: 1000;
+    height: 80px; /* Altura fija del header */
+}
+
+/* Asegurar que el contenido principal no quede oculto detrás del header */
+.main-container {
+    margin-top: 80px; /* Compensar la altura del header sticky */
 }
 
 .left-section {

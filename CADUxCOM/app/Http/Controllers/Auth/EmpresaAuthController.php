@@ -34,11 +34,28 @@ class EmpresaAuthController extends Controller
 
         // Intentar autenticación con el guard empresa
         if (Auth::guard('empresa')->attempt($credentials, $request->filled('remember'))) {
+            $empresa = Auth::guard('empresa')->user();
+
+            // Verificar estado de la empresa
+            if ($empresa->status !== 'approved') {
+                Auth::guard('empresa')->logout();
+
+                $message = match($empresa->status) {
+                    'pending' => 'Tu cuenta está pendiente de aprobación. Recibirás una notificación por correo electrónico una vez que se complete la verificación.',
+                    'rejected' => 'Tu cuenta ha sido rechazada. Contacta al administrador para más información.',
+                    default => 'Tu cuenta no está disponible en este momento.',
+                };
+
+                return back()->withErrors([
+                    'email' => $message,
+                ])->onlyInput('email');
+            }
+
             // Regenerar la sesión para seguridad
             $request->session()->regenerate();
 
             // Redirigir al panel de productos o dashboard de la empresa
-            return redirect()->route('empresa.productos.index');
+            return redirect()->route('empresa.dashboard');
         }
 
         // Si falla, volver con error

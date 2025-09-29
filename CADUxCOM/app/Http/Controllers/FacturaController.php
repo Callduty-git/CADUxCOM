@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Factura;
 use App\Models\LogEmpresa;
+use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
@@ -11,7 +12,8 @@ use Illuminate\Support\Carbon;
 class FacturaController extends Controller
 {
     /**
-     * Lista todas las facturas de la empresa del usuario autenticado y los logs agrupados.
+     * Lista todas las facturas de la empresa del usuario autenticado
+     * junto con los logs agrupados y productos relacionados.
      */
     public function index()
     {
@@ -21,16 +23,25 @@ class FacturaController extends Controller
         }
         $empresaId = $empresa->Id_Empresa;
 
+        // Facturas de la empresa
         $facturas = Factura::with('empresa')
             ->where('empresa_id', $empresaId)
             ->orderBy('fecha_emision', 'desc')
             ->get();
 
-        // Obtener todos los logs de la empresa autenticada, ordenados por fecha de creación descendente
-        $rawLogs = LogEmpresa::where('empresa_id', $empresaId) // 👈 ESTO ES LO QUE YA FILTRA POR EMPRESA
-                               ->orderBy('created_at', 'desc')
-                               ->get();
+        // Logs de la empresa autenticada
+        $rawLogs = LogEmpresa::where('empresa_id', $empresaId)
+            ->orderBy('hora', 'desc') // usamos "hora" como en el segundo código
+            ->get();
 
+        // Contar registros actuales y definir máximo
+        $totalLogs = $rawLogs->count();
+        $maxLogs = 50;
+
+        // Obtener productos de la empresa
+        $productos = Producto::where('Id_Empresa', $empresaId)->get();
+
+        // Agrupar logs por fecha
         $groupedLogs = [];
         $today = Carbon::today();
         $yesterday = Carbon::yesterday();
@@ -40,16 +51,16 @@ class FacturaController extends Controller
         $currentGroup = '';
 
         foreach ($rawLogs as $log) {
-            $logDate = Carbon::parse($log->created_at)->startOfDay();
+            $logDate = Carbon::parse($log->hora)->startOfDay();
 
             if ($logDate->equalTo($today)) {
-                $groupName = 'Hoy';
+                $groupName = 'HOY';
             } elseif ($logDate->equalTo($yesterday)) {
-                $groupName = 'Ayer';
+                $groupName = 'AYER';
             } elseif ($logDate->greaterThanOrEqualTo($lastWeek) && $logDate->lt($yesterday)) {
-                $groupName = 'La semana pasada';
+                $groupName = 'ESTA SEMANA';
             } elseif ($logDate->greaterThanOrEqualTo($lastMonth) && $logDate->lt($lastWeek)) {
-                $groupName = 'El mes pasado';
+                $groupName = 'ESTE MES';
             } else {
                 $groupName = $logDate->translatedFormat('F Y');
             }
@@ -69,8 +80,11 @@ class FacturaController extends Controller
         }
 
         return view('facturas.index', [
-            'facturas' => $facturas,
-            'logs' => $groupedLogs,
+            'facturas'   => $facturas,
+            'logs'       => $groupedLogs,
+            'productos'  => $productos,
+            'totalLogs'  => $totalLogs,
+            'maxLogs'    => $maxLogs,
         ]);
     }
 
@@ -100,17 +114,15 @@ class FacturaController extends Controller
 
     public function show(Factura $factura)
     {
-        // Asegúrate de que la factura pertenezca a la empresa autenticada
         $empresaId = Auth::guard('empresa')->user()->Id_Empresa;
         if ($factura->empresa_id !== $empresaId) {
-            abort(403, 'Acceso no autorizado.'); // O redirecciona a una página de error
+            abort(403, 'Acceso no autorizado.');
         }
         return view('facturas.show', compact('factura'));
     }
 
     public function edit(Factura $factura)
     {
-        // Asegúrate de que la factura pertenezca a la empresa autenticada
         $empresaId = Auth::guard('empresa')->user()->Id_Empresa;
         if ($factura->empresa_id !== $empresaId) {
             abort(403, 'Acceso no autorizado.');
@@ -120,7 +132,6 @@ class FacturaController extends Controller
 
     public function update(Request $request, Factura $factura)
     {
-        // Asegúrate de que la factura pertenezca a la empresa autenticada antes de actualizar
         $empresaId = Auth::guard('empresa')->user()->Id_Empresa;
         if ($factura->empresa_id !== $empresaId) {
             abort(403, 'Acceso no autorizado.');
@@ -140,7 +151,6 @@ class FacturaController extends Controller
 
     public function destroy(Factura $factura)
     {
-        // Asegúrate de que la factura pertenezca a la empresa autenticada antes de eliminar
         $empresaId = Auth::guard('empresa')->user()->Id_Empresa;
         if ($factura->empresa_id !== $empresaId) {
             abort(403, 'Acceso no autorizado.');
@@ -149,5 +159,21 @@ class FacturaController extends Controller
 
         return redirect()->route('empresa.facturas')
             ->with('success', 'Factura eliminada con éxito.');
+    }
+
+    /**
+     * Eliminar todos los logs de la empresa autenticada.
+     */
+    public function clearLogs()
+    {
+        $empresa = Auth::guard('empresa')->user();
+        if (!$empresa) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        LogEmpresa::where('empresa_id', $empresa->Id_Empresa)->delete();
+
+        return redirect()->route('empresa.facturas')
+            ->with('success', 'Todos los logs han sido eliminados.');
     }
 }

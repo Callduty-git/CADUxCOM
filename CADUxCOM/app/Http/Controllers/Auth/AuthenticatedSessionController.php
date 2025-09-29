@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Mostrar la vista de login.
      */
     public function create(): View
     {
@@ -20,59 +20,56 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Manejar una solicitud de autenticación entrante.
      */
     public function store(LoginRequest $request): RedirectResponse
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-    // Buscar si el correo pertenece a una empresa
-    $empresa = \App\Models\Empresa::where('email', $request->email)->first();
+        // Buscar si el correo pertenece a una empresa
+        $empresa = \App\Models\Empresa::where('email', $request->email)->first();
 
-    if ($empresa) {
-        // Intentar login como empresa
-        if (Auth::guard('empresa')->attempt([
+        if ($empresa) {
+            if (Auth::guard('empresa')->attempt([
+                'email' => $request->email,
+                'password' => $request->password,
+            ], $request->boolean('remember'))) {
+                $request->session()->regenerate();
+                return redirect()->intended('/empresa/dashboard');
+            }
+        }
+
+        // Intentar login como usuario normal
+        if (Auth::guard('web')->attempt([
             'email' => $request->email,
             'password' => $request->password,
         ], $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('/empresa/dashboard');
+            return redirect()->intended('/dashboard');
         }
+
+        return back()->withErrors([
+            'email' => 'Las credenciales no coinciden con nuestros registros.',
+        ])->onlyInput('email');
     }
-
-    // Si no es empresa, intentar login como usuario normal
-    if (Auth::guard('web')->attempt([
-        'email' => $request->email,
-        'password' => $request->password,
-    ], $request->boolean('remember'))) {
-        $request->session()->regenerate();
-        return redirect()->intended('/dashboard'); // Cambiado a /dashboard para unificar comportamiento
-    }
-
-    return back()->withErrors([
-        'email' => 'Las credenciales no coinciden con nuestros registros.',
-    ])->onlyInput('email');
-}
-
 
     /**
-     * Destroy an authenticated session.
+     * Cerrar sesión autenticada.
      */
     public function destroy(Request $request): RedirectResponse
-{
-    if (Auth::guard('empresa')->check()) {
-        Auth::guard('empresa')->logout();
-    } elseif (Auth::guard('web')->check()) {
-        Auth::guard('web')->logout();
+    {
+        if (Auth::guard('empresa')->check()) {
+            Auth::guard('empresa')->logout();
+        } elseif (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
+        }
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
-
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-
-    return redirect('/');
-}
-
 }

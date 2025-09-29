@@ -4,11 +4,10 @@ use App\Models\User;
 
 test('login screen can be rendered', function () {
     $response = $this->get('/login');
-
     $response->assertStatus(200);
 });
 
-test('users can authenticate using the login screen', function () {
+test('users can authenticate using the login screen (verificado)', function () {
     $user = User::factory()->create([
         'email_verified_at' => now(), // Asegura que el usuario esté verificado
     ]);
@@ -19,10 +18,22 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/dashboard'); // Cambiado para reflejar la redirección esperada
+    $response->assertRedirect('/dashboard'); // Redirección esperada
 });
 
-test('users can not authenticate with invalid password', function () {
+test('users can authenticate using the login screen (no verificado)', function () {
+    $user = User::factory()->create(); // Sin email_verified_at
+
+    $response = $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertAuthenticated();
+    $response->assertRedirect(route('dashboard', absolute: false)); // Otra forma de redirección
+});
+
+test('users cannot authenticate with invalid password', function () {
     $user = User::factory()->create();
 
     $this->post('/login', [
@@ -39,5 +50,5 @@ test('users can logout', function () {
     $response = $this->actingAs($user)->post('/logout');
 
     $this->assertGuest();
-    $response->assertRedirect('/');
+    $response->assertRedirect('/'); // Redirección tras logout
 });

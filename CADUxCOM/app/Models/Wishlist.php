@@ -10,9 +10,20 @@ class Wishlist extends Model
 {
     use HasFactory;
 
+    protected $table = 'wishlists';
+
     protected $fillable = [
         'user_id',
+        'session_id',
         'product_id',
+        'quantity',
+        'notes',
+        'priority',
+    ];
+
+    protected $casts = [
+        'quantity' => 'integer',
+        'priority' => 'integer',
     ];
 
     /**
@@ -32,28 +43,160 @@ class Wishlist extends Model
     }
 
     /**
-     * Verificar si un producto está en la wishlist del usuario
+     * Scope: Filtrar por usuario
      */
-    public static function isInWishlist(int $userId, int $productId): bool
+    public function scopeByUser($query, $userId)
     {
-        return self::where('user_id', $userId)
-                   ->where('product_id', $productId)
-                   ->exists();
+        return $query->where('user_id', $userId);
     }
 
     /**
-     * Agregar producto a la wishlist
+     * Scope: Filtrar por sesión
      */
-    public static function addToWishlist(int $userId, int $productId): bool
+    public function scopeBySession($query, $sessionId)
     {
-        if (self::isInWishlist($userId, $productId)) {
-            return false; // Ya está en la wishlist
+        return $query->where('session_id', $sessionId);
+    }
+
+    /**
+     * Scope: Filtrar por usuario o sesión
+     */
+    public function scopeByUserOrSession($query, $userId = null, $sessionId = null)
+    {
+        if ($userId) {
+            return $query->where('user_id', $userId);
+        } elseif ($sessionId) {
+            return $query->where('session_id', $sessionId);
+        }
+
+        return $query->whereNull('id'); // No results
+    }
+
+    /**
+     * Scope: Ordenar por prioridad
+     */
+    public function scopeOrderByPriority($query)
+    {
+        return $query->orderBy('priority', 'asc')->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Verificar si el producto aún existe y está disponible
+     */
+    public function isProductAvailable(): bool
+    {
+        return $this->product && $this->product->Cantidad > 0;
+    }
+
+    /**
+     * Obtener el estado del producto en la wishlist
+     */
+    public function getProductStatusAttribute(): string
+    {
+        if (!$this->product) return 'Producto no encontrado';
+        if ($this->product->Cantidad <= 0) return 'Agotado';
+        if ($this->product->Cantidad <= 5) return 'Poco stock';
+        return 'Disponible';
+    }
+
+    /**
+     * Obtener la imagen del producto
+     */
+    public function getProductImageUrlAttribute(): string
+    {
+        return $this->product && $this->product->Foto
+            ? asset('storage/' . $this->product->Foto)
+            : asset('images/default-product.png');
+    }
+
+    /**
+     * Obtener el precio actual del producto
+     */
+    public function getCurrentPriceAttribute(): ?float
+    {
+        return $this->product ? (float) $this->product->Precio : null;
+    }
+
+    /**
+     * Obtener el precio formateado
+     */
+    public function getFormattedPriceAttribute(): string
+    {
+        $price = $this->current_price;
+        return $price ? '$' . number_format($price, 0, ',', '.') : 'N/A';
+    }
+
+    /**
+     * Obtener el precio total (precio * cantidad deseada)
+     */
+    public function getTotalPriceAttribute(): ?float
+    {
+        $price = $this->current_price;
+        return $price ? $price * $this->quantity : null;
+    }
+
+    /**
+     * Obtener el precio total formateado
+     */
+    public function getFormattedTotalPriceAttribute(): string
+    {
+        $total = $this->total_price;
+        return $total ? '$' . number_format($total, 0, ',', '.') : 'N/A';
+    }
+
+    /**
+     * Verificar si el producto tiene descuento
+     */
+    public function hasDiscount(): bool
+    {
+        return $this->product && $this->product->PrecioOriginal > $this->product->Precio;
+    }
+
+    /**
+     * Obtener el porcentaje de descuento
+     */
+    public function getDiscountPercentageAttribute(): ?float
+    {
+        if (!$this->hasDiscount()) return null;
+        $original = (float) $this->product->PrecioOriginal;
+        $current = (float) $this->product->Precio;
+        return round((($original - $current) / $original) * 100, 0);
+    }
+
+    /**
+     * Agregar a la wishlist (gestiona sesión y usuario)
+     */
+    public static function addToWishlist(int $productId, int $userId = null, string $sessionId = null, int $quantity = 1, string $notes = null): self
+    {
+        $existing = self::where('product_id', $productId)
+            ->where(function ($query) use ($userId, $sessionId) {
+                if ($userId) $query->where('user_id', $userId);
+                elseif ($sessionId) $query->where('session_id', $sessionId);
+            })
+            ->first();
+
+        if ($existing) {
+            $existing->update(['quantity' => $quantity, 'notes' => $notes]);
+            return $existing;
         }
 
         return self::create([
             'user_id' => $userId,
+            'session_id' => $sessionId,
             'product_id' => $productId,
-        ]) !== null;
+            'quantity' => $quantity,
+            'notes' => $notes,
+            'priority' => self::getNextPriority($userId, $sessionId),
+        ]);
+    }
+
+    /**
+     * Obtener la siguiente prioridad disponible
+     */
+    private static function getNextPriority(int $userId = null, string $sessionId = null): int
+    {
+        $maxPriority = self::byUserOrSession($userId, $sessionId)->max('priority');
+        return ($maxPriority ?? 0) + 1;
     }
 
     /**
@@ -62,27 +205,39 @@ class Wishlist extends Model
     public static function removeFromWishlist(int $userId, int $productId): bool
     {
         return self::where('user_id', $userId)
-                   ->where('product_id', $productId)
-                   ->delete() > 0;
+            ->where('product_id', $productId)
+            ->delete() > 0;
     }
 
     /**
-     * Obtener wishlist del usuario con relaciones
+     * Migrar wishlist de sesión a usuario
      */
-    public static function getUserWishlist(int $userId)
+    public static function migrateSessionToUser(string $sessionId, int $userId): void
     {
-        return self::with(['product.empresa', 'product.subcategoria'])
-                   ->where('user_id', $userId)
-                   ->orderBy('created_at', 'desc')
-                   ->get();
+        self::where('session_id', $sessionId)
+            ->whereNull('user_id')
+            ->update(['user_id' => $userId, 'session_id' => null]);
     }
 
     /**
-     * Contar elementos en la wishlist del usuario
+     * Obtener estadísticas de la wishlist
      */
-    public static function getWishlistCount(int $userId): int
+    public static function getWishlistStats(int $userId = null, string $sessionId = null): array
     {
-        return self::where('user_id', $userId)->count();
+        $query = self::byUserOrSession($userId, $sessionId);
+
+        $totalItems = $query->count();
+        $availableItems = $query->whereHas('product', fn($q) => $q->where('Cantidad', '>', 0))->count();
+        $outOfStockItems = $totalItems - $availableItems;
+        $totalValue = $query->whereHas('product')->get()->sum('total_price');
+
+        return [
+            'total_items' => $totalItems,
+            'available_items' => $availableItems,
+            'out_of_stock_items' => $outOfStockItems,
+            'total_value' => $totalValue,
+            'formatted_total_value' => $totalValue ? '$' . number_format($totalValue, 0, ',', '.') : '$0',
+        ];
     }
 
     /**
@@ -101,13 +256,42 @@ class Wishlist extends Model
     }
 
     /**
-     * Obtener productos de la wishlist con paginación
+     * Obtener wishlist del usuario con relaciones y paginación
      */
     public static function getUserWishlistPaginated(int $userId, int $perPage = 12)
     {
         return self::with(['product.empresa', 'product.subcategoria'])
-                   ->where('user_id', $userId)
-                   ->orderBy('created_at', 'desc')
-                   ->paginate($perPage);
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
+
+    /**
+     * Obtener wishlist del usuario (sin paginación)
+     */
+    public static function getUserWishlist(int $userId)
+    {
+        return self::with(['product.empresa', 'product.subcategoria'])
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    /**
+     * Obtener contador de wishlist del usuario
+     */
+    public static function getWishlistCount(int $userId): int
+    {
+        return self::where('user_id', $userId)->count();
+    }
+
+    /**
+     * Verificar si un producto está en la wishlist del usuario
+     */
+    public static function isInWishlist(int $userId, int $productId): bool
+    {
+        return self::where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->exists();
     }
 }
