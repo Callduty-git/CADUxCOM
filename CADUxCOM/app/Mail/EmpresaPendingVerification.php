@@ -27,7 +27,7 @@ class EmpresaPendingVerification extends Mailable
     public function build()
     {
         return $this->subject('Registro recibido - Tu empresa está en revisión')
-                    ->markdown('emails.empresas.pending')
+                    ->markdown('emails.empresa.pending')
                     ->with([
                         'empresa' => $this->empresa,
                     ]);

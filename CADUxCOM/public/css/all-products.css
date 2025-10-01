@@ -3,7 +3,7 @@ body {
     font-family: sans-serif;
     background-color: #FFFFFF; /* Paleta */
     margin: 0;
-    padding: 2rem 0;
+    padding: 1rem 0;
 }
 
 .container {
@@ -236,16 +236,203 @@ h1 {
     justify-content: center;
 }
 
-/* Media Queries para la responsividad */
+/* Media Queries para la responsividad - MEJORADAS */
+@media (max-width: 1200px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+    
+    .product-image {
+        height: 240px;
+    }
+}
+
+@media (max-width: 992px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+    
+    .product-image {
+        height: 220px;
+    }
+    
+    .product-name {
+        font-size: 1rem;
+    }
+    
+    .product-footer {
+        padding: 12px 16px;
+    }
+}
+
 @media (max-width: 768px) {
     .product-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 0 10px;
+    }
+    
+    .product-card {
+        border-radius: 15px;
+    }
+    
+    .product-image {
+        height: 200px;
+        padding: 12px;
+    }
+    
+    .product-details {
+        padding: 10px 12px 0 12px;
+    }
+    
+    .product-name {
+        font-size: 0.95rem;
+        line-height: 1.2;
+    }
+    
+    .product-brand, .product-company {
+        font-size: 0.8rem;
+    }
+    
+    .product-footer {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        border-radius: 8px;
+    }
+    
+    .footer-discount {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .footer-arrow-img {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .badge-discount {
+        padding: 3px 8px;
+        font-size: 0.8rem;
+        border-radius: 12px;
+    }
+    
+    .favorites-btn {
+        width: 1.8rem;
+        height: 1.8rem;
+        top: 0.4rem;
+        right: 0.4rem;
+    }
+    
+    .favorites-btn .heart-icon {
+        width: 0.9rem;
+        height: 0.9rem;
     }
 }
 
 @media (max-width: 480px) {
+    .container {
+        padding: 0.5rem;
+    }
+    
     .product-grid {
         grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 0 10px;
+    }
+    
+    .product-card {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    
+    .product-image {
+        height: 220px;
+        padding: 15px;
+    }
+    
+    .product-details {
+        padding: 12px 16px 0 16px;
+    }
+    
+    .product-name {
+        font-size: 1.05rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .product-brand, .product-company {
+        font-size: 0.85rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .product-footer {
+        padding: 12px 16px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .footer-discount {
+        width: 100%;
+        text-align: center;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .badge-discount {
+        left: 10px;
+        top: 10px;
+        padding: 4px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .favorites-btn {
+        width: 2rem;
+        height: 2rem;
+        top: 0.5rem;
+        right: 0.5rem;
+    }
+    
+    .favorites-btn .heart-icon {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .product-grid {
+        padding: 0 10px;
+    }
+    
+    .product-image {
+        height: 200px;
+        padding: 12px;
+    }
+    
+    .product-name {
+        font-size: 1rem;
+    }
+    
+    .product-brand, .product-company {
+        font-size: 0.8rem;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 8px 12px;
+        font-size: 0.85rem;
     }
 }
 

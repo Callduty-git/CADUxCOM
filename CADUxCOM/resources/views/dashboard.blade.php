@@ -1113,6 +1113,61 @@
                 }
             });
 
+            // Manejar envío del formulario de edición
+            const editForm = document.getElementById('editProfileForm');
+            if(editForm) {
+                editForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    const originalText = submitButton.textContent;
+                    
+                    // Deshabilitar botón y mostrar estado de carga
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Actualizando...';
+                    
+                    fetch('{{ route("empresa.perfil.update") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'X-HTTP-Method-Override': 'PUT'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Mostrar mensaje de éxito moderno
+                            showSuccessNotification(data.message || 'Perfil actualizado correctamente');
+                            
+                            // Cerrar modal
+                            editModal.style.display = 'none';
+                        } else {
+                            // Mostrar errores de validación
+                            let errorMessage = 'Error al actualizar el perfil:\n';
+                            if (data.errors) {
+                                Object.values(data.errors).forEach(error => {
+                                    errorMessage += '• ' + error[0] + '\n';
+                                });
+                            } else {
+                                errorMessage += data.message || 'Error desconocido';
+                            }
+                            alert(errorMessage);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error de conexión. Por favor, intenta de nuevo.');
+                    })
+                    .finally(() => {
+                        // Restaurar botón
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalText;
+                    });
+                });
+            }
+
             const welcomeModal = document.getElementById('modal-bienvenida');
             const welcomeMessage = localStorage.getItem('welcomeMessageShown');
 
@@ -1125,8 +1180,136 @@
                     localStorage.setItem('welcomeMessageShown', 'true');
                 }, 5000);
             }
+
+            // Función para mostrar notificación de éxito moderna
+            function showSuccessNotification(message) {
+                // Crear el elemento de notificación
+                const notification = document.createElement('div');
+                notification.className = 'success-notification';
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <div class="notification-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="notification-text">
+                            <div class="notification-title">¡Éxito!</div>
+                            <div class="notification-message">${message}</div>
+                        </div>
+                        <button class="notification-close" onclick="this.parentElement.parentElement.remove()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+
+                // Agregar al body
+                document.body.appendChild(notification);
+
+                // Mostrar con animación
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 100);
+
+                // Remover automáticamente después de 4 segundos
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        if (notification.parentElement) {
+                            notification.remove();
+                        }
+                    }, 300);
+                }, 4000);
+            }
         });
     </script>
+
+    <style>
+        /* Estilos para la notificación de éxito moderna */
+        .success-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 320px;
+            max-width: 400px;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .success-notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: flex-start;
+            padding: 16px 20px;
+            gap: 12px;
+        }
+
+        .notification-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            color: white;
+            margin-top: 2px;
+        }
+
+        .notification-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+            color: white;
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.4;
+        }
+
+        .notification-close {
+            flex-shrink: 0;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            margin-top: 1px;
+        }
+
+        .notification-close:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .success-notification {
+                right: 10px;
+                left: 10px;
+                min-width: auto;
+                max-width: none;
+            }
+        }
+    </style>
     
     <x-footer />
 </body>

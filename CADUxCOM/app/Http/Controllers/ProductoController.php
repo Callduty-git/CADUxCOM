@@ -41,6 +41,12 @@ class ProductoController extends Controller
      */
     public function index(Request $request)
     {
+        // Obtener la empresa autenticada
+        $empresa = Auth::guard('empresa')->user();
+        if (!$empresa) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
         $query = $request->input('query');
         $categoria = $request->input('categoria');
         $subcategoria = $request->input('subcategoria');
@@ -51,6 +57,7 @@ class ProductoController extends Controller
         $disponibilidad = $request->input('disponibilidad');
 
         $productos = Producto::with(['subcategoria.categoria'])
+            ->where('Id_Empresa', $empresa->Id_Empresa) // FILTRAR POR EMPRESA
             ->when($query, fn($q) => $q->where('Nombre', 'like', "%{$query}%")
                 ->orWhere('Marca', 'like', "%{$query}%"))
             ->when($categoria, fn($q) => $q->whereHas('subcategoria.categoria', fn($sq) => $sq->whereIn('Id_Categoria', (array) $categoria)))
@@ -148,7 +155,7 @@ class ProductoController extends Controller
     public function userShow($id)
     {
         $producto = Producto::findOrFail($id);
-        return view('productos.show', compact('producto'));
+        return view('productos.user-detail', compact('producto'));
     }
 
     /**
@@ -165,9 +172,16 @@ class ProductoController extends Controller
      */
     public function showEmpresa($id)
     {
-        $producto = Producto::findOrFail($id);
-        return view('productos.show-empresa', compact('producto'));
+        $empresa = Auth::guard('empresa')->user();
+        if (!$empresa) {
+            abort(403, 'Acceso no autorizado.');
+        }
 
+        $producto = Producto::where('Id_Producto', $id)
+            ->where('Id_Empresa', $empresa->Id_Empresa)
+            ->firstOrFail();
+            
+        return view('productos.show-empresa', compact('producto'));
     }
 
     /**
@@ -175,7 +189,15 @@ class ProductoController extends Controller
      */
     public function destroy($id)
     {
-        $producto = Producto::findOrFail($id);
+        // Si es una empresa, verificar que el producto le pertenezca
+        if (Auth::guard('empresa')->check()) {
+            $empresa = Auth::guard('empresa')->user();
+            $producto = Producto::where('Id_Producto', $id)
+                ->where('Id_Empresa', $empresa->Id_Empresa)
+                ->firstOrFail();
+        } else {
+            $producto = Producto::findOrFail($id);
+        }
 
         if ($producto->Foto) {
             Storage::disk('public')->delete($producto->Foto);
@@ -200,12 +222,17 @@ class ProductoController extends Controller
  */
 public function edit($id)
 {
-    $producto = Producto::findOrFail($id);
     $subcategorias = Subcategoria::all();
 
     // Si quien edita es una empresa, usa la vista exclusiva de empresa
     if (Auth::guard('empresa')->check()) {
         $empresa = Auth::guard('empresa')->user();
+        
+        // Verificar que el producto pertenezca a la empresa autenticada
+        $producto = Producto::where('Id_Producto', $id)
+            ->where('Id_Empresa', $empresa->Id_Empresa)
+            ->firstOrFail();
+            
         return view('productos.edit-empresa', [
             'producto' => $producto,
             'subcategorias' => $subcategorias,
@@ -214,6 +241,7 @@ public function edit($id)
     }
 
     // Si es un administrador u otro rol, muestra la vista general
+    $producto = Producto::findOrFail($id);
     $empresas = Empresa::all();
     return view('productos.edit', compact('producto', 'empresas', 'subcategorias'));
 }
@@ -224,7 +252,15 @@ public function edit($id)
      */
     public function update(Request $request, $id)
     {
-        $producto = Producto::findOrFail($id);
+        // Si es una empresa, verificar que el producto le pertenezca
+        if (Auth::guard('empresa')->check()) {
+            $empresa = Auth::guard('empresa')->user();
+            $producto = Producto::where('Id_Producto', $id)
+                ->where('Id_Empresa', $empresa->Id_Empresa)
+                ->firstOrFail();
+        } else {
+            $producto = Producto::findOrFail($id);
+        }
 
         $request->validate([
             'Nombre' => 'required|string|max:255',

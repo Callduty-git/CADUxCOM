@@ -13,17 +13,25 @@ html, body {
 
 /* Asegurar que el contenido principal no quede oculto detrás del header fijo */
 .page-container {
-  padding-top: var(--header-h); /* Compensar el header fijo (usa variable) */
+  padding-top: calc(var(--header-h) + 60px); /* Compensar header + navbar (~60px altura) */
+  margin-top: 0; /* Eliminar margen superior innecesario */
 }
 
 /* Para vistas de empresa que no usan page-container */
 body {
-  padding-top: var(--header-h); /* Compensar el header fijo para todas las vistas */
+  margin-top: 0; /* Eliminar margen superior del body */
 }
 
 /* Para layouts que ya tienen su propio espaciado */
 .content {
   margin-top: 0; /* El espaciado se maneja desde page-container */
+  padding-top: 0; /* Eliminar padding superior innecesario */
+}
+
+/* Espaciado específico para contenido que viene después del navbar */
+.main-content, .content {
+  margin-top: 0; /* Sin margen adicional */
+  padding-top: 20px; /* Pequeño padding para separación visual */
 }
 
 a {
@@ -235,12 +243,19 @@ ul, li {
   .main-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 15px;
-    padding: 15px 20px;
+    gap: 10px;
+    padding: 10px 20px;
     min-height: auto;
   }
 
+  .page-container {
+    padding-top: calc(var(--header-h) + 20px); /* Header + espacio mínimo para navbar en móvil */
+  }
+
+  :root { --header-h: 140px; }
+
   .left-section {
+    order: 1;
     justify-content: center;
     margin-bottom: 10px;
     gap: 12px;
@@ -251,12 +266,15 @@ ul, li {
   }
 
   .search-bar {
+    order: 2;
     width: 100%;
     max-width: none;
     margin: 0 0 15px 0;
+    min-width: auto;
   }
 
   .right-section {
+    order: 3;
     justify-content: center;
     gap: 20px;
   }
@@ -393,34 +411,38 @@ ul, li {
 
 @media (max-width: 768px) {
   .main-header {
-    padding: 10px 15px;
+    padding: 12px 15px;
     flex-direction: column;
     min-height: auto;
+    gap: 12px;
   }
   
   .page-container {
-    padding-top: 160px; /* Ajustar para el nuevo alto del header */
+    padding-top: 150px; /* Reducido para eliminar espacio en blanco */
   }
   
-  :root { --header-h: 160px; } /* Actualizar variable para cálculos */
+  :root { --header-h: 150px; } /* Actualizar variable para cálculos */
   
   .left-section {
     width: 100%;
     justify-content: center;
-    margin-bottom: 10px;
+    margin-bottom: 0;
+    order: 1;
   }
   
   .search-bar {
     max-width: 100%;
     width: 100%;
-    margin: 10px 0;
-    order: 3;
+    margin: 0;
+    order: 2;
+    min-width: auto;
   }
   
   .right-section {
     width: 100%;
     justify-content: center;
-    gap: 15px;
+    gap: 20px;
+    order: 3;
   }
   
   .logo {
@@ -446,16 +468,44 @@ ul, li {
   }
 }
 
-@media (max-width: 480px) {
+/* Optimización específica para iPhone XR y dispositivos similares */
+@media (max-width: 414px) {
   .main-header {
-    padding: 8px 10px;
+    padding: 8px 15px;
+    gap: 8px;
+    min-height: auto;
   }
   
   .page-container {
-    padding-top: 150px;
+    padding-top: calc(var(--header-h) + 10px); /* Espaciado optimizado para iPhone XR */
   }
   
-  :root { --header-h: 150px; }
+  :root { --header-h: 125px; }
+  
+  .logo {
+    max-height: 55px;
+  }
+  
+  .search-bar {
+    margin: 0 0 10px 0;
+  }
+  
+  .right-section {
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-header {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  
+  .page-container {
+    padding-top: calc(var(--header-h) + 15px); /* Header + espacio mínimo para dispositivos pequeños */
+  }
+  
+  :root { --header-h: 130px; }
   
   .logo {
     max-height: 50px;

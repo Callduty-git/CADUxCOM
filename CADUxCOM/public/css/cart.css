@@ -209,28 +209,344 @@
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* Media Queries para Responsividad Mejorada */
+@media (max-width: 1200px) {
     .cart-container {
+        max-width: 1000px;
+        padding: 18px;
+    }
+    
+    .cart-item {
+        padding: 18px;
+        margin-bottom: 14px;
+    }
+    
+    .cart-thumb {
+        width: 75px;
+        height: 75px;
+    }
+    
+    .summary {
+        padding: 22px;
+    }
+    
+    .btn {
+        padding: 7px 14px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .cart-container {
+        max-width: 800px;
         padding: 16px;
     }
     
     .cart-item {
         padding: 16px;
+        margin-bottom: 12px;
+        border-radius: 10px;
+    }
+    
+    .cart-thumb {
+        width: 70px;
+        height: 70px;
+        border-radius: 8px;
+    }
+    
+    .cart-actions {
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .qty-input {
+        width: 65px;
+        padding: 7px 10px;
+        font-size: 0.9rem;
+    }
+    
+    .btn {
+        padding: 7px 12px;
+        font-size: 0.9rem;
+        border-radius: 6px;
+    }
+    
+    .summary {
+        padding: 20px;
+        border-radius: 10px;
+    }
+    
+    .summary-item {
+        padding: 6px 0;
+        font-size: 0.95rem;
+    }
+    
+    .summary-total {
+        font-size: 1.15rem;
+        padding-top: 14px;
+        margin-top: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .cart-container {
+        padding: 14px;
+        max-width: 600px;
+    }
+    
+    .cart-item {
+        padding: 14px;
+        margin-bottom: 10px;
+        border-radius: 8px;
     }
     
     .cart-thumb {
         width: 60px;
         height: 60px;
+        border-radius: 6px;
     }
     
     .cart-actions {
         flex-direction: column;
         gap: 8px;
+        align-items: stretch;
     }
     
     .qty-input {
+        width: 100%;
+        max-width: 80px;
+        margin: 0 auto;
+        padding: 6px 8px;
+        font-size: 0.85rem;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .summary {
+        padding: 16px;
+        margin-top: 20px;
+    }
+    
+    .summary-item {
+        padding: 5px 0;
+        font-size: 0.9rem;
+    }
+    
+    .summary-total {
+        font-size: 1.1rem;
+        padding-top: 12px;
+        margin-top: 12px;
+    }
+    
+    .cart-empty {
+        padding: 40px 15px;
+    }
+    
+    .cart-empty-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 20px;
+    }
+    
+    .add-to-cart-btn {
+        width: 100%;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        justify-content: center;
+    }
+    
+    .quantity-selector {
+        width: 100%;
+        max-width: 120px;
+        margin: 0 auto;
+    }
+    
+    .quantity-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+    }
+    
+    .quantity-input {
+        width: 40px;
+        height: 28px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-container {
+        padding: 12px;
+    }
+    
+    .cart-item {
+        padding: 12px;
+        margin-bottom: 8px;
+        border-radius: 6px;
+    }
+    
+    .cart-thumb {
+        width: 50px;
+        height: 50px;
+        border-radius: 5px;
+    }
+    
+    .cart-actions {
+        gap: 6px;
+    }
+    
+    .qty-input {
+        max-width: 70px;
+        padding: 5px 6px;
+        font-size: 0.8rem;
+    }
+    
+    .btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        border-radius: 5px;
+    }
+    
+    .summary {
+        padding: 14px;
+        border-radius: 6px;
+    }
+    
+    .summary-item {
+        padding: 4px 0;
+        font-size: 0.85rem;
+    }
+    
+    .summary-total {
+        font-size: 1rem;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+    
+    .cart-empty {
+        padding: 30px 10px;
+    }
+    
+    .cart-empty-icon {
+        width: 70px;
+        height: 70px;
+        margin-bottom: 16px;
+    }
+    
+    .add-to-cart-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .quantity-selector {
+        max-width: 100px;
+    }
+    
+    .quantity-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 0.75rem;
+    }
+    
+    .quantity-input {
+        width: 36px;
+        height: 24px;
+        font-size: 0.8rem;
+    }
+    
+    .cart-count {
+        min-width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+        top: -6px;
+        right: -6px;
+    }
+}
+
+@media (max-width: 360px) {
+    .cart-container {
+        padding: 10px;
+    }
+    
+    .cart-item {
+        padding: 10px;
+        margin-bottom: 6px;
+    }
+    
+    .cart-thumb {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .qty-input {
+        max-width: 60px;
+        padding: 4px 5px;
+        font-size: 0.75rem;
+    }
+    
+    .btn {
+        padding: 5px 8px;
+        font-size: 0.75rem;
+    }
+    
+    .summary {
+        padding: 12px;
+    }
+    
+    .summary-item {
+        padding: 3px 0;
+        font-size: 0.8rem;
+    }
+    
+    .summary-total {
+        font-size: 0.95rem;
+        padding-top: 8px;
+        margin-top: 8px;
+    }
+    
+    .cart-empty {
+        padding: 25px 8px;
+    }
+    
+    .cart-empty-icon {
         width: 60px;
+        height: 60px;
+        margin-bottom: 12px;
+    }
+    
+    .add-to-cart-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .quantity-selector {
+        max-width: 90px;
+    }
+    
+    .quantity-btn {
+        width: 22px;
+        height: 22px;
+        font-size: 0.7rem;
+    }
+    
+    .quantity-input {
+        width: 32px;
+        height: 22px;
+        font-size: 0.75rem;
+    }
+    
+    .cart-count {
+        min-width: 16px;
+        height: 16px;
+        font-size: 0.65rem;
+        top: -5px;
+        right: -5px;
     }
 }
 

@@ -51,79 +51,161 @@
     position: absolute;
     right: 0;
     background-color: #fff;
-    min-width: 240px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    min-width: 280px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 25px rgba(0, 0, 0, 0.08);
     z-index: 1;
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
-    margin-top: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    margin-top: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(10px);
 }
 
 .dropdown-menu.show {
     display: block;
+    animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .dropdown-user-info {
     display: flex;
     align-items: center;
-    padding: 18px 20px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px 24px;
+    background: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
+    position: relative;
+}
+
+.user-avatar {
+    position: relative;
+    margin-right: 16px;
 }
 
 .dropdown-company-icon {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    margin-right: 10px;
     object-fit: cover;
-    border: 1px solid #ccc;
+    border: 2px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.default-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #49874E 0%, #2d5016 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    border: 2px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-details {
+    flex: 1;
+    min-width: 0;
 }
 
 .dropdown-company-name {
-    margin: 0;
-    font-weight: bold;
+    margin: 0 0 4px 0;
+    font-weight: 600;
     color: #333;
+    font-size: 16px;
+}
+
+.dropdown-company-email {
+    margin: 0;
+    font-size: 13px;
+    color: #6c757d;
+    font-weight: 400;
 }
 
 .dropdown-options {
-    padding: 12px 0;
+    padding: 8px 0;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e9ecef, transparent);
+    margin: 8px 0;
 }
 
 .dropdown-menu-link, .dropdown-menu-button {
-    color: #333;
-    padding: 16px 24px;
+    color: #374151;
+    padding: 14px 24px;
     text-decoration: none;
-    display: block;
+    display: flex;
+    align-items: center;
     background: none;
     border: none;
     width: 100%;
     text-align: left;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 0;
     position: relative;
-    margin: 2px 0;
+    margin: 0;
+    gap: 12px;
 }
 
 .dropdown-menu-link:hover, .dropdown-menu-button:hover {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    color: #2d5016;
-    transform: translateX(3px);
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    color: #49874E;
+    transform: translateX(4px);
+}
+
+.menu-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: rgba(73, 135, 78, 0.1);
+    color: #49874E;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.dropdown-menu-link:hover .menu-icon,
+.dropdown-menu-button:hover .menu-icon {
+    background: #49874E;
+    color: white;
+    transform: scale(1.1);
 }
 
 .dropdown-menu-button.danger {
-    color: #dc3545 !important;
-    font-weight: 600;
+    color: #dc2626 !important;
+}
+
+.dropdown-menu-button.danger .menu-icon {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
 }
 
 .dropdown-menu-button.danger:hover {
-    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%) !important;
-    color: #c62828 !important;
-    transform: translateX(3px);
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%) !important;
+    color: #b91c1c !important;
+}
+
+.dropdown-menu-button.danger:hover .menu-icon {
+    background: #dc2626 !important;
+    color: white !important;
 }
 
 /* Responsive Design */

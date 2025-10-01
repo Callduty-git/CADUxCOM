@@ -1,19 +1,18 @@
 <div id="bannerCarousel" class="carousel">
     <div class="carousel-inner">
         <div class="carousel-item active">
-            <img src="{{ asset('images/Banner1.png') }}" alt="Banner 1">
+            <img src="{{ asset('images/Banner1.png') }}" alt="Banner 1" loading="lazy">
         </div>
         <div class="carousel-item">
-            <img src="{{ asset('images/banner2.jpeg') }}" alt="Banner 2"
-                onerror="this.style.border='3px solid red'; console.error('No se pudo cargar banner2.jpg');">
+            <img src="{{ asset('images/banner2.jpeg') }}" alt="Banner 2" loading="lazy">
         </div>
         <div class="carousel-item">
-            <img src="{{ asset('images/Banner3.jpg') }}" alt="Banner 3">
+            <img src="{{ asset('images/Banner3.jpg') }}" alt="Banner 3" loading="lazy">
         </div>
     </div>
 
-    <button class="carousel-control prev" onclick="prevSlide()">&#10094;</button>
-    <button class="carousel-control next" onclick="nextSlide()">&#10095;</button>
+    <button class="carousel-control prev" onclick="prevSlide()" aria-label="Imagen anterior">&#10094;</button>
+    <button class="carousel-control next" onclick="nextSlide()" aria-label="Siguiente imagen">&#10095;</button>
 </div>
 
 <script>

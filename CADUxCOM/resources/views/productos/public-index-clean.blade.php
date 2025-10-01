@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todos los Productos - CADUxCOM</title>
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/productos-public.css') }}?v={{ time() }}">
+    <link rel="preload" href="{{ asset('css/header.css') }}?v={{ time() }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}"></noscript>
+    <link rel="preload" href="{{ asset('css/footer.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ asset('css/footer.css') }}"></noscript>
+    <link rel="preload" href="{{ asset('css/productos-public.css') }}?v={{ time() }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ asset('css/productos-public.css') }}?v={{ time() }}"></noscript>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -149,7 +154,9 @@
                                     @if($producto->Foto)
                                         <img src="{{ asset('storage/' . $producto->Foto) }}" 
                                              alt="{{ $producto->Nombre }}" 
-                                             class="product-image w-full h-full object-cover">
+                                             class="product-image w-full h-full object-cover"
+                                             loading="lazy"
+                                             decoding="async">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-gray-400">
                                             <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,22 +260,22 @@
                                             <div class="flex items-center space-x-3">
                                                 <!-- Selector de cantidad -->
                                                 <div class="quantity-selector flex items-center border-2 border-gray-200 rounded-lg bg-white">
-                                                    <button type="button" onclick="decreaseQty({{ $producto->Id_Producto }})" 
-                                                            class="w-7 h-7 flex items-center justify-center hover:bg-gray-100 rounded-l-lg font-bold text-gray-600 text-xs">
+                                                    <button type="button" class="qty-decrease w-7 h-7 flex items-center justify-center hover:bg-gray-100 rounded-l-lg font-bold text-gray-600 text-xs" 
+                                                            data-product-id="{{ $producto->Id_Producto }}">
                                                         -
                                                     </button>
                                                     <input type="number" min="1" max="{{ $producto->Cantidad }}" 
                                                            value="1" id="qty-{{ $producto->Id_Producto }}"
                                                            class="w-10 text-center border-0 focus:ring-0 font-semibold text-gray-900 text-xs">
-                                                    <button type="button" onclick="increaseQty({{ $producto->Id_Producto }})" 
-                                                            class="w-7 h-7 flex items-center justify-center hover:bg-gray-100 rounded-r-lg font-bold text-gray-600 text-xs">
+                                                    <button type="button" class="qty-increase w-7 h-7 flex items-center justify-center hover:bg-gray-100 rounded-r-lg font-bold text-gray-600 text-xs" 
+                                                            data-product-id="{{ $producto->Id_Producto }}">
                                                         +
                                                     </button>
                                                 </div>
 
                                                 <!-- Botón agregar al carrito -->
-                                                <button type="button" onclick="addToCart({{ $producto->Id_Producto }})" 
-                                                        class="add-to-cart-btn flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-2 py-1.5 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 space-x-1 text-xs">
+                                                <button type="button" class="add-to-cart-btn flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-2 py-1.5 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 space-x-1 text-xs" 
+                                                        data-product-id="{{ $producto->Id_Producto }}">
                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
                                                     </svg>
@@ -339,9 +346,17 @@
     </div>
 
     <script>
-        // Funciones para manejar cantidad
+        // Cache de elementos DOM para mejor rendimiento
+        const qtyInputs = new Map();
+        
+        // Funciones optimizadas para manejar cantidad
         function increaseQty(productId) {
-            const input = document.getElementById(`qty-${productId}`);
+            let input = qtyInputs.get(productId);
+            if (!input) {
+                input = document.getElementById(`qty-${productId}`);
+                qtyInputs.set(productId, input);
+            }
+            
             const max = parseInt(input.getAttribute('max'));
             const current = parseInt(input.value);
             if (current < max) {
@@ -350,17 +365,44 @@
         }
 
         function decreaseQty(productId) {
-            const input = document.getElementById(`qty-${productId}`);
+            let input = qtyInputs.get(productId);
+            if (!input) {
+                input = document.getElementById(`qty-${productId}`);
+                qtyInputs.set(productId, input);
+            }
+            
             const current = parseInt(input.value);
             if (current > 1) {
                 input.value = current - 1;
             }
         }
 
-        // Función para agregar al carrito
+        // Debouncing para evitar múltiples clics
+        const addToCartDebounce = new Map();
+        
+        // Función optimizada para agregar al carrito - Sistema unificado
         async function addToCart(productId) {
-            const quantity = document.getElementById(`qty-${productId}`).value;
+            // Prevenir múltiples clics rápidos
+            if (addToCartDebounce.has(productId)) {
+                return;
+            }
+            addToCartDebounce.set(productId, true);
+            
+            let input = qtyInputs.get(productId);
+            if (!input) {
+                input = document.getElementById(`qty-${productId}`);
+                qtyInputs.set(productId, input);
+            }
+            
+            const quantity = input.value;
             const button = event.target.closest('button');
+            
+            // Usar el sistema unificado del carrito si está disponible
+            if (window.cartManager && window.cartManager.addToCart) {
+                return await window.cartManager.addToCart(productId, parseInt(quantity), button);
+            }
+            
+            // Fallback: implementación local (mantener compatibilidad)
             const originalText = button.innerHTML;
             
             // Mostrar loading
@@ -380,21 +422,38 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Mostrar notificación de éxito
-                    showNotification('Producto agregado al carrito', 'success');
+                    // Usar el sistema unificado de notificaciones si está disponible
+                    if (window.cartManager && window.cartManager.showNotification) {
+                        window.cartManager.showNotification('Producto agregado al carrito', 'success');
+                    } else {
+                        showNotification('Producto agregado al carrito', 'success');
+                    }
                     
                     // Actualizar contador del carrito
                     updateCartCounter();
                 } else {
-                    showNotification(data.message || 'Error al agregar el producto', 'error');
+                    if (window.cartManager && window.cartManager.showNotification) {
+                        window.cartManager.showNotification(data.message || 'Error al agregar el producto', 'error');
+                    } else {
+                        showNotification(data.message || 'Error al agregar el producto', 'error');
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showNotification('Error al agregar el producto', 'error');
+                if (window.cartManager && window.cartManager.showNotification) {
+                    window.cartManager.showNotification('Error al agregar el producto', 'error');
+                } else {
+                    showNotification('Error al agregar el producto', 'error');
+                }
             } finally {
                 // Restaurar botón
                 button.innerHTML = originalText;
                 button.disabled = false;
+                
+                // Limpiar debounce después de un breve delay
+                setTimeout(() => {
+                    addToCartDebounce.delete(productId);
+                }, 500);
             }
         }
 
@@ -437,24 +496,44 @@
             }
         }
 
-        // Animación de entrada para las tarjetas
+        // Animación optimizada de entrada para las tarjetas
         function animateCards() {
             const cards = document.querySelectorAll('.product-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(30px)';
-                
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s ease-out';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
+            
+            // Batch DOM operations para mejor rendimiento
+            requestAnimationFrame(() => {
+                cards.forEach((card, index) => {
+                    card.style.cssText = 'opacity: 0; transform: translateY(30px);';
+                    
+                    setTimeout(() => {
+                        requestAnimationFrame(() => {
+                            card.style.cssText = 'transition: all 0.6s ease-out; opacity: 1; transform: translateY(0);';
+                        });
+                    }, index * 50); // Reducido de 100ms a 50ms para animación más fluida
+                });
             });
         }
 
         // Ejecutar animaciones cuando se carga la página
         document.addEventListener('DOMContentLoaded', function() {
             animateCards();
+            
+            // Event delegation para mejor rendimiento - un solo listener para todos los botones
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('button');
+                if (!target) return;
+                
+                const productId = target.getAttribute('data-product-id');
+                if (!productId) return;
+                
+                if (target.classList.contains('qty-decrease')) {
+                    decreaseQty(productId);
+                } else if (target.classList.contains('qty-increase')) {
+                    increaseQty(productId);
+                } else if (target.classList.contains('add-to-cart-btn')) {
+                    addToCart(productId);
+                }
+            });
         });
     </script>
 </body>

@@ -1,20 +1,17 @@
 /* SEPARADOR PARA EL CARRUSEL */
 .carousel-separator {
-    height: 50px !important;
+    height: 120px !important; /* Espacio máximo para mejor separación visual */
     background: transparent !important;
+    margin-top: 30px; /* Espacio adicional máximo desde el navbar */
 }
 
-/* CACHE CLEARED - CSS UPDATED */
+/* CARRUSEL PRINCIPAL */
 .carousel {
     position: relative;
     width: 100%;
-    margin-top: 0; /* Sin margin-top, el separador se encarga del espaciado */
-    overflow: hidden; /* Prevenir scroll horizontal */
-    touch-action: pan-x; /* Permitir solo gestos horizontales */
-    user-select: none; /* Prevenir selección de texto */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+    margin-top: 0; /* Sin margen, el espaciado se maneja con el separador */
+    overflow: hidden;
+    z-index: 1; /* Por debajo del navbar y header */
 }
 
 .carousel-inner {
@@ -30,28 +27,22 @@
 .carousel-item img {
     width: 100%;
     height: auto;
-    max-height: 400px; /* límite opcional para evitar que sea demasiado alto */
-    object-fit: contain; /* ahora no recorta, ajusta imagen */
+    max-height: 400px;
+    object-fit: contain;
     display: block;
-    background-color: #fff; /* relleno si hay espacio */
-    pointer-events: none; /* Prevenir eventos de mouse en las imágenes */
-    user-select: none; /* Prevenir selección de imágenes */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+    background-color: #fff;
 }
 
 .carousel-control {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5);
     color: white;
     border: none;
-    padding: 10px;
+    padding: 10px 15px;
     cursor: pointer;
-    font-size: 24px;
-    border-radius: 50%;
+    font-size: 18px;
     z-index: 10;
 }
 
@@ -66,7 +57,8 @@
 /* Responsive spacing para el carrusel - CACHE CLEARED */
 @media screen and (max-width: 1200px) {
     .carousel-separator {
-        height: 45px !important;
+        height: 100px !important; /* Espacio máximo ajustado para pantallas grandes */
+        margin-top: 28px;
     }
     
     .carousel {
@@ -74,9 +66,32 @@
     }
 }
 
+/* Optimización específica para iPhone XR */
+@media screen and (max-width: 414px) {
+    .carousel-separator {
+        height: 55px !important; /* Espacio máximo para iPhone XR */
+        margin-top: 12px;
+    }
+    
+    .carousel {
+        margin-top: 0;
+    }
+    
+    .carousel-item img {
+        max-height: 220px; /* Altura optimizada para iPhone XR */
+        object-fit: cover;
+    }
+
+    .carousel-control {
+        font-size: 16px;
+        padding: 6px 8px;
+    }
+}
+
 @media screen and (max-width: 768px) {
     .carousel-separator {
-        height: 40px !important;
+        height: 70px !important; /* Espacio máximo para tablets */
+        margin-top: 20px;
     }
     
     .carousel {
@@ -95,7 +110,8 @@
 
 @media screen and (max-width: 480px) {
     .carousel-separator {
-        height: 35px !important;
+        height: 60px !important; /* Espacio máximo para móviles */
+        margin-top: 15px;
     }
     
     .carousel {

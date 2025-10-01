@@ -414,19 +414,6 @@
         <!-- HEADER -->
         <x-header-empresa />
 
-    <div class="sidebar-container">
-        <aside class="sidebar" id="sidebar">
-            <nav class="nav-buttons">
-                <a href="{{ route('empresa.dashboard') }}" class="btn">Inicio</a>
-                <a href="{{ route('empresa.productos.index') }}" class="btn">Productos</a>
-                <a href="{{ route('empresa.facturas') }}" class="btn">Log de Productos</a>
-                <form method="POST" action="{{ route('empresa.logout') }}" style="margin-top: 10px;">
-                    @csrf
-                    <button type="submit" class="btn">Salir</button>
-                </form>
-            </nav>
-        </aside>
-    </div>
 
     <div class="main-container">
         <main class="dashboard-panel">

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Log;
 
 class Wishlist extends Model
 {
@@ -166,7 +167,7 @@ class Wishlist extends Model
     /**
      * Agregar a la wishlist (gestiona sesión y usuario)
      */
-    public static function addToWishlist(int $productId, int $userId = null, string $sessionId = null, int $quantity = 1, string $notes = null): self
+    public static function addToWishlist(int $productId, ?int $userId = null, ?string $sessionId = null, int $quantity = 1, ?string $notes = null): self
     {
         $existing = self::where('product_id', $productId)
             ->where(function ($query) use ($userId, $sessionId) {
@@ -193,7 +194,7 @@ class Wishlist extends Model
     /**
      * Obtener la siguiente prioridad disponible
      */
-    private static function getNextPriority(int $userId = null, string $sessionId = null): int
+    private static function getNextPriority(?int $userId = null, ?string $sessionId = null): int
     {
         $maxPriority = self::byUserOrSession($userId, $sessionId)->max('priority');
         return ($maxPriority ?? 0) + 1;
@@ -222,7 +223,7 @@ class Wishlist extends Model
     /**
      * Obtener estadísticas de la wishlist
      */
-    public static function getWishlistStats(int $userId = null, string $sessionId = null): array
+    public static function getWishlistStats(?int $userId = null, ?string $sessionId = null): array
     {
         $query = self::byUserOrSession($userId, $sessionId);
 
@@ -247,10 +248,10 @@ class Wishlist extends Model
     {
         try {
             $deletedCount = self::where('user_id', $userId)->delete();
-            \Log::info("Wishlist cleared for user {$userId}, deleted {$deletedCount} items");
+            Log::info("Wishlist cleared for user {$userId}, deleted {$deletedCount} items");
             return true;
         } catch (\Exception $e) {
-            \Log::error("Error clearing wishlist for user {$userId}: " . $e->getMessage());
+            Log::error("Error clearing wishlist for user {$userId}: " . $e->getMessage());
             return false;
         }
     }

@@ -65,7 +65,7 @@
                     <div class="footer-actions">
                         <a href="{{ route('productos.show', $producto->Id_Producto) }}" class="btn btn-primary">Ver detalles</a>
                         @if($producto->Cantidad > 0)
-                            <form method="POST" action="{{ route('cart.add') }}" class="btn-cart-form" onsubmit="return addToCart(event, {{ $producto->Id_Producto }})">
+                            <form method="POST" action="{{ route('cart.add') }}" class="btn-cart-form" data-product-id="{{ $producto->Id_Producto }}">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $producto->Id_Producto }}">
                                 <button type="submit" class="btn btn-secondary">Agregar</button>
@@ -91,11 +91,30 @@
     <x-cart-scripts />
 
     <script>
+    // Event listeners para los formularios de carrito
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.btn-cart-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const productId = this.getAttribute('data-product-id');
+                addToCart(e, productId);
+            });
+        });
+    });
+
     async function addToCart(e, id){
         e.preventDefault();
         const form = e.target;
         const data = new FormData(form);
         const button = form.querySelector('button');
+        
+        // Usar el sistema unificado del carrito si está disponible
+        if (window.cartManager && window.cartManager.addToCart) {
+            const quantity = data.get('quantity') || 1;
+            return await window.cartManager.addToCart(id, parseInt(quantity), button);
+        }
+        
+        // Fallback: implementación local (mantener compatibilidad)
         const originalText = button.innerHTML;
 
         // Mostrar loader
@@ -119,13 +138,26 @@
             }
 
             if (json.success) {
-                showNotification('Producto agregado al carrito', 'success');
+                // Usar el sistema unificado de notificaciones si está disponible
+                if (window.cartManager && window.cartManager.showNotification) {
+                    window.cartManager.showNotification('Producto agregado al carrito', 'success');
+                } else {
+                    showNotification('Producto agregado al carrito', 'success');
+                }
             } else {
-                showNotification(json.error || 'Error al agregar al carrito', 'error');
+                if (window.cartManager && window.cartManager.showNotification) {
+                    window.cartManager.showNotification(json.error || 'Error al agregar al carrito', 'error');
+                } else {
+                    showNotification(json.error || 'Error al agregar al carrito', 'error');
+                }
             }
         } catch(err) {
             console.error(err);
-            showNotification('Error al agregar al carrito', 'error');
+            if (window.cartManager && window.cartManager.showNotification) {
+                window.cartManager.showNotification('Error al agregar al carrito', 'error');
+            } else {
+                showNotification('Error al agregar al carrito', 'error');
+            }
         } finally {
             button.innerHTML = originalText;
             button.disabled = false;
@@ -134,6 +166,7 @@
     }
 
     function showNotification(message, type) {
+        // Fallback para compatibilidad
         const notification = document.createElement('div');
         notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium ${
             type === 'success' ? 'bg-green-500' : 'bg-red-500'

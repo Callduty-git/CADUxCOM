@@ -27,7 +27,7 @@ class EmpresaRegistrationNotification extends Mailable
     public function build()
     {
         return $this->subject('Nueva empresa registrada en Caduxcom')
-                    ->markdown('emails.empresas.registration')
+                    ->markdown('emails.empresa.registration')
                     ->with([
                         'empresa' => $this->empresa,
                     ]);

@@ -29,7 +29,7 @@
                     <ol class="flex items-center space-x-2 text-sm text-gray-600">
                         <li><a href="{{ route('home') }}" class="hover:text-gray-800">Inicio</a></li>
                         <li>/</li>
-                        <li><a href="{{ route('empresa.productos.index') }}" class="hover:text-gray-800">Mis Productos</a></li>
+                        <li><a href="{{ route('productos.public.index') }}" class="hover:text-gray-800">Productos</a></li>
                         <li>/</li>
                         <li class="text-gray-900 font-medium">{{ $producto->Nombre }}</li>
                     </ol>
@@ -141,9 +141,9 @@
 
                 <!-- Botones de acción -->
                 <div class="mt-8 flex flex-wrap gap-4">
-                    <a href="{{ route('empresa.productos.index') }}" 
+                    <a href="{{ route('productos.public.index') }}" 
                        class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
-                        ← Volver a Mis Productos
+                        ← Volver a Productos
                     </a>
                     
                     @auth

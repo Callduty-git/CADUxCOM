@@ -4,7 +4,6 @@
     <button 
         class="wishlist-btn {{ $isInWishlist ? 'active' : '' }} {{ $size === 'small' ? 'small' : '' }}" 
         data-product-id="{{ $productId }}"
-        onclick="toggleWishlist({{ $productId }})"
         title="{{ $isInWishlist ? 'Quitar de favoritos' : 'Agregar a favoritos' }}"
     >
         <img 
@@ -16,7 +15,7 @@
 @else
     <button 
         class="wishlist-btn disabled {{ $size === 'small' ? 'small' : '' }}" 
-        onclick="showLoginMessage()"
+        onclick="showLoginAlert()"
         title="Inicia sesión para agregar a favoritos"
     >
         <img 
@@ -109,6 +108,144 @@
     background: var(--color-white);
     box-shadow: var(--shadow-medium);
 }
+
+/* Estilos para notificaciones de wishlist */
+.wishlist-notification {
+    font-family: 'Figtree', Arial, sans-serif;
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.wishlist-notification-content {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 12px;
+}
+
+.wishlist-notification-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+
+.wishlist-notification-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wishlist-notification-message {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2c3e50;
+    line-height: 1.4;
+}
+
+.wishlist-notification-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    color: #7f8c8d;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wishlist-notification-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #2c3e50;
+}
+
+.wishlist-notification-progress {
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-green-dark), var(--color-purple));
+    border-radius: 0 0 12px 12px;
+}
+
+/* Animaciones específicas para wishlist */
+@keyframes wishlistSlideIn {
+    from {
+        transform: translateX(100%) scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes wishlistSlideOut {
+    from {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%) scale(0.9);
+        opacity: 0;
+    }
+}
+
+@keyframes wishlistPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Variantes de color para diferentes tipos */
+.wishlist-notification-added .wishlist-notification-progress {
+    background: linear-gradient(90deg, var(--color-green-dark), #27ae60);
+}
+
+.wishlist-notification-removed .wishlist-notification-progress {
+    background: linear-gradient(90deg, var(--color-purple), #8e44ad);
+}
+
+.wishlist-notification-login .wishlist-notification-progress {
+    background: linear-gradient(90deg, var(--color-purple), #9b59b6);
+}
+
+.wishlist-notification-error .wishlist-notification-progress {
+    background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #wishlist-notification-container {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        top: 80px;
+    }
+
+    .wishlist-notification-content {
+        padding: 12px 16px;
+    }
+
+    .wishlist-notification-icon {
+        font-size: 20px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .wishlist-notification-message {
+        font-size: 13px;
+    }
+}
 </style>
 
 <script>
@@ -168,8 +305,8 @@ function toggleWishlist(productId) {
             // Actualizar contador en header
             updateWishlistCount(data.wishlist_count);
             
-            // Mostrar notificación
-            showNotification(data.message, 'success');
+            // Mostrar notificación con animación mejorada
+            showWishlistNotification(data.message, data.is_in_wishlist ? 'added' : 'removed');
         } else {
             showNotification(data.message, 'error');
         }
@@ -185,8 +322,24 @@ function toggleWishlist(productId) {
     });
 }
 
-function showLoginMessage() {
-    showNotification('Inicia sesión para agregar productos a favoritos', 'info');
+function showLoginAlert() {
+    // Usar el sistema unificado de notificaciones si está disponible
+    if (window.cartManager && window.cartManager.showNotification) {
+        window.cartManager.showNotification(
+            '🔐 Inicia sesión para agregar productos a tu lista de favoritos', 
+            'info'
+        );
+        
+        // Agregar vibración táctil en dispositivos móviles
+        if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+        }
+        
+        return;
+    }
+    
+    // Fallback: notificación personalizada mejorada
+    showWishlistNotification('🔐 Inicia sesión para agregar productos a favoritos', 'login');
 }
 
 function updateWishlistCount(count) {
@@ -196,51 +349,151 @@ function updateWishlistCount(count) {
     }
 }
 
-function showNotification(message, type = 'info') {
-    // Crear elemento de notificación
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    
-    // Agregar estilos
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 8px;
-        color: white;
-        font-weight: 500;
-        z-index: 10000;
-        animation: slideIn 0.3s ease-out;
-        max-width: 300px;
-        font-family: 'Figtree', Arial, sans-serif;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    `;
-    
-    // Colores según el tipo
-    if (type === 'success') {
-        notification.style.backgroundColor = 'var(--color-green-dark)';
-    } else if (type === 'error') {
-        notification.style.backgroundColor = '#e74c3c';
-    } else if (type === 'info') {
-        notification.style.backgroundColor = 'var(--color-purple)';
-    } else {
-        notification.style.backgroundColor = 'var(--color-green-light)';
+function showWishlistNotification(message, type = 'info') {
+    // Usar el sistema unificado si está disponible
+    if (window.cartManager && window.cartManager.showNotification && type !== 'added' && type !== 'removed' && type !== 'login') {
+        window.cartManager.showNotification(message, type);
+        return;
     }
     
-    // Agregar al DOM
-    document.body.appendChild(notification);
+    // Iconos descriptivos para cada tipo de acción
+    const icons = {
+        added: '💖',
+        removed: '💔',
+        login: '🔐',
+        success: '✅',
+        error: '❌',
+        info: 'ℹ️'
+    };
     
-    // Remover después de 3 segundos
+    // Colores corporativos
+    const colors = {
+        added: 'var(--color-green-dark)',
+        removed: 'var(--color-purple)',
+        login: 'var(--color-purple)',
+        success: 'var(--color-green-dark)',
+        error: '#e74c3c',
+        info: 'var(--color-purple)'
+    };
+    
+    // Crear contenedor de notificaciones si no existe
+    let container = document.getElementById('wishlist-notification-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'wishlist-notification-container';
+        container.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+            width: 100%;
+            pointer-events: none;
+        `;
+        document.body.appendChild(container);
+    }
+    
+    // Crear elemento de notificación
+    const notification = document.createElement('div');
+    notification.className = `wishlist-notification wishlist-notification-${type}`;
+    
+    notification.innerHTML = `
+        <div class="wishlist-notification-content">
+            <div class="wishlist-notification-icon">${icons[type] || icons.info}</div>
+            <div class="wishlist-notification-body">
+                <span class="wishlist-notification-message">${message}</span>
+            </div>
+            <button class="wishlist-notification-close" onclick="this.closest('.wishlist-notification').remove()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="wishlist-notification-progress"></div>
+    `;
+    
+    // Estilos base
+    notification.style.cssText = `
+        position: relative;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f5f8 100%);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(73, 135, 78, 0.15);
+        border-left: 4px solid ${colors[type] || colors.info};
+        transform: translateX(100%);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        pointer-events: auto;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    `;
+    
+    // Agregar al contenedor
+    container.appendChild(notification);
+    
+    // Animar entrada
+    requestAnimationFrame(() => {
+        notification.style.transform = 'translateX(0)';
+        notification.style.opacity = '1';
+    });
+    
+    // Barra de progreso
+    const progressBar = notification.querySelector('.wishlist-notification-progress');
+    progressBar.style.cssText = `
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: ${colors[type] || colors.info};
+        width: 100%;
+        transform: scaleX(1);
+        transform-origin: left;
+        transition: transform 4s linear;
+    `;
+    
+    // Iniciar animación de la barra de progreso
+    requestAnimationFrame(() => {
+        progressBar.style.transform = 'scaleX(0)';
+    });
+    
+    // Feedback táctil para dispositivos móviles
+    if (navigator.vibrate) {
+        if (type === 'added') {
+            navigator.vibrate([50, 30, 50]); // Vibración suave para agregar
+        } else if (type === 'removed') {
+            navigator.vibrate([100]); // Vibración simple para remover
+        } else if (type === 'login') {
+            navigator.vibrate([100, 50, 100]); // Vibración de alerta
+        }
+    }
+    
+    // Auto-remover después de 4 segundos
     setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease-in';
+        notification.style.transform = 'translateX(100%)';
+        notification.style.opacity = '0';
         setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
+            if (notification.parentElement) {
+                notification.remove();
             }
-        }, 300);
-    }, 3000);
+        }, 400);
+    }, 4000);
+    
+    // Hover para pausar la animación
+    notification.addEventListener('mouseenter', () => {
+        progressBar.style.animationPlayState = 'paused';
+    });
+    
+    notification.addEventListener('mouseleave', () => {
+        progressBar.style.animationPlayState = 'running';
+    });
+}
+
+function showNotification(message, type = 'info') {
+    // Redirigir al nuevo sistema de notificaciones
+    showWishlistNotification(message, type);
 }
 
 // Agregar estilos de animación si no existen
@@ -307,5 +560,17 @@ function loadWishlistStatus() {
 // Cargar estado cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
     loadWishlistStatus();
+    
+    // Event listeners para botones de wishlist
+    document.querySelectorAll('.wishlist-btn[data-product-id]').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            if (this.classList.contains('disabled')) {
+                showLoginAlert();
+            } else {
+                toggleWishlist(productId);
+            }
+        });
+    });
 });
 </script>

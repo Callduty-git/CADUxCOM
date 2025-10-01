@@ -35,8 +35,8 @@
 
         {{-- Wishlist --}}
         @if($showWishlist && auth()->check())
-            <button onclick="toggleWishlist({{ $product->Id_Producto }})" 
-                    class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-red-50 transition-colors group"
+            <button data-product-id="{{ $product->Id_Producto }}" 
+                    class="wishlist-toggle-btn absolute top-2 right-2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-red-50 transition-colors group"
                     id="wishlist-btn-{{ $product->Id_Producto }}">
                 <svg class="w-4 h-4 text-gray-500 hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
@@ -90,8 +90,8 @@
         {{-- Botones --}}
         <div class="flex space-x-2">
             @if($showCart && $product->Cantidad > 0)
-                <button onclick="addToCart({{ $product->Id_Producto }})" 
-                        class="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                <button data-product-id="{{ $product->Id_Producto }}" 
+                        class="add-to-cart-btn flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
                     Agregar
                 </button>
             @elseif($showCart)
@@ -105,37 +105,128 @@
 </div>
 
 <script>
-function addToCart(productId) {
-    fetch('{{ route("cart.add") }}', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-        body: JSON.stringify({ product_id: productId, quantity: 1 })
-    }).then(r => r.json()).then(data => {
-        if(data.success) updateCartCount();
+// Event listeners para los botones
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listeners para botones de agregar al carrito
+    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            addToCart(productId);
+        });
     });
+    
+    // Event listeners para botones de wishlist
+    document.querySelectorAll('.wishlist-toggle-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            toggleWishlist(productId);
+        });
+    });
+});
+
+async function addToCart(productId) {
+    // Usar el sistema unificado del carrito si está disponible
+    if (window.cartManager && window.cartManager.addToCart) {
+        return await window.cartManager.addToCart(productId, 1);
+    }
+    
+    // Fallback: implementación local (mantener compatibilidad)
+    try {
+        const response = await fetch('{{ route("cart.add") }}', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+            },
+            body: JSON.stringify({ product_id: productId, quantity: 1 })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            updateCartCount();
+            // Usar el sistema unificado de notificaciones si está disponible
+            if (window.cartManager && window.cartManager.showNotification) {
+                window.cartManager.showNotification('Producto agregado al carrito', 'success');
+            }
+        } else {
+            if (window.cartManager && window.cartManager.showNotification) {
+                window.cartManager.showNotification(data.message || 'Error al agregar el producto', 'error');
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        if (window.cartManager && window.cartManager.showNotification) {
+            window.cartManager.showNotification('Error al agregar el producto', 'error');
+        }
+    }
 }
 
-function toggleWishlist(productId) {
-    fetch('{{ route("wishlist.add") }}', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-        body: JSON.stringify({ product_id: productId })
-    }).then(r => r.json()).then(data => {
-        if(data.success) updateWishlistCount();
-    });
+async function toggleWishlist(productId) {
+    // Usar el sistema unificado de wishlist si está disponible
+    if (window.toggleWishlist) {
+        return window.toggleWishlist(productId);
+    }
+    
+    // Fallback: implementación local (mantener compatibilidad)
+    try {
+        const response = await fetch('{{ route("wishlist.add") }}', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+            },
+            body: JSON.stringify({ product_id: productId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            updateWishlistCount();
+            // Usar el sistema unificado de notificaciones si está disponible
+            if (window.showWishlistNotification) {
+                window.showWishlistNotification(data.message, data.action === 'added' ? 'added' : 'removed');
+            } else if (window.cartManager && window.cartManager.showNotification) {
+                window.cartManager.showNotification(data.message, 'success');
+            }
+        } else {
+            if (window.cartManager && window.cartManager.showNotification) {
+                window.cartManager.showNotification(data.message || 'Error al actualizar favoritos', 'error');
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        if (window.cartManager && window.cartManager.showNotification) {
+            window.cartManager.showNotification('Error al actualizar favoritos', 'error');
+        }
+    }
 }
 
 function updateCartCount() {
+    // Usar el sistema unificado si está disponible
+    if (window.cartManager && window.cartManager.updateCartCounter) {
+        window.cartManager.updateCartCounter();
+        return;
+    }
+    
+    // Fallback: implementación local
     fetch('{{ route("cart.count") }}').then(r => r.json()).then(data => {
         const el = document.getElementById('cart-count');
         if(el) el.textContent = data.count;
-    });
+    }).catch(error => console.error('Error updating cart count:', error));
 }
 
 function updateWishlistCount() {
+    // Usar el sistema unificado si está disponible
+    if (window.updateWishlistCount) {
+        window.updateWishlistCount();
+        return;
+    }
+    
+    // Fallback: implementación local
     fetch('{{ route("wishlist.count") }}').then(r => r.json()).then(data => {
         const el = document.getElementById('wishlist-count');
         if(el) el.textContent = data.count;
-    });
+    }).catch(error => console.error('Error updating wishlist count:', error));
 }
 </script>
