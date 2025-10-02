@@ -24,59 +24,15 @@
     <!-- Google Maps API -->
     <script>
         // Variable global para la API key
-        window.googleMapsApiKey = 'AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik';
+        window.googleMapsApiKey = "{{ env('GOOGLE_MAPS_API_KEY', 'AIzaSyBMDPpV5x-_Xl-ekz1kg48nuD79NgTN8mU') }}";
         
-        // Función de inicialización del mapa
+        // Función de inicialización del mapa (no-op; map.js gestiona init)
         function initMap() {
-            if (window.mapManager) return;
-            window.mapManager = new MapManager();
+            console.log('initMap callback ejecutado');
         }
     </script>
     
-    <!-- Estilos inline para asegurar que se apliquen -->
-    <style>
-        .filter-select {
-            border: 2px solid #90D575 !important;
-            background: #FFFFFF !important;
-            color: #49874E !important;
-            border-radius: 8px !important;
-            appearance: none !important;
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-        }
-        
-        .filter-select:hover {
-            border-color: #49874E !important;
-        }
-        
-        .filter-select:focus {
-            border-color: #49874E !important;
-            outline: none !important;
-        }
-        
-        #municipio-select, #category-select, #radius-select {
-            border: 2px solid #90D575 !important;
-            background: #FFFFFF !important;
-            color: #49874E !important;
-        }
-        
-        /* Espaciado superior específico para la página del mapa */
-        .map-container {
-            margin-top: 50px; /* Espacio mínimo necesario para el header fijo */
-            padding-top: 0; /* Eliminado el padding adicional */
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Responsive para el espaciado */
-        @media (max-width: 768px) {
-            .map-container {
-                margin-top: 110px !important; /* Ajustado para coincidir con el header fijo en móviles */
-                padding-top: 0;
-                height: calc(100vh - 110px);
-            }
-        }
-    </style>
+    
 </head>
 <body>
     <x-header-pages />
@@ -160,7 +116,7 @@
                 <div class="results-list" id="results-list">
                     @if(count($empresas) > 0)
                         @foreach($empresas as $empresa)
-                            <div class="result-item" onclick="mapManager.centerOnEmpresa({{ $empresa['id'] }})">
+                            <div class="result-item" data-empresa-id="{{ $empresa['id'] }}">
                                 <div class="result-header">
                                     <h3 class="result-name">{{ $empresa['name'] }}</h3>
                                 </div>
@@ -176,7 +132,8 @@
                                         @foreach($empresa['products']->take(2) as $producto)
                                             <div class="product-preview">
                                                 <img src="{{ $producto['image'] }}" alt="{{ $producto['name'] }}" class="product-thumb" 
-                                                     onerror="this.src='{{ asset('images/default-product.png') }}'">
+                                                     data-fallback="{{ asset('images/default-product.png') }}"
+                                                     onerror="this.onerror=null;this.src=this.getAttribute('data-fallback');">
                                                 <div class="product-details">
                                                     <p class="product-name">{{ $producto['name'] }}</p>
                                                     <div class="product-price {{ $producto['has_discount'] ? 'discounted' : '' }}">
@@ -214,8 +171,8 @@
 
         <!-- Mapa -->
         <div class="map-wrapper">
-            <div id="map-container" style="position: relative; min-height: 400px;">
-                <div id="map" class="map" style="height: 100%; width: 100%;"></div>
+            <div id="map-container">
+                <div id="map" class="map"></div>
                 <!-- Loading inicial -->
                 <div class="map-overlay" id="initial-loading">
                     <div class="loading-spinner">
@@ -223,7 +180,7 @@
                         <p>Cargando mapa...</p>
                     </div>
                 </div>
-                <div id="no-companies-message" class="no-companies-message" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 500px;">
+                <div id="no-companies-message" class="no-companies-message">
                     <h3>No hay empresas disponibles</h3>
                     <p>Actualmente no hay empresas registradas en el mapa. Vuelve más tarde para ver las ofertas disponibles.</p>
                     <button onclick="location.reload()">
@@ -231,7 +188,7 @@
                     </button>
                 </div>
             </div>
-            <div class="map-overlay" id="loading-spinner" style="display: none;">
+            <div class="map-overlay" id="loading-spinner">
                 <div class="loading-spinner">
                     <div class="spinner"></div>
                     <p>Buscando ofertas...</p>
@@ -243,36 +200,43 @@
     <x-footer />
 
     <!-- Scripts -->
+    <script id="empresas-data" type="application/json">@json($empresas)</script>
     <script>
         // Datos globales para el mapa
-        window.empresasData = @json($empresas);
-        window.googleMapsApiKey = '{{ config('services.google.maps_api_key', 'AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik') }}';
-        window.defaultProductImage = '{{ asset('images/default-product.png') }}';
+        window.empresasData = JSON.parse(document.getElementById('empresas-data').textContent);
+        window.googleMapsApiKey = "{{ env('GOOGLE_MAPS_API_KEY', 'AIzaSyBMDPpV5x-_Xl-ekz1kg48nuD79NgTN8mU') }}";
+        window.defaultProductImage = "{{ asset('images/default-product.png') }}";
         
         // Verificar si la API Key está configurada
         if (window.googleMapsApiKey === 'YOUR_API_KEY') {
             console.warn('Google Maps API Key no configurada');
         }
 
-        // Función de callback global para Google Maps
+        // Función de callback global para Google Maps (no inicializa directamente)
         window.initMap = function() {
             console.log('Google Maps API cargada correctamente');
-            // Inicializar el mapa manualmente
-            if (typeof MapManager === 'function') {
-                window.mapManager = new MapManager();
-            } else {
-                console.error('MapManager no está definido. Asegúrate de que map.js se cargue correctamente.');
-            }
         };
+
+        // Delegación de clic para centrar mapa en empresa (sin inline JS)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.result-item').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    var id = parseInt(el.getAttribute('data-empresa-id'), 10);
+                    if (window.mapManager && typeof window.mapManager.centerOnEmpresa === 'function') {
+                        window.mapManager.centerOnEmpresa(id);
+                    }
+                });
+            });
+        });
     </script>
     
-    <!-- Cargar MarkerClusterer primero -->
+    <!-- Cargar MarkerClusterer (UMD oficial) -->
     <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
     
     <!-- Cargar script del mapa antes de la API -->
     <script src="{{ asset('js/map.js') }}"></script>
     
-    <!-- Cargar Google Maps API al final -->
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key', 'AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik') }}&libraries=places,geometry&callback=initMap" async defer></script>
+    <!-- Cargar Google Maps API al final (patrón recomendado) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY', 'AIzaSyBMDPpV5x-_Xl-ekz1kg48nuD79NgTN8mU') }}&libraries=places,geometry,marker&callback=initMap&v=weekly&loading=async" async defer></script>
 </body>
 </html>

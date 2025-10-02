@@ -26,28 +26,35 @@ class MapManager {
             maxZoom: 18,
             minZoom: 6,
             apiKey: window.googleMapsApiKey || 'YOUR_API_KEY',
-            // Configuración de clustering
+            // Configuración de clustering (nueva librería oficial)
             clusterOptions: {
-                imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-                maxZoom: 15,
-                gridSize: 50,
-                styles: [
-                    {
-                        textColor: 'white',
-                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                            <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="20" cy="20" r="18" fill="#90D575" stroke="white" stroke-width="2"/>
-                                <text x="20" y="26" text-anchor="middle" fill="white" font-size="14" font-weight="bold">${1}</text>
-                            </svg>
-                        `),
-                        height: 40,
-                        width: 40
-                    }
-                ]
+                // Usamos configuración por defecto de @googlemaps/markerclusterer.
+                // Si se requiere personalización, se puede agregar renderer/algorithm.
             }
         };
         
         this.init();
+    }
+
+    /**
+     * Normalizar objeto de coordenadas desde backend a {lat, lng}
+     */
+    normalizeCoordinates(coords) {
+        if (!coords) return null;
+        const lat = Number(coords.lat ?? coords.latitude);
+        const lng = Number(coords.lng ?? coords.longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+        return { lat, lng };
+    }
+
+    /**
+     * Normalizar una empresa para asegurar coordinates {lat, lng}
+     */
+    normalizeEmpresa(empresa) {
+        if (!empresa) return empresa;
+        const normalized = this.normalizeCoordinates(empresa.coordinates);
+        if (!normalized) return empresa;
+        return { ...empresa, coordinates: normalized };
     }
 
     /**
@@ -172,6 +179,8 @@ class MapManager {
         this.showLoading(true);
 
         try {
+            // Cargar Google Maps script si no está presente
+            await this.loadGoogleMapsScript();
             // Esperar a que Google Maps esté disponible
             await this.waitForGoogleMaps();
             this.initializeMap();
@@ -189,26 +198,46 @@ class MapManager {
      * Esperar a que Google Maps esté disponible
      */
     waitForGoogleMaps() {
+        // Espera robusta: asegura que el constructor Map esté disponible.
+        const ensureLibraries = async () => {
+            try {
+                if (google?.maps?.importLibrary) {
+                    await google.maps.importLibrary('maps');
+                    try { await google.maps.importLibrary('marker'); } catch (_) {}
+                }
+            } catch (_) {}
+        };
+
         return new Promise((resolve, reject) => {
-            if (typeof google !== 'undefined' && google.maps) {
-                resolve();
+            const ready = () => (typeof google !== 'undefined' && google.maps);
+            const resolveWhenReady = async () => {
+                if (!google.maps.Map) {
+                    await ensureLibraries();
+                }
+                if (google.maps.Map) {
+                    resolve();
+                }
+            };
+
+            if (ready()) {
+                resolveWhenReady();
                 return;
             }
 
             // Si ya hay un callback configurado, esperar a que se ejecute
             if (window.initMap) {
                 const originalCallback = window.initMap;
-                window.initMap = function() {
-                    originalCallback();
-                    resolve();
+                window.initMap = async function() {
+                    try { originalCallback(); } catch (_) {}
+                    await resolveWhenReady();
                 };
                 return;
             }
 
-            const checkGoogle = setInterval(() => {
-                if (typeof google !== 'undefined' && google.maps) {
+            const checkGoogle = setInterval(async () => {
+                if (ready()) {
                     clearInterval(checkGoogle);
-                    resolve();
+                    await resolveWhenReady();
                 }
             }, 100);
             
@@ -250,7 +279,8 @@ class MapManager {
             }
 
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${this.config.apiKey}&libraries=places,geometry&callback=initMapCallback`;
+            // Incluir librería 'marker' para AdvancedMarkerElement
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${this.config.apiKey}&libraries=places,geometry,marker&callback=initMapCallback`;
             script.async = true;
             script.defer = true;
             
@@ -303,6 +333,9 @@ class MapManager {
         
         // Intentar obtener ubicación del usuario
         this.getCurrentLocation();
+
+        // Ocultar overlay de carga inicial si existe
+        this.hideInitialLoading();
     }
 
     /**
@@ -339,7 +372,8 @@ class MapManager {
     async loadEmpresas() {
         try {
             // Los datos de empresas ya están disponibles en la página
-            this.empresas = window.empresasData || [];
+            const rawEmpresas = window.empresasData || [];
+            this.empresas = rawEmpresas.map(e => this.normalizeEmpresa(e));
             this.filteredEmpresas = [...this.empresas];
             
             if (this.empresas.length === 0) {
@@ -387,8 +421,10 @@ class MapManager {
         this.clearMarkers();
         
         this.filteredEmpresas.forEach(empresa => {
-            if (empresa.coordinates) {
-                const marker = this.createEmpresaMarker(empresa);
+            const normalized = this.normalizeCoordinates(empresa.coordinates);
+            if (normalized) {
+                const safeEmpresa = { ...empresa, coordinates: normalized };
+                const marker = this.createEmpresaMarker(safeEmpresa);
                 this.markers.push(marker);
             }
         });
@@ -408,21 +444,43 @@ class MapManager {
             this.markerClusterer.clearMarkers();
         }
 
-        // Crear nuevo clusterer
-        this.markerClusterer = new MarkerClusterer(this.map, this.markers, this.config.clusterOptions);
+        // Verificar disponibilidad del UMD oficial
+        const UMDAvailable = typeof window.markerClusterer !== 'undefined' && typeof window.markerClusterer.MarkerClusterer === 'function';
+        if (!UMDAvailable) {
+            console.warn('MarkerClusterer no está disponible; se mostrará sin agrupación.');
+            return;
+        }
+
+        // Crear nuevo clusterer (API nueva)
+        this.markerClusterer = new window.markerClusterer.MarkerClusterer({
+            map: this.map,
+            markers: this.markers,
+            ...this.config.clusterOptions
+        });
     }
 
     /**
      * Crear marcador para una empresa
      */
     createEmpresaMarker(empresa) {
-        const marker = new google.maps.Marker({
-            position: empresa.coordinates,
-            map: this.map,
-            title: empresa.name,
-            icon: this.createMarkerIcon(empresa),
-            animation: google.maps.Animation.DROP
-        });
+        const AdvancedMarker = google?.maps?.marker?.AdvancedMarkerElement;
+        let marker;
+        if (AdvancedMarker) {
+            marker = new AdvancedMarker({
+                position: empresa.coordinates,
+                map: this.map,
+                title: empresa.name
+            });
+        } else {
+            // Fallback a Marker clásico si la librería 'marker' no está disponible
+            marker = new google.maps.Marker({
+                position: empresa.coordinates,
+                map: this.map,
+                title: empresa.name,
+                icon: this.createMarkerIcon(empresa),
+                animation: google.maps.Animation.DROP
+            });
+        }
 
         const infoWindow = new google.maps.InfoWindow({
             content: this.createInfoWindowContent(empresa)
@@ -432,11 +490,27 @@ class MapManager {
             if (this.currentInfoWindow) {
                 this.currentInfoWindow.close();
             }
-            infoWindow.open(this.map, marker);
+            // Abrir InfoWindow con firma según tipo de marcador
+            if (google?.maps?.marker?.AdvancedMarkerElement && marker instanceof google.maps.marker.AdvancedMarkerElement) {
+                infoWindow.open({ anchor: marker, map: this.map });
+            } else {
+                infoWindow.open(this.map, marker);
+            }
             this.currentInfoWindow = infoWindow;
         });
 
         return marker;
+    }
+
+    /**
+     * Obtener LatLng de marcador (compatible con Marker y AdvancedMarker)
+     */
+    getMarkerLatLng(marker) {
+        const pos = marker?.position || (typeof marker?.getPosition === 'function' ? marker.getPosition() : null);
+        if (!pos) return null;
+        const lat = typeof pos.lat === 'function' ? pos.lat() : pos.lat;
+        const lng = typeof pos.lng === 'function' ? pos.lng() : pos.lng;
+        return { lat, lng };
     }
 
     /**
@@ -548,8 +622,9 @@ class MapManager {
         let validCoordinates = 0;
 
         this.filteredEmpresas.forEach(empresa => {
-            if (empresa.coordinates) {
-                bounds.extend(empresa.coordinates);
+            const normalized = this.normalizeCoordinates(empresa.coordinates);
+            if (normalized) {
+                bounds.extend(normalized);
                 validCoordinates++;
             }
         });
@@ -557,8 +632,9 @@ class MapManager {
         if (validCoordinates > 0) {
             if (validCoordinates === 1) {
                 // Si solo hay una empresa, centrar en ella con zoom específico
-                const empresa = this.filteredEmpresas.find(e => e.coordinates);
-                this.map.setCenter(empresa.coordinates);
+                const empresa = this.filteredEmpresas.find(e => this.normalizeCoordinates(e.coordinates));
+                const normalized = this.normalizeCoordinates(empresa.coordinates);
+                this.map.setCenter(normalized);
                 this.map.setZoom(this.config.userZoom);
             } else {
                 // Si hay múltiples empresas, ajustar bounds
@@ -587,15 +663,16 @@ class MapManager {
      */
     centerOnEmpresa(empresaId) {
         const empresa = this.empresas.find(e => e.id === empresaId);
-        if (empresa && empresa.coordinates) {
-            this.map.setCenter(empresa.coordinates);
+        const normalized = empresa ? this.normalizeCoordinates(empresa.coordinates) : null;
+        if (empresa && normalized) {
+            this.map.setCenter(normalized);
             this.map.setZoom(this.config.userZoom);
             
             // Abrir info window si existe
-            const marker = this.markers.find(m => 
-                m.getPosition().lat() === empresa.coordinates.lat && 
-                m.getPosition().lng() === empresa.coordinates.lng
-            );
+            const marker = this.markers.find(m => {
+                const p = this.getMarkerLatLng(m);
+                return p && p.lat === normalized.lat && p.lng === normalized.lng;
+            });
             if (marker) {
                 google.maps.event.trigger(marker, 'click');
             }
@@ -790,11 +867,13 @@ class MapManager {
             const data = await response.json();
 
             if (data.success) {
-                this.filteredEmpresas = data.data;
-                this.displayResults(data.data);
-                this.updateMapMarkers(data.data);
+                const normalizedList = (data.data || []).map(e => this.normalizeEmpresa(e));
+                this.empresas = normalizedList;
+                this.filteredEmpresas = normalizedList;
+                this.displayResults(normalizedList);
+                this.updateMapMarkers(normalizedList);
                 this.centerMapOnEmpresas();
-                this.showNotification(`Encontradas ${data.data.length} empresas cercanas`, 'success');
+                this.showNotification(`Encontradas ${normalizedList.length} empresas cercanas`, 'success');
             } else {
                 this.showNotification('Error en la búsqueda', 'error');
             }
@@ -831,8 +910,10 @@ class MapManager {
         this.clearMarkers();
         
         empresas.forEach(empresa => {
-            if (empresa.coordinates) {
-                const marker = this.createEmpresaMarker(empresa);
+            const normalized = this.normalizeCoordinates(empresa.coordinates);
+            if (normalized) {
+                const safeEmpresa = { ...empresa, coordinates: normalized };
+                const marker = this.createEmpresaMarker(safeEmpresa);
                 this.markers.push(marker);
             }
         });
@@ -920,10 +1001,10 @@ class MapManager {
             this.map.setZoom(this.config.userZoom);
             
             // Abrir info window si existe
-            const marker = this.markers.find(m => 
-                m.getPosition().lat() === empresa.coordinates.lat && 
-                m.getPosition().lng() === empresa.coordinates.lng
-            );
+            const marker = this.markers.find(m => {
+                const p = this.getMarkerLatLng(m);
+                return p && p.lat === empresa.coordinates.lat && p.lng === empresa.coordinates.lng;
+            });
             if (marker) {
                 google.maps.event.trigger(marker, 'click');
             }
@@ -969,6 +1050,20 @@ class MapManager {
         const spinner = document.getElementById('loading-spinner');
         if (spinner) {
             spinner.style.display = show ? 'flex' : 'none';
+        }
+    }
+
+    /**
+     * Ocultar overlay de carga inicial
+     */
+    hideInitialLoading() {
+        const overlay = document.getElementById('initial-loading');
+        if (overlay) {
+            overlay.classList.add('hidden');
+            // También quitar del flujo tras animación
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
         }
     }
 
