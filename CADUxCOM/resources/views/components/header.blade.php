@@ -22,7 +22,7 @@
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" style="all:unset;cursor:pointer;display:block;padding:12px;width:100%;text-align:left;">
+                        <button type="submit" class="dropdown-btn">
                             Cerrar sesión
                         </button>
                     </form>
@@ -35,10 +35,12 @@
                 </div>
             @endauth
         </div>
+
         <a href="{{ route('wishlist.index') }}" class="header-icon-link" title="Mis Favoritos">
             <img src="{{ asset('images/favoritos.png') }}" alt="Favoritos" class="header-icon">
-            <span class="wishlist-count" id="wishlist-count">0</span>
+            <span class="wishlist-count" id="wishlist-count" style="display:none;" data-url="{{ auth()->check() ? route('wishlist.count') : '' }}">0</span>
         </a>
+
         <img src="{{ asset('images/icon-help.png') }}" alt="Ayuda" class="header-icon">
         <x-cart-counter />
     </div>
@@ -48,45 +50,51 @@
 <script src="{{ asset('js/cart.js') }}"></script>
 
 <script>
-function updateWishlistCountHeader() {
-    // Solo actualizar contador si el usuario está autenticado
-    @auth
-    fetch("{{ route('wishlist.count') }}")
-        .then(response => response.json())
-        .then(data => {
-            const countElement = document.getElementById('wishlist-count');
-            if (countElement) {
-                countElement.textContent = data.count;
-                countElement.style.display = data.count > 0 ? 'flex' : 'none';
-                // Animación micro-interacción
-                countElement.classList.add('update');
-                setTimeout(() => countElement.classList.remove('update'), 500);
-            }
-        })
-        .catch(error => {
-            console.log('Error al obtener contador de wishlist:', error);
-        });
-    @endauth
-}
+    // Leer la URL desde el atributo data para evitar Blade dentro de JS
+    const wishlistUrl = (document.getElementById('wishlist-count')?.dataset.url || null);
 
-document.addEventListener('DOMContentLoaded', function() {
-    updateWishlistCountHeader();
+    document.addEventListener('DOMContentLoaded', function() {
+        function updateWishlistCountHeader() {
+            if (!wishlistUrl) return; // Si no está logueado no ejecuta nada
 
-    const userIcon = document.getElementById('userIcon');
-    const userMenu = document.getElementById('userMenu');
+            fetch(wishlistUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const countElement = document.getElementById('wishlist-count');
+                    if (countElement) {
+                        if (data.count > 0) {
+                            countElement.textContent = data.count;
+                            countElement.style.display = 'flex';
+                        } else {
+                            countElement.style.display = 'none';
+                        }
+                        countElement.classList.add('update');
+                        setTimeout(() => countElement.classList.remove('update'), 500);
+                    }
+                })
+                .catch(error => {
+                    console.log('Error al obtener contador de wishlist:', error);
+                });
+        }
 
-    if(userIcon) {
-        userIcon.addEventListener('click', function(e) {
-            e.stopPropagation();
-            userMenu.classList.toggle('show');
-        });
+        // Actualizamos el contador al cargar
+        updateWishlistCountHeader();
 
-        document.addEventListener('click', function(event) {
-            if (!userMenu.contains(event.target) && !userIcon.contains(event.target)) {
-                userMenu.classList.remove('show');
-            }
-        });
-    }
+        // Dropdown usuario
+        const userIcon = document.getElementById('userIcon');
+        const userMenu = document.getElementById('userMenu');
 
-});
+        if(userIcon) {
+            userIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!userMenu.contains(event.target) && !userIcon.contains(event.target)) {
+                    userMenu.classList.remove('show');
+                }
+            });
+        }
+    });
 </script>

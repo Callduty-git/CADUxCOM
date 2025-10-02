@@ -24,6 +24,11 @@
     padding-top: 0 !important;
 }
 
+/* Spinner inicial oculto por defecto, visible cuando el JS lo habilita */
+#loading-spinner {
+    display: none;
+}
+
 /* Panel de control */
 .map-controls {
     width: 400px;
@@ -179,13 +184,13 @@
     
     .map-controls {
         width: 100%;
-        max-height: 50vh;
+        max-height: 45vh;
         border-right: none;
         border-bottom: 1px solid #e5e7eb;
     }
     
     #map {
-        height: 50vh;
+        height: 55vh;
         width: 100% !important;
         max-width: 100% !important;
     }
@@ -215,6 +220,14 @@
     .map-container {
         width: 100%;
         padding: 0 10px;
+    }
+
+    .map-controls {
+        max-height: 35vh;
+    }
+
+    #map {
+        height: 65vh;
     }
 }
 
@@ -274,6 +287,14 @@
     }
     .info-window {
         max-width: 250px;
+    }
+
+    .map-controls {
+        max-height: 30vh;
+    }
+
+    #map {
+        height: 70vh;
     }
 }
 

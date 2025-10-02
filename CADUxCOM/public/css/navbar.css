@@ -170,14 +170,15 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive */
+/* ===================== Responsive ===================== */
+
+/* Tablets y pantallas medianas */
 @media (max-width: 768px) {
   .category-bar {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
     padding: 0.8rem 1rem;
-    position: sticky;
     top: 90px;
   }
 
@@ -235,5 +236,64 @@
   .education-link-item svg {
     width: 16px;
     height: 16px;
+  }
+}
+
+/* Móviles muy pequeños (≤480px) */
+@media (max-width: 480px) {
+  .category-bar {
+    padding: 0.6rem;
+    gap: 0.6rem;
+  }
+
+  .categories {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    gap: 0.6rem;
+  }
+
+  .categories li {
+    font-size: 0.85rem;
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .categories img {
+    height: 18px;
+  }
+
+  .toggle-submenu {
+    font-size: 0.9rem;
+  }
+
+  .submenu {
+    padding: 0.6rem;
+  }
+
+  .submenu span {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.6rem;
+  }
+}
+
+/* Pantallas grandes (≥1200px) */
+@media (min-width: 1200px) {
+  .category-bar {
+    justify-content: space-around;
+    padding: 1rem 4rem;
+  }
+
+  .categories {
+    gap: 2rem;
+  }
+
+  .categories li {
+    font-size: 1.2rem;
+  }
+
+  .categories img {
+    height: 32px;
   }
 }
