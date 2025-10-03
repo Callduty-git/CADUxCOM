@@ -1,0 +1,18 @@
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#89CF6D 0%,#49874E 50%,#AA5FC7 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-container{background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.1);padding:40px;width:100%;max-width:400px;border:2px solid #89CF6D}
+.login-header{text-align:center;margin-bottom:30px}
+.login-title{font-size:2rem;font-weight:700;color:#49874E;margin-bottom:10px}
+.login-subtitle{color:#6c757d;font-size:1rem}
+.form-group{margin-bottom:20px}
+.form-label{display:block;margin-bottom:8px;font-weight:600;color:#49874E}
+.form-input{width:100%;padding:12px 16px;border:2px solid #e9ecef;border-radius:10px;font-size:1rem;transition:all .3s ease;background:#fff}
+.form-input:focus{outline:none;border-color:#89CF6D;box-shadow:0 0 0 3px rgba(137,207,109,.1)}
+.checkbox-group{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.checkbox-group input[type="checkbox"]{width:18px;height:18px;accent-color:#89CF6D}
+.checkbox-group label{color:#6c757d;font-size:.9rem}
+.btn-login{width:100%;padding:14px;background:linear-gradient(135deg,#89CF6D 0%,#49874E 100%);color:#fff;border:none;border-radius:10px;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all .3s ease}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(137,207,109,.3)}
+.error-message{background:#ed1313;color:#fff;padding:10px;border-radius:8px;margin-bottom:15px;font-size:.9rem}
+.logo{text-align:center;margin-bottom:20px}
+.logo i{font-size:3rem;color:#89CF6D}

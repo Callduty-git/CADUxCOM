@@ -625,7 +625,7 @@
                 overlay.className = 'loading-overlay';
                 overlay.innerHTML = `
                     <div class="loading-spinner"></div>
-                    <p class="fw-bold" style="margin-left: 16px; color: var(--color-green-dark);">Procesando...</p>
+                    <p class="fw-bold text-green-dark ml-4">Procesando...</p>
                 `;
                 container.appendChild(overlay);
             }

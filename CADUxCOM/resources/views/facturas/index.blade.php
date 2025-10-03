@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Log de Productos - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/empresa-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
@@ -70,7 +71,7 @@
                     <!-- Botón de limpiar logs cuando esté cerca del límite -->
                     @if($totalLogs >= 45)
                         <div class="log-actions">
-                            <form method="POST" action="{{ route('empresa.facturas.clear-logs') }}" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar todos los logs? Esta acción no se puede deshacer.')">
+                            <form method="POST" action="{{ route('empresa.facturas.clear-logs') }}" class="d-inline" onsubmit="return confirm('¿Estás seguro de que quieres eliminar todos los logs? Esta acción no se puede deshacer.')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-clear-logs">
@@ -275,39 +276,14 @@
 
     <!-- SCRIPT INMEDIATO PARA ALINEAR SIDEBAR A LA IZQUIERDA -->
     <script>
-        // Ejecutar inmediatamente, antes de que se cargue cualquier otro script
-        (function() {
-            function forceLeftAlign() {
-                const container = document.querySelector('.sidebar-container');
-                if (container) {
-                    container.style.cssText = `
-                        position: fixed !important;
-                        left: 20px !important;
-                        top: 50% !important;
-                        transform: translateY(-50%) !important;
-                        width: 80px !important;
-                        height: auto !important;
-                        z-index: 9999 !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        right: auto !important;
-                        bottom: auto !important;
-                    `;
-                }
+        (function(){
+            function applySidebarFix(){
+                const container=document.querySelector('.sidebar-container');
+                if(container){ container.classList.add('sidebar-fixed-left'); }
             }
-            
-            // Ejecutar inmediatamente
-            forceLeftAlign();
-            
-            // Ejecutar cuando el DOM esté listo
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', forceLeftAlign);
-            } else {
-                forceLeftAlign();
-            }
-            
-            // Ejecutar continuamente
-            setInterval(forceLeftAlign, 100);
+            applySidebarFix();
+            document.addEventListener('DOMContentLoaded',applySidebarFix);
+            window.addEventListener('load',applySidebarFix);
         })();
     </script>
 
@@ -364,41 +340,14 @@
             });
         });
         
-        // Funcionalidad del sidebar alineado a la izquierda - FORZADO
-        function forceLeftAlignSidebar() {
-            const sidebarContainer = document.querySelector('.sidebar-container');
-            if (sidebarContainer) {
-                sidebarContainer.style.cssText = `
-                    position: fixed !important;
-                    left: 20px !important;
-                    top: 50% !important;
-                    transform: translateY(-50%) !important;
-                    width: 80px !important;
-                    height: auto !important;
-                    z-index: 9999 !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    right: auto !important;
-                    bottom: auto !important;
-                `;
-            }
+        // Aplicar clase fija al sidebar (sin estilos inline)
+        function forceLeftAlignSidebar(){
+            const sidebarContainer=document.querySelector('.sidebar-container');
+            if(sidebarContainer){ sidebarContainer.classList.add('sidebar-fixed-left'); }
         }
-        
-        // Aplicar inmediatamente
         forceLeftAlignSidebar();
-        
-        // Aplicar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', forceLeftAlignSidebar);
-        
-        // Aplicar cuando la ventana se carga
-        window.addEventListener('load', forceLeftAlignSidebar);
-        
-        // Aplicar continuamente
-        setInterval(forceLeftAlignSidebar, 50);
-        
-        // Aplicar en cualquier cambio
-        const observer = new MutationObserver(forceLeftAlignSidebar);
-        observer.observe(document.body, { childList: true, subtree: true });
+        document.addEventListener('DOMContentLoaded',forceLeftAlignSidebar);
+        window.addEventListener('load',forceLeftAlignSidebar);
     </script>
 
     <!-- Footer -->

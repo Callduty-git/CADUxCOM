@@ -145,7 +145,7 @@
                                 <div class="stat-label">En Stock</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value" style="color: {{ $estaDisponible ? '#28a745' : '#dc3545' }};">
+                                <div class="stat-value {{ $estaDisponible ? 'text-success' : 'text-danger' }}">
                                     {{ $estaDisponible ? 'SÍ' : 'NO' }}
                                 </div>
                                 <div class="stat-label">Disponible</div>
@@ -272,7 +272,7 @@
                     </div>
 
                     <!-- Botón de regreso -->
-                    <div style="text-align: center;">
+                    <div class="text-center">
                         <a href="{{ route('empresa.productos.index') }}" class="back-button">
                             <i class="fas fa-arrow-left"></i>
                             Volver a la Lista de Productos

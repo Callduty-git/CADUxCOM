@@ -6,17 +6,17 @@
     <link rel="stylesheet" href="{{ asset('css/style_register.css') }}">
 </head>
 <body>
-    <div class="register-form" style="max-width: 600px; margin: auto; margin-top: 50px;">
-        <h2 style="text-align:center; color:#AA5FC7; margin-bottom: 20px;">Editar Perfil de Empresa</h2>
+    <div class="register-form max-w-md mx-auto mt-12">
+        <h2 class="text-center text-purple mb-5">Editar Perfil de Empresa</h2>
 
         @if(session('success'))
-            <p style="color: green; text-align:center;">{{ session('success') }}</p>
+            <p class="text-success text-center">{{ session('success') }}</p>
         @endif
         @if(session('error'))
-            <p style="color: red; text-align:center;">{{ session('error') }}</p>
+            <p class="text-danger text-center">{{ session('error') }}</p>
         @endif
         @if($errors->any())
-            <ul style="color: red;">
+            <ul class="text-danger">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -73,8 +73,8 @@
                 <button class="btn-register" type="submit">Guardar cambios</button>
             </div>
 
-            <div style="margin-top: 20px;">
-                <a href="{{ route('empresa.productos.index') }}" class="btn-register" style="background-color: #AA5FC7;">Volver</a>
+            <div class="mt-5">
+                <a href="{{ route('empresa.productos.index') }}" class="btn-register btn-purple">Volver</a>
             </div>
         </form>
     </div>
