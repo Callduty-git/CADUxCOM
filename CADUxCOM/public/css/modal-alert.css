@@ -1,0 +1,10 @@
+.modal-alert-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(80,80,80,0.25);backdrop-filter:blur(2px);z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity .2s;opacity:1}
+.modal-alert{background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(80,80,80,.18);padding:32px 32px 24px 32px;min-width:320px;max-width:90vw;text-align:center;position:relative}
+.modal-alert__header{background:linear-gradient(180deg,#89CF6D 0%,#49874E 100%);color:#fff;border-radius:24px 24px 0 0;padding:32px 0 18px 0;font-size:2rem;font-weight:bold;text-align:center}
+.modal-alert__message{margin:32px 0 36px 0;font-size:1.18rem;color:#222;font-family:Inter,Arial,sans-serif;line-height:1.6}
+.modal-alert__buttons{display:flex;justify-content:space-between;gap:22px;margin-top:10px}
+.modal-alert__btn{font-weight:bold;font-size:1.25rem;cursor:pointer;border-radius:16px;padding:16px 38px;transition:all .18s}
+.modal-alert__btn--cancel{background:#fff;color:#444;border:3px solid #AAA;box-shadow:0 2px 8px rgba(170,95,199,.08)}
+.modal-alert__btn--cancel:hover{background:#F3F3F3}
+.modal-alert__btn--confirm{background:#89CF6D;color:#fff;border:none;box-shadow:0 2px 8px rgba(137,207,109,.10)}
+.modal-alert__btn--confirm:hover{background:#49874E}

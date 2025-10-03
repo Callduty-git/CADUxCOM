@@ -7,33 +7,12 @@
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     
-    <!-- Estilos específicos para la página de ayuda -->
-    <style>
-        /* Espaciado superior específico para la página de ayuda */
-        .page-container {
-            padding-top: 90px; /* Espacio mínimo para el header fijo */
-        }
-        
-        .content {
-            margin-top: 10px; /* Espacio adicional reducido */
-        }
-        
-        /* Responsive para el espaciado */
-        @media (max-width: 768px) {
-            .page-container {
-                padding-top: 100px; /* Espacio reducido en móviles */
-            }
-            
-            .content {
-                margin-top: 5px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/ayuda.css') }}">
 </head>
 <body>
     <div class="page-container">
         <x-header-pages />
-        <main class="content" style="padding: 24px;">
+        <main class="content content-spacing">
             <h1>Centro de Ayuda</h1>
             <p>Encuentra respuestas a las preguntas frecuentes.</p>
         </main>

@@ -16,11 +16,9 @@
     <link rel="stylesheet" href="{{ asset('css/style_register.css') }}">
     @stack('styles')
 
-    <style>
-        body { background: #ffffff; font-family: 'Figtree', Arial, sans-serif; }
-        .auth-container { max-width: 520px; margin: 120px auto 60px; padding: 24px; }
-        @media (max-width: 768px) { .auth-container { margin-top: 100px; padding: 16px; } }
-    </style>
+    @push('styles')
+    <link rel="stylesheet" href="{{ asset('css/guest-auth.css') }}">
+    @endpush
 </head>
 <body>
     <!-- Header global -->

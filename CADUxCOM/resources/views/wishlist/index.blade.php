@@ -21,34 +21,7 @@
     <script src="{{ asset('js/cart.js') }}"></script>
     <script src="{{ asset('js/modal-alert.js') }}"></script>
     
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Figtree', Arial, sans-serif;
-            background-color: #FFFFFF !important;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        /* Espaciado superior específico para la página de wishlist */
-        .wishlist-container {
-            margin-top: 120px; /* Espacio mayor para el header fijo más alto */
-            padding-top: 20px; /* Espacio adicional para mejor separación */
-        }
-        
-        /* Responsive para el espaciado */
-        @media (max-width: 768px) {
-            .wishlist-container {
-                margin-top: 130px; /* Espacio mayor en móviles */
-                padding-top: 15px;
-            }
-        }
-    </style>
+    
 </head>
 <body>
     <!-- HEADER DEL DASHBOARD -->
@@ -652,7 +625,7 @@
                 overlay.className = 'loading-overlay';
                 overlay.innerHTML = `
                     <div class="loading-spinner"></div>
-                    <p style="margin-left: 16px; color: var(--color-green-dark); font-weight: 500;">Procesando...</p>
+                    <p class="fw-bold text-green-dark ml-4">Procesando...</p>
                 `;
                 container.appendChild(overlay);
             }
@@ -685,131 +658,7 @@
     </script>
 
     <!-- CSS adicional para los modales personalizados -->
-    <style>
-        .custom-confirm-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 10000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .custom-confirm-modal.show {
-            opacity: 1;
-        }
-
-        .confirm-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .confirm-dialog {
-            background: var(--color-white);
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            max-width: 400px;
-            width: 100%;
-            overflow: hidden;
-            transform: scale(0.9);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .custom-confirm-modal.show .confirm-dialog {
-            transform: scale(1);
-        }
-
-        .confirm-header {
-            padding: 24px 24px 0 24px;
-        }
-
-        .confirm-header h3 {
-            margin: 0;
-            color: var(--color-gray-dark);
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .confirm-body {
-            padding: 16px 24px;
-        }
-
-        .confirm-body p {
-            margin: 0;
-            color: var(--color-gray-medium);
-            line-height: 1.5;
-        }
-
-        .confirm-footer {
-            padding: 0 24px 24px 24px;
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-
-        .confirm-footer button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .btn-cancel {
-            background: var(--color-gray-light);
-            color: var(--color-gray-medium);
-        }
-
-        .btn-cancel:hover {
-            background: #e9ecef;
-            transform: translateY(-1px);
-        }
-
-        .btn-confirm {
-            background: var(--color-green-light);
-            color: var(--color-white);
-            box-shadow: 0 4px 12px rgba(137, 207, 109, 0.3);
-        }
-
-        .btn-confirm:hover {
-            background: var(--color-green-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(137, 207, 109, 0.4);
-        }
-
-        .btn-confirm:active,
-        .btn-cancel:active {
-            transform: scale(0.96);
-        }
-
-        @media (max-width: 480px) {
-            .confirm-dialog {
-                margin: 20px;
-                max-width: none;
-            }
-
-            .confirm-footer {
-                flex-direction: column;
-            }
-
-            .confirm-footer button {
-                width: 100%;
-            }
-        }
-    </style>
+    
 
     <!-- Footer -->
     <x-footer />

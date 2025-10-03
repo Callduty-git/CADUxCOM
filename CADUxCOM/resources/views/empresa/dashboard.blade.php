@@ -7,72 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/header-empresa.css') }}">
-    <style>
-        .header {
-            border-bottom: 3px solid #006400;
-        }
-        /* ====== MODAL ESTILOS ====== */
-        .modal { display: none; position: fixed; z-index: 2000; padding-top: 60px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);}
-        .modal-content { background-color: #fff; margin: auto; padding: 20px; border-radius: 10px; width: 500px; max-width: 90%; box-shadow: 0px 4px 8px rgba(0,0,0,0.3);}
-        .close { color: #aaa; float: right; font-size: 24px; font-weight: bold; cursor: pointer;}
-        .modal-content label { display: block; margin-top: 10px; font-weight: bold;}
-        .modal-content input { width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid #ccc;}
-        .save-btn { margin-top: 15px; padding: 10px 15px; background-color: purple; color: white; border: none; border-radius: 6px; cursor: pointer;}
-        /* ====== ESTILOS MODAL BIENVENIDA ====== */
-        .modal-bienvenida {
-            display: none; /* Oculto por defecto */
-            position: fixed;
-            z-index: 3000; /* Z-index alto para estar encima de otros modales */
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.6);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-visible {
-            display: flex; /* Muestra el modal */
-        }
-        .modal-contenido-bienvenida {
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            width: 400px;
-            max-width: 90%;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-            border: 2px solid #8B4513; /* Borde estilo madera */
-            position: relative;
-            font-family: 'Inter', sans-serif;
-        }
-        .header-modal-bienvenida {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-        .header-modal-bienvenida .logo {
-            width: 50px;
-            height: auto;
-            margin-right: 10px;
-        }
-        .title-modal {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        .body-modal-bienvenida h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin: 10px 0;
-        }
-        .body-modal-bienvenida p {
-            font-size: 1rem;
-            font-weight: 400;
-        }
-    </style>
+    
     <script src="{{ asset('js/modal-alert.js') }}"></script>
 </head>
 <body>
@@ -86,7 +21,7 @@
                 <a href="{{ route('empresa.dashboard') }}" class="btn">Inicio</a>
                 <a href="{{ route('empresa.productos.index') }}" class="btn">Productos</a>
                 <a href="{{ route('empresa.facturas') }}" class="btn">Facturas</a>
-                <form method="POST" action="{{ route('empresa.logout') }}" style="margin-top: 10px;">
+                <form method="POST" action="{{ route('empresa.logout') }}" class="mt-10">
                     @csrf
                     <button type="submit" class="btn" aria-label="Cerrar sesión">Salir</button>
                 </form>
@@ -108,7 +43,7 @@
                     <div class="info-box"><strong>Fecha de registro:</strong> {{ $empresa->created_at->format('d/m/Y') }}</div>
                     <div class="info-box">
                         <a href="{{ route('empresa.password.change') }}" class="btn small-btn">Cambiar contraseña</a>
-                        <button id="openModal" class="btn small-btn" style="margin-left:5px;">Editar perfil</button>
+                        <button id="openModal" class="btn small-btn ml-5">Editar perfil</button>
                     </div>
                 </div>
 

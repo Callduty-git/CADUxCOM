@@ -9,11 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/advanced-dashboard.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <style>
-        body {
-            padding-top: 110px; /* Compensar el header fixed */
-        }
-    </style>
+    
 </head>
 <body>
     <x-header-pages />

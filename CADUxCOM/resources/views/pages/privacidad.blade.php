@@ -10,7 +10,7 @@
 <body>
     <div class="page-container">
         <x-header-pages />
-        <main class="content" style="padding: 24px;">
+        <main class="content content-spacing">
             <h1>Política de Privacidad</h1>
             <p>Conoce cómo protegemos y usamos tus datos.</p>
         </main>

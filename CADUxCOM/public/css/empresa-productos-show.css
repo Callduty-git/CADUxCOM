@@ -42,32 +42,3 @@ body{font-family:'Inter',sans-serif;padding-top:110px}
 .back-button{display:inline-flex;align-items:center;gap:10px;padding:15px 25px;background:#6c757d;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;transition:all .3s ease;margin-top:30px}
 .back-button:hover{background:#5a6268;transform:translateY(-2px);box-shadow:0 8px 20px rgba(108,117,125,.3)}
 @media (max-width:768px){.detail-grid{grid-template-columns:1fr;gap:20px}.product-detail-content{padding:20px}.product-detail-header{flex-direction:column;gap:20px;text-align:center}.product-actions{flex-direction:column;width:100%}.info-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
-/* Estilos específicos para la vista de detalle de producto (usuario) */
-
-body { font-family: 'Inter', sans-serif; }
-
-.product-image { transition: transform 0.3s ease; }
-.product-image:hover { transform: scale(1.05); }
-
-.price-original { text-decoration: line-through; }
-
-/* Badge de descuento inline, sin posicionamiento absoluto */
-.discount-badge {
-  background: linear-gradient(135deg, #49874E 0%, #90D575 100%);
-  color: #FFFFFF;
-  display: inline-block;
-}
-
-/* Espaciados propios */
-.content nav {
-  margin-top: 60px;
-  padding-top: 15px;
-}
-
-@media (max-width: 768px) {
-  .content nav { margin-top: 45px; padding-top: 12px; }
-}
-
-
-
-

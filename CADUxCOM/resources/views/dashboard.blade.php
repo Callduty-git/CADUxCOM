@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <style>
         body {
             margin: 0;
@@ -874,7 +875,7 @@
         <main class="dashboard-panel">
             <div class="dashboard-container">
                 <div class="dashboard-header">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px;">
+                    <div class="flex items-center justify-center gap-5 mb-5">
                         @if($empresa->Foto)
                             <img src="{{ asset('storage/' . $empresa->Foto) }}" alt="Logo de la empresa" class="company-logo">
                         @else
@@ -930,71 +931,71 @@
                             Información de la Empresa
                         </h3>
                         
-                        <div style="display: flex; gap: 30px; margin-bottom: 25px; justify-content: center;">
-                            <div style="text-align: center;">
-                                <h4 style="margin-bottom: 15px; color: #495057; font-size: 1.1rem;">Logo de la Empresa</h4>
+                        <div class="flex gap-8 mb-6 justify-center">
+                            <div class="text-center">
+                                <h4 class="mb-4 text-gray-700 text-lg">Logo de la Empresa</h4>
                                 @if($empresa->Foto)
-                                    <img src="{{ asset('storage/' . $empresa->Foto) }}" alt="Logo de la empresa" style="width: 180px; height: 180px; border-radius: 20px; object-fit: cover; border: 4px solid #e9ecef; box-shadow: 0 6px 20px rgba(0,0,0,0.15);">
+                                    <img src="{{ asset('storage/' . $empresa->Foto) }}" alt="Logo de la empresa" class="w-48 h-48 rounded-2xl object-cover border-4 border-gray-200 shadow-lg">
                                 @else
-                                    <div style="width: 180px; height: 180px; border-radius: 20px; background: #f8f9fa; border: 4px solid #e9ecef; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 3rem;">
+                                    <div class="w-48 h-48 rounded-2xl bg-gray-100 border-4 border-gray-200 flex items-center justify-center text-gray-600 text-5xl">
                                         <i class="fas fa-building"></i>
                                     </div>
                                 @endif
                             </div>
                             
-                            <div style="text-align: center;">
-                                <h4 style="margin-bottom: 15px; color: #495057; font-size: 1.1rem;">Certificado</h4>
+                            <div class="text-center">
+                                <h4 class="mb-4 text-gray-700 text-lg">Certificado</h4>
                         @if($empresa->Certificado_Camara_de_comercio)
                             @php
                                 $certPath = asset('storage/' . $empresa->Certificado_Camara_de_comercio);
                                 $ext = strtolower(pathinfo($empresa->Certificado_Camara_de_comercio, PATHINFO_EXTENSION));
                             @endphp
                             @if(in_array($ext, ['jpg', 'jpeg', 'png']))
-                                        <img src="{{ $certPath }}" alt="Certificado" style="width: 180px; height: 180px; border-radius: 20px; object-fit: cover; border: 4px solid #e9ecef; box-shadow: 0 6px 20px rgba(0,0,0,0.15); cursor: pointer;" onclick="window.open('{{ $certPath }}', '_blank')">
+                                        <img src="{{ $certPath }}" alt="Certificado" class="w-48 h-48 rounded-2xl object-cover border-4 border-gray-200 shadow-lg cursor-pointer" onclick="window.open('{{ $certPath }}', '_blank')">
                             @else
-                                        <div style="width: 180px; height: 180px; border-radius: 20px; background: #f8f9fa; border: 4px solid #e9ecef; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 3rem; cursor: pointer;" onclick="window.open('{{ $certPath }}', '_blank')">
+                                        <div class="w-48 h-48 rounded-2xl bg-gray-100 border-4 border-gray-200 flex items-center justify-center text-gray-600 text-5xl cursor-pointer" onclick="window.open('{{ $certPath }}', '_blank')">
                                             <i class="fas fa-file-pdf"></i>
                                         </div>
                             @endif
                         @else
-                                    <div style="width: 180px; height: 180px; border-radius: 20px; background: #f8f9fa; border: 4px solid #e9ecef; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 3rem;">
+                                    <div class="w-48 h-48 rounded-2xl bg-gray-100 border-4 border-gray-200 flex items-center justify-center text-gray-600 text-5xl">
                                         <i class="fas fa-file-alt"></i>
                                     </div>
                         @endif
                             </div>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
-                                <div style="font-weight: 600; color: #6c757d; font-size: 0.85rem; margin-bottom: 5px;">Nombre</div>
-                                <div style="color: #495057; font-size: 1rem;">{{ $empresa->Nombre }}</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <div class="font-semibold text-gray-600 text-sm mb-1">Nombre</div>
+                                <div class="text-gray-700 text-base">{{ $empresa->Nombre }}</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
-                                <div style="font-weight: 600; color: #6c757d; font-size: 0.85rem; margin-bottom: 5px;">Correo</div>
-                                <div style="color: #495057; font-size: 1rem;">{{ $empresa->email }}</div>
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <div class="font-semibold text-gray-600 text-sm mb-1">Correo</div>
+                                <div class="text-gray-700 text-base">{{ $empresa->email }}</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
-                                <div style="font-weight: 600; color: #6c757d; font-size: 0.85rem; margin-bottom: 5px;">Teléfono</div>
-                                <div style="color: #495057; font-size: 1rem;">{{ $empresa->Contacto }}</div>
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <div class="font-semibold text-gray-600 text-sm mb-1">Teléfono</div>
+                                <div class="text-gray-700 text-base">{{ $empresa->Contacto }}</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
-                                <div style="font-weight: 600; color: #6c757d; font-size: 0.85rem; margin-bottom: 5px;">NIT</div>
-                                <div style="color: #495057; font-size: 1rem;">{{ $empresa->NIT }}</div>
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <div class="font-semibold text-gray-600 text-sm mb-1">NIT</div>
+                                <div class="text-gray-700 text-base">{{ $empresa->NIT }}</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
-                                <div style="font-weight: 600; color: #6c757d; font-size: 0.85rem; margin-bottom: 5px;">Dirección</div>
-                                <div style="color: #495057; font-size: 1rem;">{{ $empresa->Direccion }}</div>
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <div class="font-semibold text-gray-600 text-sm mb-1">Dirección</div>
+                                <div class="text-gray-700 text-base">{{ $empresa->Direccion }}</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
-                                <div style="font-weight: 600; color: #6c757d; font-size: 0.85rem; margin-bottom: 5px;">Ubicación</div>
-                                <div style="color: #495057; font-size: 1rem;">{{ $empresa->Ubicacion }}</div>
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <div class="font-semibold text-gray-600 text-sm mb-1">Ubicación</div>
+                                <div class="text-gray-700 text-base">{{ $empresa->Ubicacion }}</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
-                                <div style="font-weight: 600; color: #6c757d; font-size: 0.85rem; margin-bottom: 5px;">Municipio</div>
-                                <div style="color: #495057; font-size: 1rem;">{{ $empresa->Municipio }}</div>
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <div class="font-semibold text-gray-600 text-sm mb-1">Municipio</div>
+                                <div class="text-gray-700 text-base">{{ $empresa->Municipio }}</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
-                                <div style="font-weight: 600; color: #6c757d; font-size: 0.85rem; margin-bottom: 5px;">Registro</div>
-                                <div style="color: #495057; font-size: 1rem;">{{ $empresa->created_at->format('d/m/Y') }}</div>
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <div class="font-semibold text-gray-600 text-sm mb-1">Registro</div>
+                                <div class="text-gray-700 text-base">{{ $empresa->created_at->format('d/m/Y') }}</div>
                             </div>
                         </div>
                     </div>

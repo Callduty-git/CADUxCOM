@@ -10,13 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .product-image { transition: transform 0.3s ease; }
-        .product-image:hover { transform: scale(1.05); }
-        .price-original { text-decoration: line-through; }
-        .discount-badge { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/producto-publico-show.css') }}">
 </head>
 <body class="bg-gray-50">
     <div class="page-container">

@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/favorites.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
 
@@ -32,7 +33,7 @@
         <x-navbar />
 
         <!-- SEPARADOR PARA EL CARRUSEL -->
-        <div class="carousel-separator" style="height: 120px; background: transparent;"></div>
+        <div class="carousel-separator"></div>
 
         <!-- CONTENIDO PRINCIPAL -->
         <main class="content">

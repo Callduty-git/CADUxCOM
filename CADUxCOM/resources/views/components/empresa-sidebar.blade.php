@@ -13,7 +13,7 @@
                 <i class="fas fa-list-alt"></i>
                 <span>Log de Productos</span>
             </a>
-            <form method="POST" action="{{ route('empresa.logout') }}" style="margin: 0;">
+            <form method="POST" action="{{ route('empresa.logout') }}" class="m-0">
                 @csrf
                 <button type="submit" class="btn" aria-label="Cerrar sesión">
                     <i class="fas fa-sign-out-alt"></i>

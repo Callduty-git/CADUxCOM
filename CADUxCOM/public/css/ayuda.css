@@ -1,0 +1,3 @@
+.page-container{padding-top:90px}
+.content{margin-top:10px}
+@media (max-width:768px){.page-container{padding-top:100px}.content{margin-top:5px}}

@@ -15,17 +15,7 @@
     <!-- Estilos personalizados -->
     @stack('styles')
     
-    <!-- Estilos específicos para guest layout -->
-    <style>
-        .page-container {
-            padding-top: 90px; /* Compensar el header fijo */
-        }
-        
-        /* Asegurar que el contenido no quede tapado */
-        .contenedor-principal {
-            margin-top: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/guest-layout.css') }}">
 </head>
 <body>
     <div class="page-container">

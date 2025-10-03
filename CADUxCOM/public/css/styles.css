@@ -1,3 +1,5 @@
+.mix-hard-light{mix-blend-mode:hard-light}
+.mix-plus-darker{mix-blend-mode:plus-darker}
 /* Estilos generales para CADUxCOM */
 
 * {
@@ -25,6 +27,63 @@ body {
 }
 
 /* Utilidades generales */
+.is-hidden {
+    display: none !important;
+}
+
+.m-0 {
+    margin: 0 !important;
+}
+
+.mt-10 {
+    margin-top: 10px !important;
+}
+
+.mb-20 {
+    margin-bottom: 20px !important;
+}
+
+.ml-5 {
+    margin-left: 5px !important;
+}
+
+.fw-bold {
+    font-weight: 700 !important;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.content-spacing {
+    padding: 24px;
+}
+
+.carousel-separator {
+    height: 120px;
+    background: transparent;
+}
+
+.title-md {
+    font-size: 1.5rem;
+}
+
+.btn-purple {
+    background-color: var(--color-purple);
+    color: var(--color-white);
+}
+
+.d-inline {
+    display: inline !important;
+}
+
+.fs-48 {
+    font-size: 48px !important;
+}
 .container {
     max-width: 1200px;
     margin: 0 auto;
