@@ -1,0 +1,5 @@
+body{font-family:'Inter',sans-serif}
+.product-image{transition:transform .3s ease}
+.product-image:hover{transform:scale(1.05)}
+.price-original{text-decoration:line-through}
+.discount-badge{background:linear-gradient(135deg,#ff9a9e 0%,#fecfef 100%)}

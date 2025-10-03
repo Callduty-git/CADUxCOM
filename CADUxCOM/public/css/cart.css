@@ -1,3 +1,4 @@
+body{font-family:'Inter',sans-serif}
 .cart-item { transition: all 0.3s ease; }
 .cart-item:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
 .btn-primary { background: linear-gradient(135deg, #49874E 0%, #90D575 100%); }

@@ -444,7 +444,7 @@
 
         <!-- Call to Action -->
         <section class="cta-section">
-            <div class="container" style="display: flex; align-items: center; justify-content: center; height: 100%; min-height: 340px; padding: 0;">
+            <div class="container">
                 <div class="cta-content">
                     <div class="cta-text">
                         <h2>¡Únete a la Lucha contra el Desperdicio!</h2>
