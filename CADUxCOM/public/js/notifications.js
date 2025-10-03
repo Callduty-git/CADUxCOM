@@ -25,6 +25,9 @@ class NotificationSystem {
             this.container = document.createElement('div');
             this.container.id = 'notification-container';
             this.container.className = 'notification-container';
+            this.container.setAttribute('role', 'region');
+            this.container.setAttribute('aria-live', 'polite');
+            this.container.setAttribute('aria-atomic', 'true');
             document.body.appendChild(this.container);
         } else {
             this.container = document.getElementById('notification-container');
@@ -86,6 +89,8 @@ class NotificationSystem {
     createNotification(message, type, title) {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
+        notification.setAttribute('role', 'alert');
+        notification.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
 
         const icon = this.getIcon(type);
         const titleText = title || this.getDefaultTitle(type);
@@ -96,7 +101,7 @@ class NotificationSystem {
                 ${title ? `<div class="notification-title">${titleText}</div>` : ''}
                 <div class="notification-message">${message}</div>
             </div>
-            <button class="notification-close" onclick="notificationSystem.hide(this.parentElement)">×</button>
+            <button class="notification-close" aria-label="Cerrar notificación" onclick="notificationSystem.hide(this.parentElement)">×</button>
             <div class="notification-progress"></div>
         `;
 

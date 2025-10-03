@@ -21,12 +21,12 @@
     <link rel="preload" href="{{ asset('js/map.js') }}" as="script">
     <link rel="preload" href="{{ asset('css/map.css') }}" as="style">
     
-    <!-- Google Maps API -->
+    <!-- Google Maps API Key (inyectada desde .env) -->
     <script>
         // Variable global para la API key
-        window.googleMapsApiKey = "{{ env('GOOGLE_MAPS_API_KEY', 'AIzaSyBMDPpV5x-_Xl-ekz1kg48nuD79NgTN8mU') }}";
+        window.googleMapsApiKey = "{{ env('GOOGLE_MAPS_API_KEY') }}";
         
-        // Función de inicialización del mapa (no-op; map.js gestiona init)
+        // Función placeholder (map.js gestiona la inicialización)
         function initMap() {
             console.log('initMap callback ejecutado');
         }
@@ -204,7 +204,7 @@
     <script>
         // Datos globales para el mapa
         window.empresasData = JSON.parse(document.getElementById('empresas-data').textContent);
-        window.googleMapsApiKey = "{{ env('GOOGLE_MAPS_API_KEY', 'AIzaSyBMDPpV5x-_Xl-ekz1kg48nuD79NgTN8mU') }}";
+        window.googleMapsApiKey = "{{ env('GOOGLE_MAPS_API_KEY') }}";
         window.defaultProductImage = "{{ asset('images/default-product.png') }}";
         
         // Verificar si la API Key está configurada
@@ -236,7 +236,6 @@
     <!-- Cargar script del mapa antes de la API -->
     <script src="{{ asset('js/map.js') }}"></script>
     
-    <!-- Cargar Google Maps API al final (patrón recomendado) -->
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY', 'AIzaSyBMDPpV5x-_Xl-ekz1kg48nuD79NgTN8mU') }}&libraries=places,geometry,marker&callback=initMap&v=weekly&loading=async" async defer></script>
+    <!-- La API de Google Maps será cargada dinámicamente por public/js/map.js -->
 </body>
 </html>

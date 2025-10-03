@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\GeolocationController;
 
 // Endpoints REST para wishlist (protegidos con auth:sanctum)
 Route::middleware('auth:sanctum')->group(function () {
@@ -39,3 +40,6 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 Route::middleware('api')->get('/ping', function () {
     return response()->json(['message' => 'pong']);
 });
+
+// Búsqueda de empresas cercanas (pública, con validación en controlador)
+Route::post('/search-nearby', [GeolocationController::class, 'searchNearby']);

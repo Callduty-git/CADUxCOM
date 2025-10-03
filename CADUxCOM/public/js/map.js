@@ -659,23 +659,23 @@ class MapManager {
     }
 
     /**
-     * Centrar mapa en empresa específica
+     * Centrar mapa en empresa específica (única implementación)
      */
     centerOnEmpresa(empresaId) {
         const empresa = this.empresas.find(e => e.id === empresaId);
-        const normalized = empresa ? this.normalizeCoordinates(empresa.coordinates) : null;
-        if (empresa && normalized) {
-            this.map.setCenter(normalized);
-            this.map.setZoom(this.config.userZoom);
-            
-            // Abrir info window si existe
-            const marker = this.markers.find(m => {
-                const p = this.getMarkerLatLng(m);
-                return p && p.lat === normalized.lat && p.lng === normalized.lng;
-            });
-            if (marker) {
-                google.maps.event.trigger(marker, 'click');
-            }
+        if (!empresa) return;
+        const normalized = this.normalizeCoordinates(empresa.coordinates);
+        if (!normalized) return;
+
+        this.map.setCenter(normalized);
+        this.map.setZoom(this.config.userZoom);
+
+        const marker = this.markers.find(m => {
+            const p = this.getMarkerLatLng(m);
+            return p && p.lat === normalized.lat && p.lng === normalized.lng;
+        });
+        if (marker) {
+            google.maps.event.trigger(marker, 'click');
         }
     }
 
@@ -688,11 +688,13 @@ class MapManager {
             return;
         }
 
-        // Mostrar loading en el botón
+        // Mostrar loading en el botón (si existe)
         const locationBtn = document.getElementById('my-location-btn');
-        const originalText = locationBtn.innerHTML;
-        locationBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Obteniendo ubicación...';
-        locationBtn.disabled = true;
+        const originalText = locationBtn ? locationBtn.innerHTML : '';
+        if (locationBtn) {
+            locationBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Obteniendo ubicación...';
+            locationBtn.disabled = true;
+        }
 
         try {
             const position = await this.getCurrentPositionPromise();
@@ -712,8 +714,10 @@ class MapManager {
             this.handleLocationError(error);
         } finally {
             // Restaurar botón
-            locationBtn.innerHTML = originalText;
-            locationBtn.disabled = false;
+            if (locationBtn) {
+                locationBtn.innerHTML = originalText;
+                locationBtn.disabled = false;
+            }
         }
     }
 
@@ -991,25 +995,7 @@ class MapManager {
         `;
     }
 
-    /**
-     * Centrar mapa en empresa específica
-     */
-    centerOnEmpresa(empresaId) {
-        const empresa = this.empresas.find(e => e.id === empresaId);
-        if (empresa && empresa.coordinates) {
-            this.map.setCenter(empresa.coordinates);
-            this.map.setZoom(this.config.userZoom);
-            
-            // Abrir info window si existe
-            const marker = this.markers.find(m => {
-                const p = this.getMarkerLatLng(m);
-                return p && p.lat === empresa.coordinates.lat && p.lng === empresa.coordinates.lng;
-            });
-            if (marker) {
-                google.maps.event.trigger(marker, 'click');
-            }
-        }
-    }
+    
 
     /**
      * Limpiar filtros
