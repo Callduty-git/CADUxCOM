@@ -21,34 +21,7 @@
     <script src="{{ asset('js/cart.js') }}"></script>
     <script src="{{ asset('js/modal-alert.js') }}"></script>
     
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Figtree', Arial, sans-serif;
-            background-color: #FFFFFF !important;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        /* Espaciado superior específico para la página de wishlist */
-        .wishlist-container {
-            margin-top: 120px; /* Espacio mayor para el header fijo más alto */
-            padding-top: 20px; /* Espacio adicional para mejor separación */
-        }
-        
-        /* Responsive para el espaciado */
-        @media (max-width: 768px) {
-            .wishlist-container {
-                margin-top: 130px; /* Espacio mayor en móviles */
-                padding-top: 15px;
-            }
-        }
-    </style>
+    
 </head>
 <body>
     <!-- HEADER DEL DASHBOARD -->
