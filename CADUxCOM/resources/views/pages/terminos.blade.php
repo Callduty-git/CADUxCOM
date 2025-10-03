@@ -10,7 +10,7 @@
 <body>
     <div class="page-container">
         <x-header-pages />
-        <main class="content" style="padding: 24px;">
+        <main class="content content-spacing">
             <h1>Términos de Servicio</h1>
             <p>Aquí encontrarás nuestras condiciones de uso.</p>
         </main>

@@ -33,7 +33,7 @@
 <body>
     <div class="page-container">
         <x-header-pages />
-        <main class="content" style="padding: 24px;">
+        <main class="content content-spacing">
             <h1>Centro de Ayuda</h1>
             <p>Encuentra respuestas a las preguntas frecuentes.</p>
         </main>

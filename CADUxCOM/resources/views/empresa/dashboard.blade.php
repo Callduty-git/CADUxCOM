@@ -86,7 +86,7 @@
                 <a href="{{ route('empresa.dashboard') }}" class="btn">Inicio</a>
                 <a href="{{ route('empresa.productos.index') }}" class="btn">Productos</a>
                 <a href="{{ route('empresa.facturas') }}" class="btn">Facturas</a>
-                <form method="POST" action="{{ route('empresa.logout') }}" style="margin-top: 10px;">
+                <form method="POST" action="{{ route('empresa.logout') }}" class="mt-10">
                     @csrf
                     <button type="submit" class="btn" aria-label="Cerrar sesión">Salir</button>
                 </form>
@@ -108,7 +108,7 @@
                     <div class="info-box"><strong>Fecha de registro:</strong> {{ $empresa->created_at->format('d/m/Y') }}</div>
                     <div class="info-box">
                         <a href="{{ route('empresa.password.change') }}" class="btn small-btn">Cambiar contraseña</a>
-                        <button id="openModal" class="btn small-btn" style="margin-left:5px;">Editar perfil</button>
+                        <button id="openModal" class="btn small-btn ml-5">Editar perfil</button>
                     </div>
                 </div>
 

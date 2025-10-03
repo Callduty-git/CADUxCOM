@@ -38,7 +38,7 @@
 
         <a href="{{ route('wishlist.index') }}" class="header-icon-link" title="Mis Favoritos">
             <img src="{{ asset('images/favoritos.png') }}" alt="Favoritos" class="header-icon">
-            <span class="wishlist-count" id="wishlist-count" style="display:none;" data-url="{{ auth()->check() ? route('wishlist.count') : '' }}">0</span>
+            <span class="wishlist-count is-hidden" id="wishlist-count" data-url="{{ auth()->check() ? route('wishlist.count') : '' }}">0</span>
         </a>
 
         <img src="{{ asset('images/icon-help.png') }}" alt="Ayuda" class="header-icon">
