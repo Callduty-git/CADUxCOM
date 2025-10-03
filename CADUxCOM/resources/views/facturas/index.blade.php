@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/empresa-sidebar.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <link rel="stylesheet" href="{{ asset('css/facturas.css') }}">
     <style>
         .header {
             border-bottom: 3px solid #006400;

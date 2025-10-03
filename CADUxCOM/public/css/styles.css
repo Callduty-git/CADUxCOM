@@ -74,6 +74,10 @@ body {
     background-color: var(--color-purple);
     color: var(--color-white);
 }
+
+.d-inline {
+    display: inline !important;
+}
 .container {
     max-width: 1200px;
     margin: 0 auto;
