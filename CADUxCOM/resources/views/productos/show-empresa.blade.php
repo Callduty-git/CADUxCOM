@@ -106,7 +106,7 @@
 
                     <!-- Precios -->
                     <div class="price-section">
-                        <h3 style="margin-bottom: 20px; font-size: 1.5rem;">
+                        <h3 class="mb-20 title-md">
                             <i class="fas fa-dollar-sign"></i>
                             Información de Precios
                         </h3>
@@ -124,7 +124,7 @@
 
                     <!-- Estadísticas del producto -->
                     <div class="stats-section">
-                        <h3 style="margin-bottom: 20px; font-size: 1.5rem;">
+                        <h3 class="mb-20 title-md">
                             <i class="fas fa-chart-bar"></i>
                             Estadísticas del Producto
                         </h3>
@@ -208,9 +208,9 @@
                             @if($producto->Fecha_Caducidad)
                                 <div class="info-item">
                                     <div class="info-label">Fecha de Caducidad</div>
-                                    <div class="info-value" style="font-weight: bold;">
+                                <div class="info-value fw-bold">
                                         {{ \Carbon\Carbon::parse($producto->Fecha_Caducidad)->format('d/m/Y') }}
-                                        <span id="countdown-detail" style="color: #28a745;">(Cargando...)</span>
+                                        <span id="countdown-detail" class="text-success">(Cargando...)</span>
                                     </div>
                                     <script>
                                         // Reutilizar la misma lógica para la sección de información
@@ -261,7 +261,7 @@
                     </div>
 
                     <!-- Botón de regreso -->
-                    <div style="text-align: center;">
+                    <div class="text-center">
                         <a href="{{ route('empresa.productos.index') }}" class="back-button">
                             <i class="fas fa-arrow-left"></i>
                             Volver a la Lista de Productos

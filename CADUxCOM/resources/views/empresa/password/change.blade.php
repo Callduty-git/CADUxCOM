@@ -14,8 +14,8 @@
         <div class="container">
         <h2>Cambiar Contraseña de Empresa</h2>
 
-        <div id="responseMessage" class="message-box" style="display: none;"></div>
-        <ul id="errorList" class="error-list" style="display: none;"></ul>
+        <div id="responseMessage" class="message-box is-hidden"></div>
+        <ul id="errorList" class="error-list is-hidden"></ul>
 
         <form id="changePasswordForm" method="POST" action="{{ route('empresa.password.update') }}">
             @csrf

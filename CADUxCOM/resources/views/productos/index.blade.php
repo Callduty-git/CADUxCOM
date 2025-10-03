@@ -53,7 +53,7 @@
                                 $hoy = \Carbon\Carbon::now();
                                 $estaDisponible = $fechaCaducidad->isFuture() && $producto->Cantidad > 0;
                             @endphp
-                            <span style="color: {{ $estaDisponible ? '#28a745' : '#dc3545' }}; font-weight: bold;">
+                            <span class="fw-bold {{ $estaDisponible ? 'text-success' : 'text-danger' }}">
                                 {{ $estaDisponible ? '✓ DISPONIBLE' : '✗ NO DISPONIBLE' }}
                             </span>
                         </div>

@@ -75,7 +75,7 @@
             </div>
 
             <!-- Campos de empresa -->
-            <div id="empresa-fields" class="form-section" style="display: none;">
+            <div id="empresa-fields" class="form-section is-hidden">
                 <h3 class="section-title">
                     <i class="fas fa-building"></i>
                     Información de empresa
@@ -146,7 +146,7 @@
                                 <span class="file-info">PDF, JPG o PNG</span>
                             </label>
                             <input id="certificado" type="file" name="certificado_camara_de_comercio" accept=".pdf,.jpg,.png">
-                            <div id="certificado-preview" class="file-preview" style="display: none;">
+                            <div id="certificado-preview" class="file-preview is-hidden">
                                 <div class="preview-header">
                                     <i class="fas fa-check-circle"></i>
                                     <span>Archivo seleccionado:</span>
@@ -156,7 +156,7 @@
                                 </div>
                                 <div class="preview-content">
                                     <div id="certificado-info" class="file-info-display"></div>
-                                    <div id="certificado-image" class="image-preview" style="display: none;"></div>
+                                    <div id="certificado-image" class="image-preview is-hidden"></div>
                                 </div>
                             </div>
                         </div>
@@ -168,7 +168,7 @@
                                 <span class="file-info">Imagen de la empresa</span>
                             </label>
                             <input id="foto" type="file" name="foto" accept="image/*">
-                            <div id="foto-preview" class="file-preview" style="display: none;">
+                            <div id="foto-preview" class="file-preview is-hidden">
                                 <div class="preview-header">
                                     <i class="fas fa-check-circle"></i>
                                     <span>Imagen seleccionada:</span>

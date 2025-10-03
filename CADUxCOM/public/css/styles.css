@@ -78,6 +78,10 @@ body {
 .d-inline {
     display: inline !important;
 }
+
+.fs-48 {
+    font-size: 48px !important;
+}
 .container {
     max-width: 1200px;
     margin: 0 auto;

@@ -2,15 +2,15 @@
 <div class="notification-bell">
     <button onclick="toggleNotifications()" class="bell-button" id="notification-btn">
         <img src="{{ asset('images/notificacion.png') }}" alt="Notificaciones" class="notification-icon-img">
-        <span id="notification-count" class="notification-count" style="display: none;">0</span>
+        <span id="notification-count" class="notification-count is-hidden">0</span>
     </button>
 
     <!-- Dropdown de notificaciones -->
-    <div id="notification-dropdown" class="notification-dropdown" style="display: none;">
+    <div id="notification-dropdown" class="notification-dropdown is-hidden">
         
         <div class="dropdown-header">
             <h3>Notificaciones</h3>
-            <button onclick="markAllAsRead()" id="mark-all-btn" class="mark-all-btn" style="display: none;">
+            <button onclick="markAllAsRead()" id="mark-all-btn" class="mark-all-btn is-hidden">
                 Marcar todas como leídas
             </button>
         </div>
