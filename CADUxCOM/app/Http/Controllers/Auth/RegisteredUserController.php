@@ -48,16 +48,20 @@ class RegisteredUserController extends Controller
                 'ubicacion' => ['nullable', 'string', 'max:255'],
                 'contacto' => ['required', 'string', 'max:50'],
                 'nit' => ['required', 'string', 'max:50', 'unique:empresas,NIT'],
-                'foto' => ['required', 'image'],
-                'certificado_camara_de_comercio' => ['required', 'file', 'mimes:pdf,jpg,png'],
+                'foto' => ['required', 'image', 'max:2048'],
+                'certificado_camara_de_comercio' => ['required', 'file', 'mimes:pdf,jpg,png', 'max:5120'],
             ];
         }
 
         // Validar todo
-        Validator::make(
+        $validator = Validator::make(
             $request->all(),
             array_merge($baseRules, $additionalRules)
-        )->validate();
+        );
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
 
         /**
          * Registro usuario normal (entra directo sin verificación ni correos al admin)
@@ -68,6 +72,7 @@ class RegisteredUserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => 'usuario',
+                'email_verified' => true, // Marcar como verificado para usuarios normales
             ]);
 
             event(new Registered($user));

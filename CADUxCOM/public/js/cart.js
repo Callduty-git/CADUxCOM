@@ -11,6 +11,23 @@ class CartManager {
     init() {
         // Cargar contador inicial
         this.updateCartCounter();
+        
+        // Actualizar contador automáticamente cada 30 segundos
+        setInterval(() => {
+            this.updateCartCounter();
+        }, 30000);
+        
+        // Actualizar contador cuando la página vuelve a estar visible
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                this.updateCartCounter();
+            }
+        });
+        
+        // Actualizar contador cuando se enfoca la ventana
+        window.addEventListener('focus', () => {
+            this.updateCartCounter();
+        });
     }
 
     /**
@@ -207,17 +224,13 @@ class CartManager {
             }
             
             const data = await response.json();
+            const count = data.count || 0;
+            const displayCount = count > 99 ? '99+' : count;
             
-            const cartBadge = document.getElementById('cart-count');
-            const cartBadgeNumber = cartBadge?.querySelector('.cart-badge-number');
-            
-            if (cartBadge && cartBadgeNumber) {
-                const count = data.count || 0;
-                const displayCount = count > 99 ? '99+' : count;
-                
-                // Actualizar el número
-                cartBadgeNumber.textContent = displayCount;
-                cartBadge.setAttribute('data-count', count);
+            // Actualizar el nuevo componente cart-counter
+            const cartBadge = document.querySelector('.cart-badge');
+            if (cartBadge) {
+                cartBadge.textContent = displayCount;
                 
                 // Mostrar/ocultar badge
                 if (count > 0) {
@@ -235,15 +248,39 @@ class CartManager {
             // Mantener compatibilidad con elementos antiguos
             const cartCountElements = document.querySelectorAll('.cart-count');
             cartCountElements.forEach(element => {
-                element.textContent = data.count || 0;
-                element.style.display = (data.count || 0) > 0 ? 'flex' : 'none';
+                element.textContent = displayCount;
+                element.style.display = count > 0 ? 'flex' : 'none';
             });
 
             // También actualizar elementos con ID específico
             const cartCountById = document.getElementById('cart-count');
             if (cartCountById) {
-                cartCountById.textContent = data.count || 0;
-                cartCountById.style.display = (data.count || 0) > 0 ? 'block' : 'none';
+                cartCountById.textContent = displayCount;
+                cartCountById.style.display = count > 0 ? 'block' : 'none';
+            }
+
+            // Actualizar elementos con clase wishlist-count si existen
+            const wishlistCount = document.getElementById('wishlist-count');
+            if (wishlistCount) {
+                // Solo actualizar si el usuario está autenticado
+                const wishlistUrl = wishlistCount.dataset.url;
+                if (wishlistUrl) {
+                    fetch(wishlistUrl)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.count > 0) {
+                                wishlistCount.textContent = data.count;
+                                wishlistCount.style.display = 'flex';
+                            } else {
+                                wishlistCount.style.display = 'none';
+                            }
+                            wishlistCount.classList.add('update');
+                            setTimeout(() => wishlistCount.classList.remove('update'), 500);
+                        })
+                        .catch(error => {
+                            console.log('Wishlist counter not available');
+                        });
+                }
             }
 
         } catch (error) {
@@ -607,6 +644,34 @@ class CartManager {
      * @param {string} type - Tipo de notificación (success, error, info)
      */
     showNotification(message, type = 'info') {
+        // Evitar duplicaciones: verificar si ya existe una notificación similar
+        const existingNotifications = document.querySelectorAll('.notification');
+        const isDuplicate = Array.from(existingNotifications).some(notif => {
+            const messageElement = notif.querySelector('.notification-message');
+            return messageElement && messageElement.textContent.trim() === message.trim();
+        });
+
+        if (isDuplicate) {
+            console.log('Notificación duplicada evitada:', message);
+            return;
+        }
+
+        // Usar el sistema de notificaciones principal si está disponible
+        if (window.notificationSystem && window.notificationSystem.show) {
+            window.notificationSystem.show(message, type);
+            return;
+        }
+
+        // Fallback: crear notificación simple
+        this.createSimpleNotification(message, type);
+    }
+
+    /**
+     * Crear notificación simple como fallback
+     * @param {string} message - Mensaje a mostrar
+     * @param {string} type - Tipo de notificación
+     */
+    createSimpleNotification(message, type) {
         // Crear contenedor de notificaciones si no existe
         let notificationContainer = document.getElementById('notification-container');
         if (!notificationContainer) {

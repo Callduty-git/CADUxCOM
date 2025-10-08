@@ -4,17 +4,24 @@
     display: flex;
     justify-content: center;
     margin: 20px 0;
+    padding: 0 10px;
+    box-sizing: border-box;
+    overflow-x: hidden; /* Prevenir overflow horizontal */
 }
 
 /* Grid */
 .subcategorias-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 20px;
+    width: 100%;
     max-width: 1200px;
     padding: 20px;
     background: #ffffff;
     border-radius: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+    overflow-x: hidden; /* Prevenir overflow horizontal */
 }
 
 /* Ítems */
@@ -52,48 +59,131 @@
 }
 
 /* ==================== RESPONSIVE ==================== */
+
+/* Tablets */
+@media (max-width: 1024px) {
+    .subcategorias-section {
+        padding: 0 15px;
+    }
+    
+    .subcategorias-container {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 18px;
+        padding: 15px;
+    }
+    
+    .subcategoria-item img {
+        width: 65px;
+        height: 65px;
+        padding: 9px;
+    }
+    
+    .subcategoria-item p {
+        font-size: 13px;
+        margin-top: 7px;
+    }
+}
+
+/* Tablets pequeñas y móviles grandes */
 @media (max-width: 768px) {
     .subcategorias-section {
-        margin: 10px 0; /* Reducido para mejor espaciado */
+        margin: 15px 0;
         padding: 0 10px;
     }
+    
     .subcategorias-container {
-        grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
-        gap: 18px;
-        padding: 20px 15px;
-        max-width: 100%;
+        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+        gap: 15px;
+        padding: 15px 10px;
     }
+    
     .subcategoria-item img {
         width: 60px;
         height: 60px;
         padding: 8px;
     }
+    
     .subcategoria-item p {
-        font-size: 11px;
+        font-size: 12px;
         margin-top: 6px;
         line-height: 1.2;
     }
 }
 
+/* Móviles medianos */
+@media (max-width: 600px) {
+    .subcategorias-section {
+        margin: 10px 0;
+        padding: 0 8px;
+    }
+    
+    .subcategorias-container {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 12px;
+        padding: 12px 8px;
+    }
+    
+    .subcategoria-item img {
+        width: 55px;
+        height: 55px;
+        padding: 7px;
+    }
+    
+    .subcategoria-item p {
+        font-size: 11px;
+        margin-top: 5px;
+        line-height: 1.1;
+    }
+}
+
+/* Móviles pequeños */
 @media (max-width: 480px) {
     .subcategorias-section {
         margin: 8px 0;
-        padding: 0 8px;
+        padding: 0 5px;
     }
+    
     .subcategorias-container {
         grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-        gap: 15px;
-        padding: 15px 10px;
-        max-width: 100%;
+        gap: 10px;
+        padding: 10px 5px;
     }
+    
     .subcategoria-item img {
         width: 50px;
         height: 50px;
         padding: 6px;
     }
+    
     .subcategoria-item p {
         font-size: 10px;
-        margin-top: 5px;
+        margin-top: 4px;
         line-height: 1.1;
+    }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 360px) {
+    .subcategorias-section {
+        margin: 5px 0;
+        padding: 0 3px;
+    }
+    
+    .subcategorias-container {
+        grid-template-columns: repeat(auto-fit, minmax(65px, 1fr));
+        gap: 8px;
+        padding: 8px 3px;
+    }
+    
+    .subcategoria-item img {
+        width: 45px;
+        height: 45px;
+        padding: 5px;
+    }
+    
+    .subcategoria-item p {
+        font-size: 9px;
+        margin-top: 3px;
+        line-height: 1.0;
     }
 }

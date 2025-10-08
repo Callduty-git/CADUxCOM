@@ -21,10 +21,10 @@
     <link rel="preload" href="{{ asset('js/map.js') }}" as="script">
     <link rel="preload" href="{{ asset('css/map.css') }}" as="style">
     
-    <!-- Google Maps API Key (inyectada desde .env) -->
+    <!-- Google Maps API Key -->
     <script>
         // Variable global para la API key
-        window.googleMapsApiKey = "{{ env('GOOGLE_MAPS_API_KEY') }}";
+        window.googleMapsApiKey = "AIzaSyBMDPpV5x-_Xl-ekz1kg48nuD79NgTN8mU";
         
         // Función placeholder (map.js gestiona la inicialización)
         function initMap() {
@@ -204,7 +204,7 @@
     <script>
         // Datos globales para el mapa
         window.empresasData = JSON.parse(document.getElementById('empresas-data').textContent);
-        window.googleMapsApiKey = "{{ env('GOOGLE_MAPS_API_KEY') }}";
+        window.googleMapsApiKey = "AIzaSyBMDPpV5x-_Xl-ekz1kg48nuD79NgTN8mU";
         window.defaultProductImage = "{{ asset('images/default-product.png') }}";
         
         // Verificar si la API Key está configurada

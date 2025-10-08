@@ -2,26 +2,45 @@
     <div class="subcategorias-container">
         @php
             $imageMap = [
-                'Arepas' => 'arepa.png',
-                'Bebidas' => 'agua.png',
-                'Lácteos' => 'leche.png',
-                'Huevos' => 'huevos.png',
-                'Pan Empacado' => 'pan.png',
-                'Cafés' => 'cafe.png',
-                'Untables' => 'mermelada.png',
-                'Aceites' => 'aceite.png',
-                'Sopas y Cremas' => 'sopa.png',
-                'Carnes enlatadas' => 'enlatados.png',
-                'Verduras Enlatadas' => 'verduras.png',
-                'Dulces' => 'dulces.png',
-                'Galletas' => 'galletas.png',
-                'Pastas' => 'pasta.png',
-                'Reposteria' => 'reposteria.png',
-                'Salsas y Aderezos' => 'salsas.png',
-                'Condimentos' => 'condimentos.png',
-                'Alimentos Refrigerados' => 'refrigerados.png',
-                'Licores' => 'licor.png',
-                'Pasabocas' => 'pasabocas.png'
+                // Despensa
+                'Pastas, arroces y granos' => 'pasta.png',
+                'Enlatados y conservas' => 'enlatados.png',
+                'Harinas y mezclas' => 'harina.png',
+                'Salsas y condimentos' => 'salsas.png',
+                
+                // Snacks y Dulces
+                'Galletas y mecato' => 'galletas.png',
+                'Chocolates y confitería' => 'dulces.png',
+                'Barras y granolas' => 'granola.png',
+                
+                // Bebidas
+                'Gaseosas y jugos' => 'agua.png',
+                'Aguas saborizadas y energizantes' => 'energizante.png',
+                'Café, té e infusiones' => 'cafe.png',
+                
+                // Lácteos y Derivados
+                'Leches (líquida, en polvo, deslactosada)' => 'leche.png',
+                'Yogures y kumis' => 'yogurt.png',
+                'Quesos empacados' => 'queso.png',
+                'Mantequillas y margarinas' => 'mantequilla.png',
+                
+                // Congelados
+                'Comidas listas congeladas' => 'congelados.png',
+                'Verduras/papas congeladas' => 'verduras.png',
+                'Helados y postres' => 'helado.png',
+                
+                // Panadería
+                'Pan tajado empacado' => 'pan.png',
+                'Ponqués y repostería' => 'reposteria.png',
+                'Arepas empacadas' => 'arepa.png',
+                
+                // Cuidado Personal
+                'Shampoo y acondicionador' => 'shampoo.png',
+                'Cremas corporales' => 'crema.png',
+                'Desodorantes' => 'desodorante.png',
+                'Jabones líquidos' => 'jabon.png',
+                'Enjuagues bucales' => 'enjuague.png',
+                'Cremas dentales' => 'pasta-dental.png',
             ];
         @endphp
         

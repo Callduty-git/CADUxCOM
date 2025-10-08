@@ -10,11 +10,13 @@ class CategoriaSeeder extends Seeder
     public function run(): void
     {
         $categorias = [
-            ['Nombre' => 'Lácteos', 'Icono' => '🥛'],
-            ['Nombre' => 'Granos', 'Icono' => '🌰'],
-            ['Nombre' => 'Harinas', 'Icono' => '🧂'],
+            ['Nombre' => 'Despensa', 'Icono' => '🥫'],
+            ['Nombre' => 'Snacks y Dulces', 'Icono' => '🍫'],
+            ['Nombre' => 'Bebidas', 'Icono' => '🧃'],
+            ['Nombre' => 'Lácteos y Derivados', 'Icono' => '🧀'],
             ['Nombre' => 'Congelados', 'Icono' => '❄️'],
-            ['Nombre' => 'Enlatados', 'Icono' => '🥫'],
+            ['Nombre' => 'Panadería', 'Icono' => '🍞'],
+            ['Nombre' => 'Cuidado Personal', 'Icono' => '🧴'],
         ];
 
         foreach ($categorias as $categoria) {

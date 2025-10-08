@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/navbar-new.css') }}">
     <link rel="stylesheet" href="{{ asset('css/banner-carousel.css') }}">
     <link rel="stylesheet" href="{{ asset('css/subcategorias.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/all-products.css') }}">
     <link rel="stylesheet" href="{{ asset('css/favorites.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
@@ -22,7 +23,7 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
     <!-- Custom Styles -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Vite assets comentados temporalmente -->
 </head>
 <body class="body-base">
     <div class="page-container">
@@ -30,10 +31,7 @@
 
         <!-- HEADER -->
         <x-header />
-        <x-navbar />
-
-        <!-- SEPARADOR PARA EL CARRUSEL -->
-        <div class="carousel-separator"></div>
+        <x-navbar-new />
 
         <!-- CONTENIDO PRINCIPAL -->
         <main class="content">

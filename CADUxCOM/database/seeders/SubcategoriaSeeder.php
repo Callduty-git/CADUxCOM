@@ -13,30 +13,45 @@ class SubcategoriaSeeder extends Seeder
         $categorias = Categoria::pluck('Id_Categoria', 'Nombre');
 
         $subcategorias = [
-            ['Nombre' => 'Arepas', 'Icono' => '🫓', 'Categoria' => 'Harinas'],
-            ['Nombre' => 'Bebidas', 'Icono' => '🧃', 'Categoria' => 'Lácteos'],
-            ['Nombre' => 'Lácteos', 'Icono' => '🥛', 'Categoria' => 'Lácteos'],
-            ['Nombre' => 'Huevos', 'Icono' => '🥚', 'Categoria' => 'Lácteos'],
-            ['Nombre' => 'Pan Empacado', 'Icono' => '🍞', 'Categoria' => 'Harinas'],
-            ['Nombre' => 'Cafés', 'Icono' => '☕', 'Categoria' => 'Granos'],
-            ['Nombre' => 'Untables', 'Icono' => '🍯', 'Categoria' => 'Lácteos'],
-            ['Nombre' => 'Aceites', 'Icono' => '🛢️', 'Categoria' => 'Granos'],
-            ['Nombre' => 'Sopas y Cremas', 'Icono' => '🥣', 'Categoria' => 'Enlatados'],
-            ['Nombre' => 'Carnes enlatadas', 'Icono' => '🥫', 'Categoria' => 'Enlatados'],
-            ['Nombre' => 'Verduras Enlatadas', 'Icono' => '🫛', 'Categoria' => 'Enlatados'],
-            ['Nombre' => 'Dulces', 'Icono' => '🍬', 'Categoria' => 'Congelados'],
-            ['Nombre' => 'Galletas', 'Icono' => '🍪', 'Categoria' => 'Harinas'],
-            ['Nombre' => 'Reposteria', 'Icono' => '🧁', 'Categoria' => 'Harinas'],
-            ['Nombre' => 'Salsas y Aderezos', 'Icono' => '🧂', 'Categoria' => 'Granos'],
-            ['Nombre' => 'Condimentos', 'Icono' => '🌶️', 'Categoria' => 'Granos'],
-            ['Nombre' => 'Alimentos Refrigerados', 'Icono' => '🧊', 'Categoria' => 'Congelados'],
-            ['Nombre' => 'Licores', 'Icono' => '🥃', 'Categoria' => 'Granos'],
-            ['Nombre' => 'Pasabocas', 'Icono' => '🍿', 'Categoria' => 'Harinas'],
-            // --- ¡AGREGA ESTAS LÍNEAS! ---
-            ['Nombre' => 'Leche', 'Icono' => '🥛', 'Categoria' => 'Lácteos'], // Asegúrate de que 'Lácteos' sea una categoría existente
-            ['Nombre' => 'Yogurt', 'Icono' => '🍦', 'Categoria' => 'Lácteos'], // 'Lácteos' también
-            ['Nombre' => 'Arroz', 'Icono' => '🍚', 'Categoria' => 'Granos'], // 'Granos' también
-            // -----------------------------
+            // Despensa
+            ['Nombre' => 'Pastas, arroces y granos', 'Icono' => '🍝', 'Categoria' => 'Despensa'],
+            ['Nombre' => 'Enlatados y conservas', 'Icono' => '🥫', 'Categoria' => 'Despensa'],
+            ['Nombre' => 'Harinas y mezclas', 'Icono' => '🌾', 'Categoria' => 'Despensa'],
+            ['Nombre' => 'Salsas y condimentos', 'Icono' => '🧂', 'Categoria' => 'Despensa'],
+            
+            // Snacks y Dulces
+            ['Nombre' => 'Galletas y mecato', 'Icono' => '🍪', 'Categoria' => 'Snacks y Dulces'],
+            ['Nombre' => 'Chocolates y confitería', 'Icono' => '🍫', 'Categoria' => 'Snacks y Dulces'],
+            ['Nombre' => 'Barras y granolas', 'Icono' => '🌰', 'Categoria' => 'Snacks y Dulces'],
+            
+            // Bebidas
+            ['Nombre' => 'Gaseosas y jugos', 'Icono' => '🥤', 'Categoria' => 'Bebidas'],
+            ['Nombre' => 'Aguas saborizadas y energizantes', 'Icono' => '💧', 'Categoria' => 'Bebidas'],
+            ['Nombre' => 'Café, té e infusiones', 'Icono' => '☕', 'Categoria' => 'Bebidas'],
+            
+            // Lácteos y Derivados
+            ['Nombre' => 'Leches (líquida, en polvo, deslactosada)', 'Icono' => '🥛', 'Categoria' => 'Lácteos y Derivados'],
+            ['Nombre' => 'Yogures y kumis', 'Icono' => '🍦', 'Categoria' => 'Lácteos y Derivados'],
+            ['Nombre' => 'Quesos empacados', 'Icono' => '🧀', 'Categoria' => 'Lácteos y Derivados'],
+            ['Nombre' => 'Mantequillas y margarinas', 'Icono' => '🧈', 'Categoria' => 'Lácteos y Derivados'],
+            
+            // Congelados
+            ['Nombre' => 'Comidas listas congeladas', 'Icono' => '🍽️', 'Categoria' => 'Congelados'],
+            ['Nombre' => 'Verduras/papas congeladas', 'Icono' => '🥔', 'Categoria' => 'Congelados'],
+            ['Nombre' => 'Helados y postres', 'Icono' => '🍨', 'Categoria' => 'Congelados'],
+            
+            // Panadería
+            ['Nombre' => 'Pan tajado empacado', 'Icono' => '🍞', 'Categoria' => 'Panadería'],
+            ['Nombre' => 'Ponqués y repostería', 'Icono' => '🧁', 'Categoria' => 'Panadería'],
+            ['Nombre' => 'Arepas empacadas', 'Icono' => '🫓', 'Categoria' => 'Panadería'],
+            
+            // Cuidado Personal
+            ['Nombre' => 'Shampoo y acondicionador', 'Icono' => '🧴', 'Categoria' => 'Cuidado Personal'],
+            ['Nombre' => 'Cremas corporales', 'Icono' => '🧴', 'Categoria' => 'Cuidado Personal'],
+            ['Nombre' => 'Desodorantes', 'Icono' => '🧴', 'Categoria' => 'Cuidado Personal'],
+            ['Nombre' => 'Jabones líquidos', 'Icono' => '🧴', 'Categoria' => 'Cuidado Personal'],
+            ['Nombre' => 'Enjuagues bucales', 'Icono' => '🧴', 'Categoria' => 'Cuidado Personal'],
+            ['Nombre' => 'Cremas dentales', 'Icono' => '🧴', 'Categoria' => 'Cuidado Personal'],
         ];
 
         foreach ($subcategorias as $sub) {

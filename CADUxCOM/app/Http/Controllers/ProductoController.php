@@ -37,6 +37,25 @@ class ProductoController extends Controller
     }
 
     /**
+     * Mostrar productos por subcategoría
+     */
+    public function bySubcategory($subcategoriaId)
+    {
+        $subcategoria = Subcategoria::with('categoria')->findOrFail($subcategoriaId);
+        
+        $productos = Producto::with(['empresa', 'subcategoria.categoria'])
+            ->where('Id_Subcategoria', $subcategoriaId)
+            ->where('Cantidad', '>', 0)
+            ->orderBy('created_at', 'desc')
+            ->paginate(24);
+
+        $categorias = \App\Models\Categoria::with('subcategorias')->get();
+        $subcategorias = \App\Models\Subcategoria::all();
+
+        return view('productos.public-index', compact('productos', 'categorias', 'subcategorias', 'subcategoria'));
+    }
+
+    /**
      * Listar productos (dashboard)
      */
     public function index(Request $request)

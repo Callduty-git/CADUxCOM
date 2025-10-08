@@ -12,6 +12,8 @@ body {
     font-family: 'Inter', 'Arial', sans-serif;
     line-height: 1.6;
     color: #333;
+    overflow-x: hidden; /* Prevenir scroll horizontal */
+    width: 100%; /* Asegurar ancho completo */
 }
 
 /* Variables CSS para colores del tema */
@@ -84,10 +86,43 @@ body {
 .fs-48 {
     font-size: 48px !important;
 }
+/* Contenedor principal del home */
+.home-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* Asegurar que todos los elementos respeten el ancho del viewport */
+.home-container * {
+    box-sizing: border-box;
+    max-width: 100%; /* Limitar ancho máximo de todos los elementos */
+}
+
+/* Responsive para el home */
+@media (max-width: 768px) {
+    .home-container {
+        padding: 0 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-container {
+        padding: 0 3px;
+    }
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .text-center {

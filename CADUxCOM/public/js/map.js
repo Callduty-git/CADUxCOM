@@ -25,7 +25,7 @@ class MapManager {
             userZoom: 14,
             maxZoom: 18,
             minZoom: 6,
-            apiKey: window.googleMapsApiKey || 'YOUR_API_KEY',
+            apiKey: window.googleMapsApiKey || 'AIzaSyBMDPpV5x-_Xl-ekz1kg48nuD79NgTN8mU',
             // Configuración de clustering (nueva librería oficial)
             clusterOptions: {
                 // Usamos configuración por defecto de @googlemaps/markerclusterer.
@@ -70,7 +70,7 @@ class MapManager {
      * Verificar si la API Key está configurada
      */
     checkApiKey() {
-        if (this.config.apiKey === 'YOUR_API_KEY' || !this.config.apiKey) {
+        if (!this.config.apiKey || this.config.apiKey === 'YOUR_API_KEY') {
             console.warn('Google Maps API Key no configurada correctamente');
             this.showApiKeyError();
             return;

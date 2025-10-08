@@ -1,0 +1,461 @@
+/* === NAVBAR CADUXCOM - DISEÑO NUEVO === */
+
+/* Variables CSS para colores CADUxCOM */
+:root {
+    --navbar-green-dark: #49874E;
+    --navbar-green-light: #89CF6D;
+    --navbar-purple: #AA5FC7;
+    --navbar-white: #FFFFFF;
+}
+
+/* Contenedor principal del navbar */
+.navbar-container {
+    position: fixed;
+    top: var(--header-h, 110px);
+    left: 0;
+    right: 0;
+    background-color: var(--navbar-green-dark);
+    color: var(--navbar-white);
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    z-index: 200;
+    overflow: visible;
+}
+
+/* Contenido del navbar */
+.navbar-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.8rem 2rem;
+    gap: 1rem;
+    position: relative;
+    overflow: visible;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Lista de categorías */
+.categories-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* Items de categoría */
+.category-item {
+    position: relative;
+    overflow: visible;
+}
+
+/* Enlaces de categoría */
+.category-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: var(--navbar-green-dark);
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 0.8rem;
+    color: var(--navbar-white);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.category-link:hover {
+    background-color: var(--navbar-green-light);
+    transform: translateY(-2px);
+}
+
+.category-item.active .category-link {
+    background-color: var(--navbar-purple);
+    color: var(--navbar-white);
+}
+
+/* Iconos de categoría */
+.category-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+/* Flecha del dropdown */
+.dropdown-arrow {
+    font-size: 0.7rem;
+    margin-left: 0.2rem;
+    transition: transform 0.3s ease;
+}
+
+.category-item.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* Dropdown de subcategorías */
+.subcategories-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--navbar-white);
+    color: var(--navbar-green-dark);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 250px;
+    max-width: 400px;
+    width: auto;
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    border: 1px solid rgba(73, 135, 78, 0.2);
+    margin-top: 4px;
+}
+
+.subcategories-dropdown.active {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Contenido del dropdown */
+.dropdown-content {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+/* Enlaces de subcategoría */
+.subcategory-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 6px;
+    color: var(--navbar-green-dark);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.subcategory-link:hover {
+    background-color: var(--navbar-green-light);
+    color: var(--navbar-white);
+    transform: translateX(4px);
+}
+
+/* Iconos de subcategoría */
+.subcategory-icon {
+    font-size: 1rem;
+}
+
+/* Enlaces adicionales */
+.additional-links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    overflow: visible;
+    justify-content: center;
+    width: 100%;
+}
+
+.additional-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: var(--navbar-green-dark);
+    color: var(--navbar-white);
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.additional-link:hover {
+    background-color: var(--navbar-green-light);
+    transform: translateY(-2px);
+}
+
+/* Iconos de enlaces adicionales */
+.link-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* === RESPONSIVE DESIGN === */
+
+/* Pantallas grandes (Desktop) */
+@media (min-width: 1200px) {
+    .navbar-content {
+        padding: 1rem 3rem;
+        gap: 1.2rem;
+    }
+
+    .categories-list {
+        gap: 0.8rem;
+    }
+
+    .category-link {
+        font-size: 1rem;
+        padding: 0.6rem 1rem;
+    }
+
+    .category-icon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .additional-link {
+        font-size: 1rem;
+        padding: 0.6rem 1rem;
+    }
+
+    .additional-links {
+        gap: 1.2rem;
+    }
+}
+
+/* Laptops y tablets grandes */
+@media (max-width: 1199px) and (min-width: 992px) {
+    .navbar-content {
+        padding: 0.8rem 2rem;
+        gap: 1rem;
+    }
+
+    .categories-list {
+        gap: 0.6rem;
+    }
+
+    .category-link {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.8rem;
+    }
+
+    .category-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .additional-link {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.8rem;
+    }
+
+    .additional-links {
+        gap: 1rem;
+    }
+}
+
+/* Tablets */
+@media (max-width: 991px) and (min-width: 769px) {
+    .navbar-content {
+        padding: 0.7rem 1.5rem;
+        gap: 0.8rem;
+    }
+
+    .categories-list {
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .category-link {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.7rem;
+    }
+
+    .category-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .additional-link {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.7rem;
+    }
+
+    .additional-links {
+        gap: 0.8rem;
+    }
+
+    .subcategories-dropdown {
+        min-width: 200px;
+        max-width: 300px;
+    }
+}
+
+/* Tablets pequeñas */
+@media (max-width: 768px) and (min-width: 601px) {
+    .navbar-content {
+        padding: 0.6rem 1.2rem;
+        gap: 0.7rem;
+    }
+
+    .categories-list {
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .category-link {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
+    }
+
+    .category-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .additional-link {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
+    }
+
+    .additional-links {
+        gap: 0.7rem;
+    }
+
+    .subcategories-dropdown {
+        min-width: 180px;
+        max-width: 280px;
+    }
+}
+
+/* Móviles grandes */
+@media (max-width: 600px) and (min-width: 481px) {
+    .navbar-content {
+        padding: 0.5rem 1rem;
+        gap: 0.6rem;
+    }
+
+    .categories-list {
+        gap: 0.3rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .category-link {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.5rem;
+    }
+
+    .category-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .additional-link {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.5rem;
+    }
+
+    .additional-links {
+        gap: 0.6rem;
+    }
+
+    .subcategories-dropdown {
+        min-width: 160px;
+        max-width: 250px;
+    }
+}
+
+/* Móviles */
+@media (max-width: 480px) and (min-width: 361px) {
+    .navbar-content {
+        padding: 0.4rem 0.8rem;
+        gap: 0.5rem;
+    }
+
+    .categories-list {
+        gap: 0.25rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .category-link {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.4rem;
+    }
+
+    .category-icon {
+        width: 14px;
+        height: 14px;
+    }
+
+    .additional-link {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.4rem;
+    }
+
+    .additional-links {
+        gap: 0.5rem;
+    }
+
+    .subcategories-dropdown {
+        min-width: 140px;
+        max-width: 220px;
+    }
+
+    .subcategory-link {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.4rem;
+    }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 360px) {
+    .navbar-content {
+        padding: 0.3rem 0.6rem;
+        gap: 0.4rem;
+    }
+
+    .categories-list {
+        gap: 0.2rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .category-link {
+        font-size: 0.65rem;
+        padding: 0.25rem 0.3rem;
+    }
+
+    .category-icon {
+        width: 12px;
+        height: 12px;
+    }
+
+    .additional-link {
+        font-size: 0.65rem;
+        padding: 0.25rem 0.3rem;
+    }
+
+    .additional-links {
+        gap: 0.4rem;
+    }
+
+    .subcategories-dropdown {
+        min-width: 120px;
+        max-width: 200px;
+    }
+
+    .subcategory-link {
+        font-size: 0.65rem;
+        padding: 0.25rem 0.3rem;
+    }
+}

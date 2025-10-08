@@ -2,10 +2,10 @@
 
 /* Variables CSS para colores corporativos CADUxCOM */
 :root {
-    --primary-color: #90D575;      /* Verde principal */
-    --secondary-color: #AA5FC7;    /* Morado */
-    --accent-color: #49874E;       /* Verde oscuro */
-    --white-color: #FFFFFF;        /* Blanco */
+    --primary-color: #89CF6D;      /* Verde claro CADUxCOM */
+    --secondary-color: #AA5FC7;    /* Morado acento CADUxCOM */
+    --accent-color: #49874E;       /* Verde oscuro CADUxCOM */
+    --white-color: #FFFFFF;        /* Blanco CADUxCOM */
     --success-color: #10b981;
     --warning-color: #f59e0b;
     --error-color: #ef4444;

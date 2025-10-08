@@ -39,7 +39,9 @@ function toggleFavorites(productId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.cartManager.showNotification(data.message, 'success');
+            // Mostrar notificación única usando el sistema unificado
+            const notificationType = data.is_in_wishlist ? 'success' : 'info';
+            window.cartManager.showNotification(data.message, notificationType);
             updateWishlistCount();
             // Cambiar el estado del ícono de favorito
             const btn = document.getElementById(`favorites-btn-${productId}`);

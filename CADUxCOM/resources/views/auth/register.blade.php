@@ -40,11 +40,11 @@
 
             <!-- Selector de Rol -->
             <div class="role-selector">
-                <button type="button" id="btn-usuario" class="selected">
+                <button type="button" id="btn-usuario" class="selected" onclick="switchToUsuario()">
                     <i class="fas fa-user"></i>
                     Usuario
                 </button>
-                <button type="button" id="btn-empresa">
+                <button type="button" id="btn-empresa" onclick="switchToEmpresa()">
                     <i class="fas fa-building"></i>
                     Empresa
                 </button>
@@ -71,6 +71,9 @@
                         Email de acceso
                     </label>
                     <input id="email" type="email" name="email" value="{{ old('email') }}" autocomplete="username" placeholder="ejemplo@correo.com">
+                    @error('email')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
             </div>
 
@@ -87,7 +90,10 @@
                             <i class="fas fa-map-marker-alt"></i>
                             Dirección
                         </label>
-                        <input id="direccion" type="text" name="direccion" value="{{ old('direccion') }}" placeholder="Dirección de la empresa">
+                        <input id="direccion" type="text" name="direccion" value="{{ old('direccion') }}" placeholder="Dirección de la empresa" required>
+                        @error('direccion')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="input-group">
@@ -95,7 +101,10 @@
                             <i class="fas fa-city"></i>
                             Municipio
                         </label>
-                        <input id="municipio" type="text" name="municipio" value="{{ old('municipio') }}" placeholder="Municipio">
+                        <input id="municipio" type="text" name="municipio" value="{{ old('municipio') }}" placeholder="Municipio" required>
+                        @error('municipio')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
 
@@ -105,6 +114,9 @@
                         Ubicación (dirección o coordenadas)
                     </label>
                     <input id="ubicacion" type="text" name="ubicacion" value="{{ old('ubicacion') }}" placeholder="Ubicación específica">
+                    @error('ubicacion')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="input-row">
@@ -113,7 +125,10 @@
                             <i class="fas fa-phone"></i>
                             Número de contacto
                         </label>
-                        <input id="contacto" type="text" name="contacto" value="{{ old('contacto') }}" placeholder="Teléfono de contacto">
+                        <input id="contacto" type="text" name="contacto" value="{{ old('contacto') }}" placeholder="Teléfono de contacto" required>
+                        @error('contacto')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="input-group">
@@ -121,7 +136,10 @@
                             <i class="fas fa-envelope-open"></i>
                             Email de empresa
                         </label>
-                        <input id="email_empresa" type="email" name="email_empresa" value="{{ old('email_empresa') }}" placeholder="contacto@empresa.com">
+                        <input id="email_empresa" type="email" name="email_empresa" value="{{ old('email_empresa') }}" placeholder="contacto@empresa.com" required>
+                        @error('email_empresa')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
 
@@ -130,7 +148,10 @@
                         <i class="fas fa-id-card"></i>
                         NIT
                     </label>
-                    <input id="nit" type="text" name="nit" value="{{ old('nit') }}" placeholder="Número de identificación tributaria">
+                    <input id="nit" type="text" name="nit" value="{{ old('nit') }}" placeholder="Número de identificación tributaria" required>
+                    @error('nit')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="files-section">
@@ -145,7 +166,10 @@
                                 Certificado cámara y comercio
                                 <span class="file-info">PDF, JPG o PNG</span>
                             </label>
-                            <input id="certificado" type="file" name="certificado_camara_de_comercio" accept=".pdf,.jpg,.png">
+                            <input id="certificado" type="file" name="certificado_camara_de_comercio" accept=".pdf,.jpg,.png" required>
+                            @error('certificado_camara_de_comercio')
+                                <span class="error-message">{{ $message }}</span>
+                            @enderror
                             <div id="certificado-preview" class="file-preview is-hidden">
                                 <div class="preview-header">
                                     <i class="fas fa-check-circle"></i>
@@ -167,7 +191,10 @@
                                 Foto empresa
                                 <span class="file-info">Imagen de la empresa</span>
                             </label>
-                            <input id="foto" type="file" name="foto" accept="image/*">
+                            <input id="foto" type="file" name="foto" accept="image/*" required>
+                            @error('foto')
+                                <span class="error-message">{{ $message }}</span>
+                            @enderror
                             <div id="foto-preview" class="file-preview is-hidden">
                                 <div class="preview-header">
                                     <i class="fas fa-check-circle"></i>
@@ -230,27 +257,38 @@
     </div>
 
     <script>
-        const usuarioBtn = document.getElementById('btn-usuario');
-        const empresaBtn = document.getElementById('btn-empresa');
-        const empresaFields = document.getElementById('empresa-fields');
-        const roleInput = document.getElementById('role');
+        // Función para cambiar a usuario
+        function switchToUsuario() {
+            console.log('Cambiando a usuario');
+            const empresaFields = document.getElementById('empresa-fields');
+            const roleInput = document.getElementById('role');
+            const usuarioBtn = document.getElementById('btn-usuario');
+            const empresaBtn = document.getElementById('btn-empresa');
+            
+            if (empresaFields) empresaFields.style.display = 'none';
+            if (usuarioBtn) usuarioBtn.classList.add('selected');
+            if (empresaBtn) empresaBtn.classList.remove('selected');
+            if (roleInput) roleInput.value = 'usuario';
+        }
 
-        usuarioBtn.addEventListener('click', () => {
-            empresaFields.style.display = 'none';
-            usuarioBtn.classList.add('selected');
-            empresaBtn.classList.remove('selected');
-            roleInput.value = 'usuario';
-        });
+        // Función para cambiar a empresa
+        function switchToEmpresa() {
+            console.log('Cambiando a empresa');
+            const empresaFields = document.getElementById('empresa-fields');
+            const roleInput = document.getElementById('role');
+            const usuarioBtn = document.getElementById('btn-usuario');
+            const empresaBtn = document.getElementById('btn-empresa');
+            
+            if (empresaFields) empresaFields.style.display = 'block';
+            if (empresaBtn) empresaBtn.classList.add('selected');
+            if (usuarioBtn) usuarioBtn.classList.remove('selected');
+            if (roleInput) roleInput.value = 'empresa';
+        }
 
-        empresaBtn.addEventListener('click', () => {
-            empresaFields.style.display = 'block';
-            empresaBtn.classList.add('selected');
-            usuarioBtn.classList.remove('selected');
-            roleInput.value = 'empresa';
-        });
-
-        document.querySelector('form').addEventListener('submit', () => {
-            console.log("Rol enviado:", roleInput.value);
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM cargado, inicializando formulario');
+            switchToUsuario();
         });
 
         // Funciones para vista previa de archivos
@@ -263,7 +301,6 @@
             input.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (file) {
-                    // Mostrar información del archivo
                     const fileSize = (file.size / 1024 / 1024).toFixed(2);
                     info.innerHTML = `
                         <div class="file-details">
@@ -273,7 +310,6 @@
                         </div>
                     `;
 
-                    // Si es una imagen, mostrar vista previa
                     if (file.type.startsWith('image/')) {
                         const reader = new FileReader();
                         reader.onload = function(e) {
@@ -282,7 +318,6 @@
                         };
                         reader.readAsDataURL(file);
                     } else {
-                        // Para PDFs u otros archivos
                         imageContainer.innerHTML = `
                             <div class="file-icon">
                                 <i class="fas fa-file-pdf" style="font-size: 48px; color: #dc3545;"></i>
@@ -297,7 +332,6 @@
             });
         }
 
-        // Funciones para remover archivos
         function removeCertificado() {
             const input = document.getElementById('certificado');
             const preview = document.getElementById('certificado-preview');
@@ -312,8 +346,10 @@
             preview.style.display = 'none';
         }
 
-        // Configurar vistas previas
-        setupFilePreview('certificado', 'certificado-preview', 'certificado-info', 'certificado-image');
-        setupFilePreview('foto', 'foto-preview', 'foto-info', 'foto-image');
+        // Configurar vistas previas cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFilePreview('certificado', 'certificado-preview', 'certificado-info', 'certificado-image');
+            setupFilePreview('foto', 'foto-preview', 'foto-info', 'foto-image');
+        });
     </script>
 </x-guest-layout>

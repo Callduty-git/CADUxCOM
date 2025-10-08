@@ -29,77 +29,103 @@
 <link rel="stylesheet" href="{{ asset('css/wishlist-button.css') }}">
 
 <script>
+// Sistema de debounce para toggleWishlist
+let toggleDebounceTimer = null;
+const TOGGLE_DEBOUNCE_DELAY = 500; // 500ms de debounce para toggle
+
 function toggleWishlist(productId) {
-    const button = document.querySelector(`[data-product-id="${productId}"]`);
-    const icon = button.querySelector('.wishlist-icon');
-    
-    // Mostrar loading
-    button.style.opacity = '0.6';
-    button.style.pointerEvents = 'none';
-    
-    // Obtener token CSRF
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
-                     document.querySelector('input[name="_token"]')?.value;
-    
-    if (!csrfToken) {
-        console.error('CSRF token not found');
-        showNotification('Error de seguridad. Recarga la página.', 'error');
-        button.style.opacity = '1';
-        button.style.pointerEvents = 'auto';
-        return;
+    // Limpiar timer anterior si existe
+    if (toggleDebounceTimer) {
+        clearTimeout(toggleDebounceTimer);
     }
     
-    fetch('{{ route("wishlist.toggle") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-            product_id: productId
+    // Aplicar debounce para evitar múltiples llamadas
+    toggleDebounceTimer = setTimeout(() => {
+        const button = document.querySelector(`[data-product-id="${productId}"]`);
+        if (!button) return;
+        
+        const icon = button.querySelector('.wishlist-icon');
+        if (!icon) return;
+        
+        // Verificar si ya está procesando
+        if (button.dataset.processing === 'true') {
+            console.log('Toggle ya en proceso, ignorando');
+            return;
+        }
+        
+        // Marcar como procesando
+        button.dataset.processing = 'true';
+        
+        // Mostrar loading
+        button.style.opacity = '0.6';
+        button.style.pointerEvents = 'none';
+        
+        // Obtener token CSRF
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                         document.querySelector('input[name="_token"]')?.value;
+        
+        if (!csrfToken) {
+            console.error('CSRF token not found');
+            showNotification('Error de seguridad. Recarga la página.', 'error');
+            button.style.opacity = '1';
+            button.style.pointerEvents = 'auto';
+            button.dataset.processing = 'false';
+            return;
+        }
+        
+        fetch('{{ route("wishlist.toggle") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                product_id: productId
+            })
         })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Response:', data);
-        if (data.success) {
-            // Actualizar estado visual
-            if (data.is_in_wishlist) {
-                button.classList.add('active');
-                icon.classList.add('active');
-                icon.src = "{{ asset('images/heart-filled-icon.svg') }}";
-                button.title = 'Quitar de favoritos';
-            } else {
-                button.classList.remove('active');
-                icon.classList.remove('active');
-                icon.src = "{{ asset('images/heart-icon.svg') }}";
-                button.title = 'Agregar a favoritos';
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
-            // Actualizar contador en header
-            updateWishlistCount(data.wishlist_count);
-            
-            // Mostrar notificación con animación mejorada
-            showWishlistNotification(data.message, data.is_in_wishlist ? 'added' : 'removed');
-        } else {
-            showNotification(data.message, 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Error al actualizar favoritos', 'error');
-    })
-    .finally(() => {
-        // Restaurar estado del botón
-        button.style.opacity = '1';
-        button.style.pointerEvents = 'auto';
-    });
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response:', data);
+            if (data.success) {
+                // Actualizar estado visual
+                if (data.is_in_wishlist) {
+                    button.classList.add('active');
+                    icon.classList.add('active');
+                    icon.src = "{{ asset('images/heart-filled-icon.svg') }}";
+                    button.title = 'Quitar de favoritos';
+                } else {
+                    button.classList.remove('active');
+                    icon.classList.remove('active');
+                    icon.src = "{{ asset('images/heart-icon.svg') }}";
+                    button.title = 'Agregar a favoritos';
+                }
+                
+                // Actualizar contador en header
+                updateWishlistCount(data.wishlist_count);
+                
+                // Mostrar notificación con animación mejorada
+                showWishlistNotification(data.message, data.is_in_wishlist ? 'added' : 'removed');
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error al actualizar favoritos', 'error');
+        })
+        .finally(() => {
+            // Restaurar estado del botón
+            button.style.opacity = '1';
+            button.style.pointerEvents = 'auto';
+            button.dataset.processing = 'false';
+        });
+    }, TOGGLE_DEBOUNCE_DELAY);
 }
 
 function showLoginAlert() {
@@ -129,146 +155,64 @@ function updateWishlistCount(count) {
     }
 }
 
+// Sistema de debounce para notificaciones
+let notificationDebounceTimer = null;
+const NOTIFICATION_DEBOUNCE_DELAY = 100; // 100ms de debounce para notificaciones
+
 function showWishlistNotification(message, type = 'info') {
-    // Usar el sistema unificado si está disponible
-    if (window.cartManager && window.cartManager.showNotification && type !== 'added' && type !== 'removed' && type !== 'login') {
-        window.cartManager.showNotification(message, type);
-        return;
+    // Limpiar timer anterior si existe
+    if (notificationDebounceTimer) {
+        clearTimeout(notificationDebounceTimer);
     }
     
-    // Iconos descriptivos para cada tipo de acción
-    const icons = {
-        added: '💖',
-        removed: '💔',
-        login: '🔐',
-        success: '✅',
-        error: '❌',
-        info: 'ℹ️'
-    };
-    
-    // Colores corporativos
-    const colors = {
-        added: 'var(--color-green-dark)',
-        removed: 'var(--color-purple)',
-        login: 'var(--color-purple)',
-        success: 'var(--color-green-dark)',
-        error: '#e74c3c',
-        info: 'var(--color-purple)'
-    };
-    
-    // Crear contenedor de notificaciones si no existe
-    let container = document.getElementById('wishlist-notification-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'wishlist-notification-container';
-        container.style.cssText = `
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 400px;
-            width: 100%;
-            pointer-events: none;
-        `;
-        document.body.appendChild(container);
-    }
-    
-    // Crear elemento de notificación
-    const notification = document.createElement('div');
-    notification.className = `wishlist-notification wishlist-notification-${type}`;
-    
-    notification.innerHTML = `
-        <div class="wishlist-notification-content">
-            <div class="wishlist-notification-icon">${icons[type] || icons.info}</div>
-            <div class="wishlist-notification-body">
-                <span class="wishlist-notification-message">${message}</span>
-            </div>
-            <button class="wishlist-notification-close" onclick="this.closest('.wishlist-notification').remove()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        </div>
-        <div class="wishlist-notification-progress"></div>
-    `;
-    
-    // Estilos base
-    notification.style.cssText = `
-        position: relative;
-        background: linear-gradient(135deg, #ffffff 0%, #f8f5f8 100%);
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(73, 135, 78, 0.15);
-        border-left: 4px solid ${colors[type] || colors.info};
-        transform: translateX(100%);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        opacity: 0;
-        pointer-events: auto;
-        overflow: hidden;
-        backdrop-filter: blur(10px);
-    `;
-    
-    // Agregar al contenedor
-    container.appendChild(notification);
-    
-    // Animar entrada
-    requestAnimationFrame(() => {
-        notification.style.transform = 'translateX(0)';
-        notification.style.opacity = '1';
-    });
-    
-    // Barra de progreso
-    const progressBar = notification.querySelector('.wishlist-notification-progress');
-    progressBar.style.cssText = `
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 3px;
-        background: ${colors[type] || colors.info};
-        width: 100%;
-        transform: scaleX(1);
-        transform-origin: left;
-        transition: transform 4s linear;
-    `;
-    
-    // Iniciar animación de la barra de progreso
-    requestAnimationFrame(() => {
-        progressBar.style.transform = 'scaleX(0)';
-    });
-    
-    // Feedback táctil para dispositivos móviles
-    if (navigator.vibrate) {
-        if (type === 'added') {
-            navigator.vibrate([50, 30, 50]); // Vibración suave para agregar
-        } else if (type === 'removed') {
-            navigator.vibrate([100]); // Vibración simple para remover
-        } else if (type === 'login') {
-            navigator.vibrate([100, 50, 100]); // Vibración de alerta
+    // Aplicar debounce para evitar notificaciones duplicadas
+    notificationDebounceTimer = setTimeout(() => {
+        // Verificar si ya existe una notificación similar
+        const existingNotifications = document.querySelectorAll('.notification, .wishlist-notification');
+        const isDuplicate = Array.from(existingNotifications).some(notif => {
+            const messageElement = notif.querySelector('.notification-message, .wishlist-notification-message');
+            return messageElement && messageElement.textContent.trim() === message.trim();
+        });
+
+        if (isDuplicate) {
+            console.log('Notificación duplicada evitada:', message);
+            return;
         }
-    }
-    
-    // Auto-remover después de 4 segundos
-    setTimeout(() => {
-        notification.style.transform = 'translateX(100%)';
-        notification.style.opacity = '0';
-        setTimeout(() => {
-            if (notification.parentElement) {
-                notification.remove();
+
+        // Usar el sistema unificado de notificaciones si está disponible
+        if (window.cartManager && window.cartManager.showNotification) {
+            // Convertir tipos específicos de favoritos a tipos estándar
+            let notificationType = type;
+            if (type === 'added') {
+                notificationType = 'success';
+            } else if (type === 'removed') {
+                notificationType = 'info';
+            } else if (type === 'login') {
+                notificationType = 'info';
             }
-        }, 400);
-    }, 4000);
-    
-    // Hover para pausar la animación
-    notification.addEventListener('mouseenter', () => {
-        progressBar.style.animationPlayState = 'paused';
-    });
-    
-    notification.addEventListener('mouseleave', () => {
-        progressBar.style.animationPlayState = 'running';
-    });
+            
+            window.cartManager.showNotification(message, notificationType);
+            return;
+        }
+        
+        // Fallback: usar el sistema de notificaciones principal si está disponible
+        if (window.notificationSystem && window.notificationSystem.show) {
+            let notificationType = type;
+            if (type === 'added') {
+                notificationType = 'success';
+            } else if (type === 'removed') {
+                notificationType = 'info';
+            } else if (type === 'login') {
+                notificationType = 'info';
+            }
+            
+            window.notificationSystem.show(message, notificationType);
+            return;
+        }
+        
+        // Fallback final: notificación simple sin duplicación
+        console.log(`Wishlist notification: ${message} (${type})`);
+    }, NOTIFICATION_DEBOUNCE_DELAY);
 }
 
 function showNotification(message, type = 'info') {
@@ -337,19 +281,34 @@ function loadWishlistStatus() {
     });
 }
 
+// Sistema de debounce para evitar múltiples llamadas
+let wishlistDebounceTimer = null;
+const WISHLIST_DEBOUNCE_DELAY = 300; // 300ms de debounce
+
 // Cargar estado cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
     loadWishlistStatus();
     
-    // Event listeners para botones de wishlist
+    // Event listeners para botones de wishlist con debounce
     document.querySelectorAll('.wishlist-btn[data-product-id]').forEach(button => {
-        button.addEventListener('click', function() {
-            const productId = this.getAttribute('data-product-id');
-            if (this.classList.contains('disabled')) {
-                showLoginAlert();
-            } else {
-                toggleWishlist(productId);
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Limpiar timer anterior si existe
+            if (wishlistDebounceTimer) {
+                clearTimeout(wishlistDebounceTimer);
             }
+            
+            // Aplicar debounce
+            wishlistDebounceTimer = setTimeout(() => {
+                const productId = this.getAttribute('data-product-id');
+                if (this.classList.contains('disabled')) {
+                    showLoginAlert();
+                } else {
+                    toggleWishlist(productId);
+                }
+            }, WISHLIST_DEBOUNCE_DELAY);
         });
     });
 });

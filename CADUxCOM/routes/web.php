@@ -103,6 +103,7 @@ Route::get('/empresa/logs', [LogEmpresaController::class, 'index'])
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/productos', [ProductoController::class, 'publicIndex'])->name('productos.public.index');
 Route::get('/producto/{id}', [ProductoController::class, 'userShow'])->name('productos.user.show');
+Route::get('/productos/subcategoria/{subcategoria}', [ProductoController::class, 'bySubcategory'])->name('productos.by-subcategory');
 
 // Rutas adicionales para productos (compatibilidad) - ORDEN IMPORTANTE: específicas antes que genéricas
 Route::get('/productos/index', [ProductoController::class, 'index'])->name('productos.index');
@@ -204,6 +205,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Mapa de ofertas
+    Route::get('/offers-map', [App\Http\Controllers\OffersMapController::class, 'index'])->name('offers.map');
+    Route::post('/api/search-nearby', [App\Http\Controllers\OffersMapController::class, 'searchNearby'])->name('api.search.nearby');
 
     // Órdenes
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');

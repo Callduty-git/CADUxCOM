@@ -170,7 +170,7 @@ async function toggleWishlist(productId) {
     
     // Fallback: implementación local (mantener compatibilidad)
     try {
-        const response = await fetch('{{ route("wishlist.add") }}', {
+        const response = await fetch('{{ route("wishlist.toggle") }}', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json', 
@@ -183,11 +183,10 @@ async function toggleWishlist(productId) {
         
         if (data.success) {
             updateWishlistCount();
-            // Usar el sistema unificado de notificaciones si está disponible
-            if (window.showWishlistNotification) {
-                window.showWishlistNotification(data.message, data.action === 'added' ? 'added' : 'removed');
-            } else if (window.cartManager && window.cartManager.showNotification) {
-                window.cartManager.showNotification(data.message, 'success');
+            // Usar el sistema unificado de notificaciones
+            if (window.cartManager && window.cartManager.showNotification) {
+                const notificationType = data.is_in_wishlist ? 'success' : 'info';
+                window.cartManager.showNotification(data.message, notificationType);
             }
         } else {
             if (window.cartManager && window.cartManager.showNotification) {
