@@ -94,4 +94,12 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Producto::class, 'wishlists', 'user_id', 'product_id');
     }
+
+    /**
+     * Relación: Un usuario tiene muchos comentarios
+     */
+    public function comentarios()
+    {
+        return $this->hasMany(Comentario::class);
+    }
 }

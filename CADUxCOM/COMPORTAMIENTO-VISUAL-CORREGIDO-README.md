@@ -173,3 +173,4 @@ dropdown.style.minWidth = dropdownWidth + 'px';
 **El comportamiento visual de los menús desplegables está DEFINITIVAMENTE corregido. Los dropdowns ahora se muestran por encima de todos los elementos, con fondo sólido, diseño limpio y comportamiento completamente responsivo.**
 
 
+

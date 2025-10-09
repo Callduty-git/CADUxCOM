@@ -202,4 +202,20 @@ class Producto extends Model
 
         return "Ahorras \${$amount} ({$percentage}%)";
     }
+
+    /**
+     * Relación: Un producto tiene muchos comentarios
+     */
+    public function comentarios(): HasMany
+    {
+        return $this->hasMany(Comentario::class, 'producto_id', 'Id_Producto');
+    }
+
+    /**
+     * Obtener comentarios principales del producto
+     */
+    public function comentariosPrincipales(): HasMany
+    {
+        return $this->comentarios()->mainComments()->with(['replies', 'user', 'empresa'])->orderBy('created_at', 'desc');
+    }
 }

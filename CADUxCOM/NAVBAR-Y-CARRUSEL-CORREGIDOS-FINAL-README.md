@@ -163,3 +163,4 @@ categoryLinks.forEach(function(link) {
 **El navbar ahora funciona perfectamente en todos los dispositivos con un diseño moderno, limpio y completamente responsivo que mantiene la identidad visual de CADUxCOM.**
 
 
+

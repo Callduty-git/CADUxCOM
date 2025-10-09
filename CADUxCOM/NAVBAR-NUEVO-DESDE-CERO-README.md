@@ -178,3 +178,4 @@ categoryLinks.forEach(function(link) {
 **Los dropdowns ahora se muestran correctamente debajo de cada categoría, sin salirse de la pantalla, con un diseño limpio y funcional.**
 
 
+

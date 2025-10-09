@@ -66,3 +66,4 @@ He aumentado significativamente los márgenes superiores del carrusel para garan
 El carrusel ahora tiene suficiente espacio superior para aparecer completamente visible debajo del navbar en todos los tamaños de pantalla, sin excepción.
 
 
+

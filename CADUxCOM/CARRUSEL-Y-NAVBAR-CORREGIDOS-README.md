@@ -157,3 +157,4 @@ if (windowWidth <= 768) {
 El proyecto ahora tiene un carrusel perfectamente centrado y menús desplegables que funcionan de manera impecable en todos los tamaños de pantalla.
 
 
+

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/user-details.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/comentarios.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -151,6 +152,13 @@
                 </div>
             </div>
         </main>
+
+        {{-- Sistema de Comentarios --}}
+        <section class="py-8 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <x-comentarios :producto="$producto" />
+            </div>
+        </section>
 
         <x-footer />
     </div>

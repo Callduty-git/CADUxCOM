@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/user-details.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/comentarios.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- JavaScript del carrito -->
@@ -194,11 +195,7 @@
 
                 <!-- Reseñas -->
                 <div id="reviews" class="tab-panel">
-                    <h3>Reseñas de Clientes</h3>
-                    <div class="reviews-placeholder">
-                        <p>Las reseñas estarán disponibles próximamente.</p>
-                        <p>¡Sé el primero en dejar tu opinión sobre este producto!</p>
-                    </div>
+                    <x-comentarios :producto="$producto" />
                 </div>
             </div>
         </div>

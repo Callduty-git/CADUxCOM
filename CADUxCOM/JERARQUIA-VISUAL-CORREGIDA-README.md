@@ -160,3 +160,4 @@ if (windowWidth <= 768) {
 **El problema de jerarquía visual está DEFINITIVAMENTE solucionado. Los menús desplegables ahora se superponen completamente a todos los elementos del navbar, sin mostrar ningún texto o ícono detrás.**
 
 
+

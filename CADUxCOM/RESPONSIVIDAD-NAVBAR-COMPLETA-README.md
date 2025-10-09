@@ -117,3 +117,4 @@
 **La responsividad está completamente optimizada sin afectar la funcionalidad de los dropdowns que ya funcionan perfectamente.**
 
 
+

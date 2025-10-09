@@ -70,3 +70,4 @@
 **El carrusel ahora se ve perfectamente separado del navbar, con un espaciado visual adecuado y profesional en todas las resoluciones de pantalla.**
 
 
+

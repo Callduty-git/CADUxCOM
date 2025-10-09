@@ -219,4 +219,12 @@ class Empresa extends Authenticatable
             'location_updated_at' => now(),
         ]);
     }
+
+    /**
+     * Relación: Una empresa tiene muchos comentarios
+     */
+    public function comentarios(): HasMany
+    {
+        return $this->hasMany(Comentario::class, 'empresa_id', 'Id_Empresa');
+    }
 }

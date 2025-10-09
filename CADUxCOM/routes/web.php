@@ -11,6 +11,7 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ComentarioController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\EmpresaDashboardController;
@@ -299,4 +300,27 @@ Route::middleware('guest:empresa')->group(function () {
 | Auth Breeze
 |--------------------------------------------------------------------------
 */
+Route::get('/test-comentarios', function () {
+    return view('test-comentarios');
+});
+
+/*
+||--------------------------------------------------------------------------
+|| Sistema de Comentarios
+||--------------------------------------------------------------------------
+*/
+Route::prefix('comentarios')->name('comentarios.')->group(function () {
+    // Mostrar comentarios de un producto (público)
+    Route::get('/producto/{productoId}', [ComentarioController::class, 'show'])->name('show');
+    
+    // Crear comentario o respuesta (requiere autenticación)
+    Route::post('/', [ComentarioController::class, 'store'])->name('store');
+    
+    // Actualizar comentario (requiere autenticación)
+    Route::put('/{id}', [ComentarioController::class, 'update'])->name('update');
+    
+    // Eliminar comentario (requiere autenticación)
+    Route::delete('/{id}', [ComentarioController::class, 'destroy'])->name('destroy');
+});
+
 require __DIR__ . '/auth.php';

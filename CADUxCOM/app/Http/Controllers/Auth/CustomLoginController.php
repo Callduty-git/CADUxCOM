@@ -11,8 +11,13 @@ use Illuminate\Support\Str;
 
 class CustomLoginController extends Controller
 {
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
+        // Guardar la URL de redirección si se proporciona
+        if ($request->has('redirect')) {
+            session(['url.intended' => $request->get('redirect')]);
+        }
+        
         return view('auth.login'); // Vista unificada para login
     }
 
