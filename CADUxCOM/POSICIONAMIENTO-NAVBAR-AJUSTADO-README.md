@@ -103,3 +103,4 @@
 
 **Los elementos del navbar ahora se ven centrados y con un espaciado uniforme, manteniendo toda la funcionalidad de los menús desplegables.**
 
+

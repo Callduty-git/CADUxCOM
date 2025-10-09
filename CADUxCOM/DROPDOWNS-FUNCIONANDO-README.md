@@ -132,3 +132,4 @@ console.log('Dropdown opacity:', window.getComputedStyle(dropdown).opacity);
 
 **El problema de que los dropdowns no se mostraban está completamente solucionado. Ahora funcionan con un enfoque simple y efectivo.**
 
+

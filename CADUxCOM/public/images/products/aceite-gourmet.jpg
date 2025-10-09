@@ -1,0 +1,5 @@
+<!-- Imagen de prueba simple -->
+<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" fill="#89CF6D"/>
+  <text x="50" y="50" text-anchor="middle" dy=".3em" fill="white" font-family="Arial" font-size="10">Aceite</text>
+</svg>

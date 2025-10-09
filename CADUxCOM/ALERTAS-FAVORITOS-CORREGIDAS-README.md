@@ -132,3 +132,4 @@ if (isDuplicate) {
 
 **Las alertas de favoritos ahora son únicas, coherentes y funcionan perfectamente sin duplicaciones.**
 
+

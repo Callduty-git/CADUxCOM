@@ -188,3 +188,4 @@ button.addEventListener('click', function(e) {
 
 **Las alertas de favoritos en el home ahora son únicas, coherentes y funcionan perfectamente sin duplicaciones, incluso con clics rápidos o múltiples interacciones.**
 
+

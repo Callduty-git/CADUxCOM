@@ -150,3 +150,4 @@ if (spaceBelow < dropdownHeight && categoryRect.top > dropdownHeight) {
 
 **El problema del dropdown de "Congelados" que se cortaba por el borde derecho está completamente solucionado, así como todos los demás problemas de responsividad identificados en las imágenes.**
 
+

@@ -131,3 +131,4 @@ if (cartBadge) {
 
 El sistema de carrito ahora es completamente automático y la página del carrito tiene una experiencia optimizada sin el navbar, proporcionando más espacio y mejor usabilidad.
 
+

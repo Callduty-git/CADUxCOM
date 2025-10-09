@@ -30,6 +30,59 @@ class EmpresaController extends Controller
     }
 
     /**
+     * Mostrar empresa pública (para usuarios no autenticados)
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
+    public function publicShow($id)
+    {
+        try {
+            // Buscar la empresa por ID
+            $empresa = Empresa::findOrFail($id);
+            
+            // Verificar que la empresa esté aprobada
+            if ($empresa->status !== 'approved') {
+                abort(404, 'Empresa no disponible');
+            }
+            
+            // Obtener productos de la empresa con información de descuento
+            $productos = Producto::where('Id_Empresa', $empresa->Id_Empresa)
+                ->where('Cantidad', '>', 0)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($producto) {
+                    $discountInfo = $producto->getDiscountInfo();
+                    return [
+                        'id' => $producto->Id_Producto,
+                        'name' => $producto->Nombre,
+                        'price' => $producto->Precio,
+                        'discounted_price' => $discountInfo['discounted_price'],
+                        'has_discount' => $discountInfo['has_discount'],
+                        'discount_percentage' => $discountInfo['discount_percentage'],
+                        'expiry_status' => $discountInfo['expiry_status'],
+                        'expiry_label' => $discountInfo['expiry_label'],
+                        'days_until_expiry' => $discountInfo['days_until_expiry'],
+                        'image' => $producto->Foto ? asset('storage/' . $producto->Foto) : asset('images/default-product.png'),
+                        'description' => $producto->Descripcion,
+                        'quantity' => $producto->Cantidad,
+                        'category' => $producto->categoria ? $producto->categoria->Nombre : 'Sin categoría'
+                    ];
+                });
+            
+            return view('empresa.public-show', compact('empresa', 'productos'));
+            
+        } catch (\Exception $e) {
+            Log::error('Error mostrando empresa pública', [
+                'empresa_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+            
+            abort(404, 'Empresa no encontrada');
+        }
+    }
+
+    /**
      * Eliminar la cuenta de la empresa autenticada.
      *
      * @param \Illuminate\Http\Request $request

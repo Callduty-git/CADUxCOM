@@ -105,6 +105,9 @@ Route::get('/productos', [ProductoController::class, 'publicIndex'])->name('prod
 Route::get('/producto/{id}', [ProductoController::class, 'userShow'])->name('productos.user.show');
 Route::get('/productos/subcategoria/{subcategoria}', [ProductoController::class, 'bySubcategory'])->name('productos.by-subcategory');
 
+// Ruta pública para ver empresas
+Route::get('/empresa/{id}', [App\Http\Controllers\EmpresaController::class, 'publicShow'])->name('empresa.public.show');
+
 // Rutas adicionales para productos (compatibilidad) - ORDEN IMPORTANTE: específicas antes que genéricas
 Route::get('/productos/index', [ProductoController::class, 'index'])->name('productos.index');
 Route::get('/productos/create', [ProductoController::class, 'create'])->name('productos.create');
@@ -226,7 +229,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 | Geolocalización y educación
 |--------------------------------------------------------------------------
 */
-Route::get('/mapa', [GeolocationController::class, 'map'])->name('mapa');
+Route::get('/mapa', [App\Http\Controllers\OffersMapController::class, 'index'])->name('mapa');
 Route::get('/educacion', [EducationController::class, 'index'])->name('education.index');
 Route::get('/educacion/calculadora', [EducationController::class, 'impactCalculator'])->name('education.calculator');
 Route::post('/educacion/calcular-impacto', [EducationController::class, 'calculateImpact'])->name('education.calculate-impact');

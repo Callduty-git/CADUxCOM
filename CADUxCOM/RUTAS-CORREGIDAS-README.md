@@ -57,3 +57,4 @@ Route::get('/educacion', [EducationController::class, 'index'])->name('education
 
 **El error de ruta inexistente ha sido corregido y el navbar funciona perfectamente.**
 
+

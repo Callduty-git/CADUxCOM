@@ -167,3 +167,4 @@
 
 **El resultado es una interfaz completamente funcional donde los menús desplegables se muestran por encima de todos los elementos, sin ningún texto o ícono visible detrás, en todos los tamaños de pantalla.**
 
+

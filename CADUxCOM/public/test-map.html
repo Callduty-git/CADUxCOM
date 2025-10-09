@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Mapa - CADUxCOM</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .map-container {
+            height: 500px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .btn {
+            background: #89CF6D;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #49874E;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Prueba del Mapa CADUxCOM</h1>
+        
+        <div id="status-container">
+            <div class="status info">Iniciando pruebas...</div>
+        </div>
+        
+        <div>
+            <button class="btn" onclick="testGoogleMaps()">Probar Google Maps</button>
+            <button class="btn" onclick="testData()">Probar Datos</button>
+            <button class="btn" onclick="testMapInit()">Probar Inicialización</button>
+        </div>
+        
+        <div id="map" class="map-container"></div>
+        
+        <div id="debug-info">
+            <h3>Información de Debug:</h3>
+            <pre id="debug-output"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Simular datos de empresas
+        window.empresasData = [
+            {
+                id: 1,
+                name: 'Supermercado CADUxCOM Neiva',
+                address: 'Carrera 5 #15-20, Neiva, Huila',
+                coordinates: { lat: 2.9271, lng: -75.2819 },
+                products_count: 15,
+                discounted_products_count: 8,
+                products: [
+                    {
+                        id: 1,
+                        name: 'Arroz Diana 500g',
+                        price: 2500,
+                        discounted_price: 2000,
+                        discount_percentage: 20,
+                        has_discount: true,
+                        image: '/images/products/arroz-diana.jpg',
+                        category_id: 1
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: 'Tienda CADUxCOM Pitalito',
+                address: 'Calle 10 #8-15, Pitalito, Huila',
+                coordinates: { lat: 1.8536, lng: -76.0508 },
+                products_count: 12,
+                discounted_products_count: 5,
+                products: []
+            }
+        ];
+        
+        window.googleMapsApiKey = "AIzaSyBMDPpV5x-_Xl-ekz1kg48nuD79NgTN8mU";
+        
+        function addStatus(message, type = 'info') {
+            const container = document.getElementById('status-container');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            container.appendChild(div);
+        }
+        
+        function updateDebug(info) {
+            document.getElementById('debug-output').textContent = JSON.stringify(info, null, 2);
+        }
+        
+        function testGoogleMaps() {
+            addStatus('Probando Google Maps API...', 'info');
+            
+            if (typeof google !== 'undefined' && google.maps) {
+                addStatus('✅ Google Maps API está disponible', 'success');
+                updateDebug({
+                    googleMaps: 'disponible',
+                    version: google.maps.version || 'desconocida'
+                });
+            } else {
+                addStatus('❌ Google Maps API no está disponible', 'error');
+                updateDebug({
+                    googleMaps: 'no disponible',
+                    error: 'google no está definido'
+                });
+            }
+        }
+        
+        function testData() {
+            addStatus('Probando datos de empresas...', 'info');
+            
+            if (window.empresasData && Array.isArray(window.empresasData)) {
+                addStatus(`✅ Datos de empresas cargados: ${window.empresasData.length} empresas`, 'success');
+                updateDebug({
+                    empresas: window.empresasData.length,
+                    data: window.empresasData
+                });
+            } else {
+                addStatus('❌ No se encontraron datos de empresas', 'error');
+                updateDebug({
+                    empresas: 'no disponible',
+                    error: 'window.empresasData no está definido'
+                });
+            }
+        }
+        
+        function testMapInit() {
+            addStatus('Probando inicialización del mapa...', 'info');
+            
+            try {
+                if (typeof google !== 'undefined' && google.maps) {
+                    const map = new google.maps.Map(document.getElementById('map'), {
+                        zoom: 8,
+                        center: { lat: 2.9271, lng: -75.2819 },
+                        mapTypeId: 'roadmap'
+                    });
+                    
+                    // Agregar marcadores de prueba
+                    window.empresasData.forEach(empresa => {
+                        new google.maps.Marker({
+                            position: empresa.coordinates,
+                            map: map,
+                            title: empresa.name
+                        });
+                    });
+                    
+                    addStatus('✅ Mapa inicializado correctamente', 'success');
+                    updateDebug({
+                        mapInit: 'exitoso',
+                        markers: window.empresasData.length
+                    });
+                } else {
+                    addStatus('❌ No se puede inicializar el mapa - Google Maps no disponible', 'error');
+                }
+            } catch (error) {
+                addStatus(`❌ Error inicializando mapa: ${error.message}`, 'error');
+                updateDebug({
+                    mapInit: 'error',
+                    error: error.message
+                });
+            }
+        }
+        
+        // Cargar Google Maps
+        function loadGoogleMaps() {
+            return new Promise((resolve, reject) => {
+                if (typeof google !== 'undefined' && google.maps) {
+                    resolve();
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${window.googleMapsApiKey}&libraries=places,geometry&callback=initMapCallback`;
+                script.async = true;
+                script.defer = true;
+                
+                window.initMapCallback = () => {
+                    resolve();
+                    delete window.initMapCallback;
+                };
+                
+                script.onerror = () => {
+                    reject(new Error('Error cargando Google Maps API'));
+                };
+                
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Inicializar cuando la página cargue
+        document.addEventListener('DOMContentLoaded', async () => {
+            addStatus('Página cargada, iniciando pruebas automáticas...', 'info');
+            
+            try {
+                await loadGoogleMaps();
+                addStatus('✅ Google Maps API cargado exitosamente', 'success');
+                
+                // Ejecutar pruebas automáticas
+                setTimeout(() => {
+                    testGoogleMaps();
+                    testData();
+                    testMapInit();
+                }, 1000);
+                
+            } catch (error) {
+                addStatus(`❌ Error cargando Google Maps: ${error.message}`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

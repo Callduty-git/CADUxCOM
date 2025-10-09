@@ -268,3 +268,4 @@ class OffersMapController extends Controller
         return $earthRadius * $c;
     }
 }
+
