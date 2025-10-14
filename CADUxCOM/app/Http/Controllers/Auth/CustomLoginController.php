@@ -54,7 +54,7 @@ class CustomLoginController extends Controller
 
             $request->session()->regenerate();
 
-            // Validar redirección segura
+            // Redirigir usuarios a home.blade
             $intended = session('url.intended');
             if ($intended && $this->isSafeRedirect($intended)) {
                 return redirect()->intended(route('home'));
@@ -99,7 +99,7 @@ class CustomLoginController extends Controller
 
             $request->session()->regenerate();
 
-            // Redirección segura
+            // Redirigir empresas a dashboard.blade
             $intended = session('url.intended');
             if ($intended && $this->isSafeRedirect($intended)) {
                 return redirect()->intended(route('empresa.dashboard'));

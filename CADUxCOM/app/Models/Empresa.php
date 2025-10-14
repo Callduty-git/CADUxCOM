@@ -28,6 +28,7 @@ class Empresa extends Authenticatable
         'Ubicacion',
         'Contacto',
         'email',
+        'email_empresa',
         'NIT',
         'Certificado_Camara_de_comercio',
         'password',

@@ -281,13 +281,7 @@
                         Guarda productos para comprar después
                     </div>
                 </div>
-                <div class="feature">
-                    <div class="feature-icon">🎫</div>
-                    <div class="feature-title">Cupones de Descuento</div>
-                    <div class="feature-description">
-                        Aprovecha nuestras promociones especiales
-                    </div>
-                </div>
+
                 <div class="feature">
                     <div class="feature-icon">⭐</div>
                     <div class="feature-title">Reseñas y Calificaciones</div>

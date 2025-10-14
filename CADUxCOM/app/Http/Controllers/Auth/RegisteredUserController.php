@@ -51,7 +51,8 @@ class RegisteredUserController extends Controller
             ];
         } elseif ($request->role === 'empresa') {
             $additionalRules = [
-                'email_empresa' => ['required', 'string', 'email', 'max:255', 'unique:empresas,email'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:empresas,email'],
+                'email_empresa' => ['required', 'string', 'email', 'max:255', 'unique:empresas,email_empresa'],
                 'direccion' => ['required', 'string', 'max:255'],
                 'municipio' => ['required', 'string', 'max:255'],
                 'ubicacion' => ['nullable', 'string', 'max:255'],
@@ -119,7 +120,8 @@ class RegisteredUserController extends Controller
                 'Municipio' => $request->municipio,
                 'Ubicacion' => $request->ubicacion,
                 'Contacto' => $request->contacto,
-                'email' => $request->email_empresa,
+                'email' => $request->email, // Email de acceso para login
+                'email_empresa' => $request->email_empresa, // Email de contacto comercial
                 'NIT' => $request->nit,
                 'Certificado_Camara_de_comercio' => $certificadoPath,
                 'password' => Hash::make($request->password),

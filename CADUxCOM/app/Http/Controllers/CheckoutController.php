@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Producto;
-use App\Models\Coupon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,8 +12,6 @@ use Illuminate\Support\Facades\Session;
 
 /**
  * Controlador CheckoutController - Maneja el proceso de checkout y creación de órdenes
- * 
- * Fusionado: incluye manejo de cupones, IVA, envío dinámico y validaciones completas.
  */
 class CheckoutController extends Controller
 {
@@ -48,7 +45,7 @@ class CheckoutController extends Controller
             }
 
             $quantity = max(1, (int)($cartItem['quantity'] ?? 1));
-            
+
             // Verificar stock
             if ($product->Cantidad < $quantity) {
                 $cartErrors[] = "Solo hay {$product->Cantidad} unidades disponibles de {$product->Nombre}";
@@ -78,26 +75,7 @@ class CheckoutController extends Controller
         $tax = $subtotal * 0.19; // IVA 19%
         $shipping = $subtotal > 100000 ? 0 : 5000; // Envío gratis sobre $100,000
 
-        // Aplicar cupón si existe
-        $appliedCoupon = Session::get('applied_coupon');
-        $couponDiscount = 0;
-        $freeShipping = false;
-
-        if ($appliedCoupon) {
-            $coupon = Coupon::byCode($appliedCoupon['code'])->valid()->first();
-            if ($coupon && $coupon->canBeAppliedToAmount($subtotal)) {
-                $couponDiscount = $appliedCoupon['discount'];
-                $freeShipping = $appliedCoupon['is_free_shipping'] ?? false;
-
-                if ($freeShipping) {
-                    $shipping = 0;
-                }
-            } else {
-                Session::forget('applied_coupon');
-            }
-        }
-
-        $total = $subtotal + $tax + $shipping - $couponDiscount;
+        $total = $subtotal + $tax + $shipping;
 
         // Datos del usuario autenticado
         $user = Auth::user();
@@ -111,9 +89,7 @@ class CheckoutController extends Controller
             'subtotal', 
             'tax', 
             'shipping', 
-            'couponDiscount', 
             'total', 
-            'appliedCoupon',
             'userData',
             'cartErrors'
         ));
@@ -211,23 +187,7 @@ class CheckoutController extends Controller
         $tax = $subtotal * 0.19;
         $shipping = $subtotal > 100000 ? 0 : 5000;
 
-        // Aplicar cupón
-        $appliedCoupon = Session::get('applied_coupon');
-        $couponDiscount = 0;
-        $couponCode = null;
-
-        if ($appliedCoupon) {
-            $coupon = Coupon::byCode($appliedCoupon['code'])->valid()->first();
-            if ($coupon && $coupon->canBeAppliedToAmount($subtotal)) {
-                $couponDiscount = $appliedCoupon['discount'];
-                $couponCode = $coupon->code;
-                if ($appliedCoupon['is_free_shipping'] ?? false) {
-                    $shipping = 0;
-                }
-            }
-        }
-
-        $total = $subtotal + $tax + $shipping - $couponDiscount;
+        $total = $subtotal + $tax + $shipping;
 
         try {
             DB::beginTransaction();
@@ -250,9 +210,9 @@ class CheckoutController extends Controller
                 'subtotal' => $subtotal,
                 'tax_amount' => $tax,
                 'shipping_amount' => $shipping,
-                'discount_amount' => $couponDiscount,
+                'discount_amount' => 0,
                 'total_amount' => $total,
-                'coupon_code' => $couponCode,
+                'coupon_code' => null,
                 'status' => Order::STATUS_PENDING,
                 'payment_method' => $request->payment_method,
                 'notes' => $request->notes,
@@ -270,17 +230,11 @@ class CheckoutController extends Controller
                 }
             }
 
-            // Incrementar uso del cupón si aplica
-            if ($couponCode) {
-                $coupon = Coupon::byCode($couponCode)->first();
-                if ($coupon) {
-                    $coupon->incrementUsage();
-                }
-            }
+
 
             DB::commit();
 
-            Session::forget(['cart', 'applied_coupon']);
+            Session::forget('cart');
 
             return redirect()->route('orders.show', $order->id)
                 ->with('success', '¡Orden creada exitosamente! Te hemos enviado un email de confirmación.');

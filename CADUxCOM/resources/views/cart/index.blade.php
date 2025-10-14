@@ -241,18 +241,7 @@
                                         Proceder al Checkout
                                     </a>
                                     
-                                    <!-- Cupón -->
-                                    <div class="mt-4">
-                                        <div class="flex space-x-2">
-                                            <input type="text" id="couponCode" placeholder="Código de cupón" 
-                                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-                                            <button onclick="applyCoupon()" 
-                                                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm">
-                                                Aplicar
-                                            </button>
-                                        </div>
-                                        <div id="couponMessage" class="mt-2 text-sm"></div>
-                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -363,41 +352,7 @@
         );
     }
 
-    function applyCoupon() {
-        const couponCode = document.getElementById('couponCode').value.trim();
-        const messageDiv = document.getElementById('couponMessage');
-        
-        if (!couponCode) {
-            messageDiv.innerHTML = '<span class="text-red-600">Ingresa un código de cupón</span>';
-            return;
-        }
-        
-        fetch('{{ route("coupons.apply") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                code: couponCode,
-                subtotal: {{ $subtotal }},
-                product_ids: [{{ collect($items)->pluck('product.Id_Producto')->implode(',') }}]
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                messageDiv.innerHTML = '<span class="text-green-600">✓ ' + data.message + '</span>';
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                messageDiv.innerHTML = '<span class="text-red-600">✗ ' + data.message + '</span>';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            messageDiv.innerHTML = '<span class="text-red-600">Error al aplicar el cupón</span>';
-        });
-    }
+
     </script>
 </body>
 </html>

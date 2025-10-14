@@ -19,7 +19,7 @@ body {
 .register-container,
 .login-container {
     width: 100%;
-    max-width: 450px;
+    max-width: 980px;
     position: relative;
     margin: 0 auto;
 }
@@ -260,7 +260,7 @@ body {
 
 .files-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 20px;
 }
 
@@ -271,6 +271,8 @@ body {
     text-align: center;
     transition: all 0.3s ease;
     background: #f8f9fa;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .file-upload:hover {
@@ -509,7 +511,7 @@ body {
     
     .register-container,
     .login-container {
-        max-width: 420px;
+        max-width: 900px;
     }
     
     .register-form {
@@ -525,6 +527,11 @@ body {
     .auth-container {
         padding: 16px;
         min-height: calc(100vh - 120px);
+    }
+    
+    .register-container,
+    .login-container {
+        max-width: 760px;
     }
     
     .register-form {
@@ -903,6 +910,75 @@ body {
     box-sizing: border-box;
 }
 
+/* Ajustes para las clases usadas en register.blade */
+.preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.preview-header > i { color: #28a745; }
+
+.remove-file {
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.preview-content {
+    display: flex;
+    flex-direction: column; /* apilar para evitar compresión */
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+}
+
+.file-info-display {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Evitar que el nombre de archivo se salga del cuadro */
+.file-info-display .file-details p {
+    margin: 4px 0;
+    max-width: 100%;
+    overflow-wrap: break-word; /* romper solo cuando sea necesario */
+    word-break: break-word;
+    white-space: normal; /* permite múltiples líneas */
+    display: block;
+}
+
+/* Imagen/ícono a la derecha manteniendo límites */
+.image-preview {
+    width: 100%;
+    max-width: 180px;
+    max-height: 140px;
+    object-fit: contain;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-icon { min-width: 120px; }
+
+@media (max-width: 640px) {
+    .image-preview { width: 100%; max-width: 100%; }
+}
+
 .file-preview-header {
     display: flex;
     justify-content: space-between;
@@ -1016,4 +1092,116 @@ body {
 .input-group textarea.error {
     border-color: #dc3545 !important;
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+/* =============================
+   Modal Términos y Condiciones
+   ============================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 9999;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-close {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #6c757d;
+    font-size: 18px;
+}
+
+.modal-body {
+    flex: 1;
+    overflow: hidden;
+}
+
+.modal-iframe {
+    width: 100%;
+    height: 70vh;
+    border: none;
+}
+
+.modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid #e9ecef;
+    background: #fff;
+}
+
+.modal-actions .btn {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+
+.modal-actions .btn-secondary {
+    background: linear-gradient(135deg, #49874E 0%, #89CF6D 100%);
+    color: #fff;
+}
+
+.modal-actions .btn-primary {
+    background: #e9ecef;
+    color: #2c3e50;
+}
+
+/* Estado oculto del overlay */
+.modal-overlay.is-hidden {
+    display: none !important;
+}
+
+/* Responsive del modal */
+@media (max-width: 768px) {
+    .modal-content {
+        max-width: 95vw;
+        max-height: 92vh;
+    }
+    .modal-iframe {
+        height: 65vh;
+    }
 }

@@ -17,7 +17,7 @@ class EmpresaDashboardController extends Controller
         $empresa = Auth::guard('empresa')->user();
         $productos = \App\Models\Producto::where('Id_Empresa', $empresa->Id_Empresa)->get();
 
-        return view('dashboard', compact('empresa', 'productos'));
+        return view('empresa.dashboard', compact('empresa', 'productos'));
     }
 
     /**

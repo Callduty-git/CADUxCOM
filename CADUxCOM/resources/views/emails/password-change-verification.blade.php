@@ -143,7 +143,7 @@
             
             <div style="text-align: center;">
                 <a href="{{ $verificationUrl }}" class="verify-button">
-                    🔐 Confirmar Cambio de Contraseña
+                    🔐 Cambiar Contraseña Ahora
                 </a>
             </div>
             

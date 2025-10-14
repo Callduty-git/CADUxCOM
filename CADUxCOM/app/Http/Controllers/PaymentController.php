@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Session as LaravelSession;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Producto;
-use App\Models\Coupon;
 use Stripe\Stripe;
 use Stripe\Checkout\Session as StripeSession;
 
@@ -86,25 +85,7 @@ class PaymentController extends Controller
         $tax = 0;
         $shipping = 0;
 
-        // Aplicar cupón si existe
-        $appliedCoupon = LaravelSession::get('applied_coupon');
-        $couponDiscount = 0;
-        $couponCode = null;
-        $freeShipping = false;
-
-        if ($appliedCoupon) {
-            $coupon = Coupon::byCode($appliedCoupon['code'])->valid()->first();
-            if ($coupon && $coupon->canBeAppliedToAmount($subtotal)) {
-                $couponDiscount = $appliedCoupon['discount'];
-                $couponCode = $coupon->code;
-                $freeShipping = $appliedCoupon['is_free_shipping'] ?? false;
-                // Envío ya es 0 por política actual
-            } else {
-                LaravelSession::forget('applied_coupon');
-            }
-        }
-
-        $total = $subtotal + $tax + $shipping - $couponDiscount;
+        $total = $subtotal + $tax + $shipping;
 
         // Preparar datos de facturación
         $billingData = $request->same_as_shipping ? [
@@ -142,10 +123,9 @@ class PaymentController extends Controller
                 'subtotal' => $subtotal,
                 'tax_amount' => $tax,
                 'shipping_amount' => $shipping,
-                'discount_amount' => $couponDiscount,
+                'discount_amount' => 0,
                 'total_amount' => $total,
-                'coupon_code' => $couponCode,
-                'coupon_discount' => $couponDiscount,
+                'coupon_code' => null,
                 'status' => Order::STATUS_PENDING,
                 'payment_method' => $request->payment_method,
                 'notes' => $request->notes,
@@ -180,7 +160,7 @@ class PaymentController extends Controller
                 ];
             }
 
-            // Agregar envío y descuentos como items separados si aplica
+            // Agregar envío como item separado si aplica
             if ($shipping > 0) {
                 $lineItems[] = [
                     'price_data' => [
@@ -189,18 +169,6 @@ class PaymentController extends Controller
                             'name' => 'Envío',
                         ],
                         'unit_amount' => (int) round($shipping * 100),
-                    ],
-                    'quantity' => 1,
-                ];
-            }
-            if ($couponDiscount > 0) {
-                $lineItems[] = [
-                    'price_data' => [
-                        'currency' => 'cop',
-                        'product_data' => [
-                            'name' => 'Descuento aplicado',
-                        ],
-                        'unit_amount' => (int) round($couponDiscount * -100),
                     ],
                     'quantity' => 1,
                 ];
@@ -247,8 +215,8 @@ class PaymentController extends Controller
                     'paid_at' => now(),
                 ]);
 
-                // Limpiar carrito y cupón aplicado
-                LaravelSession::forget(['cart', 'applied_coupon']);
+                // Limpiar carrito
+                LaravelSession::forget('cart');
             }
             return redirect()->route('orders.show', $orderId)->with('success', 'Pago confirmado. ¡Gracias por tu compra!');
         } catch (\Exception $e) {

@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Session as LaravelSession;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Producto;
-use App\Models\Coupon;
 
 class WompiController extends Controller
 {
@@ -95,21 +94,7 @@ class WompiController extends Controller
         $tax = 0;
         $shipping = 0;
 
-        // Cupón
-        $appliedCoupon = LaravelSession::get('applied_coupon');
-        $couponDiscount = 0;
-        $couponCode = null;
-
-        if ($appliedCoupon) {
-            $coupon = Coupon::byCode($appliedCoupon['code'])->valid()->first();
-            if ($coupon && $coupon->canBeAppliedToAmount($subtotal)) {
-                $couponDiscount = $appliedCoupon['discount'];
-                $couponCode = $coupon->code;
-                // Envío ya es 0 por política actual
-            }
-        }
-
-        $total = $subtotal + $tax + $shipping - $couponDiscount;
+        $total = $subtotal + $tax + $shipping;
         $amountInCents = (int) round($total * 100);
 
         // Crear orden PENDIENTE
@@ -133,10 +118,9 @@ class WompiController extends Controller
                 'subtotal' => $subtotal,
                 'tax_amount' => $tax,
                 'shipping_amount' => $shipping,
-                'discount_amount' => $couponDiscount,
+                'discount_amount' => 0,
                 'total_amount' => $total,
-                'coupon_code' => $couponCode,
-                'coupon_discount' => $couponDiscount,
+                'coupon_code' => null,
                 'status' => Order::STATUS_PENDING,
                 'payment_method' => $request->payment_method,
                 'notes' => $request->notes,
@@ -209,8 +193,8 @@ class WompiController extends Controller
                         'status' => Order::STATUS_PAID,
                         'paid_at' => now(),
                     ]);
-                    // Limpiar carrito y cupón
-                    LaravelSession::forget(['cart', 'applied_coupon']);
+                    // Limpiar carrito
+                    LaravelSession::forget('cart');
                 } elseif (in_array($status, ['DECLINED', 'VOIDED', 'ERROR'])) {
                     $order->update([
                         'status' => Order::STATUS_CANCELLED,

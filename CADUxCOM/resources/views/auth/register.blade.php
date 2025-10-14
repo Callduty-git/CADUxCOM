@@ -526,6 +526,8 @@
             if (e) e.preventDefault();
             termsModal.classList.remove('is-hidden');
             termsModal.setAttribute('aria-hidden', 'false');
+            // Bloquear scroll del body mientras el modal está abierto
+            document.body.style.overflow = 'hidden';
             // Botón habilitado inmediatamente
             if (modalAcceptBtn) modalAcceptBtn.disabled = false;
         }
@@ -533,6 +535,8 @@
         function closeTermsModal() {
             termsModal.classList.add('is-hidden');
             termsModal.setAttribute('aria-hidden', 'true');
+            // Restaurar scroll del body
+            document.body.style.overflow = '';
         }
 
         if (termsLink) termsLink.addEventListener('click', openTermsModal);
@@ -549,6 +553,20 @@
             });
         }
 
+        // Cerrar con tecla Escape
+        window.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Escape' && !termsModal.classList.contains('is-hidden')) {
+                closeTermsModal();
+            }
+        });
+
+        // Cerrar al hacer clic fuera del contenido
+        termsModal.addEventListener('click', (ev) => {
+            if (ev.target === termsModal) {
+                closeTermsModal();
+            }
+        });
+
         // Escuchar mensaje desde iframe de términos cuando se llega al final
         window.addEventListener('message', (event) => {
             try {
@@ -558,8 +576,7 @@
                 }
             } catch (_) {}
         });
-    </script>
-</x-guest-layout>
+
         // Escucha cambios de localStorage desde otra pestaña (términos)
         window.addEventListener('storage', (e) => {
             if (e.key === 'terms_read' && e.newValue === '1') {
@@ -567,3 +584,5 @@
                 if (termsStatus) termsStatus.classList.remove('is-hidden');
             }
         });
+    </script>
+</x-guest-layout>

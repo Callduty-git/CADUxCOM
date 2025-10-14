@@ -481,39 +481,7 @@
             </div>
         </section>
 
-        <!-- Artículos Educativos -->
-        <section class="articles-section" id="articulos">
-            <div class="container">
-                <div class="section-header">
-                    <h2>Artículos Educativos</h2>
-                    <p>Aprende más sobre el desperdicio de alimentos y cómo combatirlo</p>
-                </div>
-                
-                <div class="articles-grid">
-                    @foreach($articles as $article)
-                        <div class="article-card" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
-                            <div class="article-image">
-                                <div class="article-placeholder">
-                                    <i class="fas fa-newspaper"></i>
-                                    <span>{{ ucfirst($article['category']) }}</span>
-                                </div>
-                            </div>
-                            <div class="article-content">
-                                <div class="article-meta">
-                                    <span class="article-category">{{ ucfirst($article['category']) }}</span>
-                                    <span class="article-time">{{ $article['read_time'] }}</span>
-                                </div>
-                                <h3 class="article-title">{{ $article['title'] }}</h3>
-                                <p class="article-excerpt">{{ $article['excerpt'] }}</p>
-                                <a href="#" class="article-link">
-                                    Leer más <i class="fas fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
+        
 
         <!-- Call to Action -->
         <section class="cta-section">

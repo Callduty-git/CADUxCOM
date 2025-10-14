@@ -3,25 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todos los Productos - CADUxCOM</title>
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <title>Productos - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/empresa-dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/empresa-sidebar.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/header-empresa.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="stylesheet" href="{{ asset('css/productos-index.css') }}">
 </head>
 <body>
-    <div class="main-content">
-        <x-header-productos :categorias="$categorias" :subcategorias="$subcategorias" />
-
-        <x-empresa-sidebar />
+    <!-- HEADER DE EMPRESA -->
+    <x-header-empresa />
 
     <div class="main-container">
+        <aside class="sidebar">
+            <nav class="nav-buttons">
+                <a href="{{ route('empresa.dashboard') }}" class="btn">Inicio</a>
+                <a href="{{ route('empresa.productos.index') }}" class="btn active">Productos</a>
+                <a href="{{ route('empresa.facturas') }}" class="btn">Facturas</a>
+                <form method="POST" action="{{ route('empresa.logout') }}" class="mt-10">
+                    @csrf
+                    <button type="submit" class="btn" aria-label="Cerrar sesión">Salir</button>
+                </form>
+            </nav>
+        </aside>
         <main class="dashboard-panel">
             <div class="header-productos">
                 <h2>PRODUCTOS</h2>
@@ -208,88 +215,8 @@
         }
         
     </script>
-
-    <!-- SCRIPT INMEDIATO PARA ALINEAR SIDEBAR A LA IZQUIERDA -->
-    <script>
-        // Ejecutar inmediatamente, antes de que se cargue cualquier otro script
-        (function() {
-            function forceLeftAlign() {
-                const container = document.querySelector('.sidebar-container');
-                if (container) {
-                    container.style.cssText = `
-                        position: fixed !important;
-                        left: 20px !important;
-                        top: 50% !important;
-                        transform: translateY(-50%) !important;
-                        width: 100px !important;
-                        height: auto !important;
-                        z-index: 9999 !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        right: auto !important;
-                        bottom: auto !important;
-                    `;
-                }
-            }
-            
-            // Ejecutar inmediatamente
-            forceLeftAlign();
-            
-            // Ejecutar cuando el DOM esté listo
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', forceLeftAlign);
-            } else {
-                forceLeftAlign();
-            }
-            
-            // Ejecutar continuamente
-            setInterval(forceLeftAlign, 100);
-        })();
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Funcionalidad del sidebar alineado a la izquierda - FORZADO
-            function forceLeftAlignSidebar() {
-                const sidebarContainer = document.querySelector('.sidebar-container');
-                if (sidebarContainer) {
-                    sidebarContainer.style.cssText = `
-                        position: fixed !important;
-                        left: 20px !important;
-                        top: 50% !important;
-                        transform: translateY(-50%) !important;
-                        width: 100px !important;
-                        height: auto !important;
-                        z-index: 9999 !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        right: auto !important;
-                        bottom: auto !important;
-                    `;
-                }
-            }
-            
-            // Aplicar inmediatamente
-            forceLeftAlignSidebar();
-            
-            // Aplicar cuando el DOM esté listo
-            document.addEventListener('DOMContentLoaded', forceLeftAlignSidebar);
-            
-            // Aplicar cuando la ventana se carga
-            window.addEventListener('load', forceLeftAlignSidebar);
-            
-            // Aplicar continuamente
-            setInterval(forceLeftAlignSidebar, 50);
-            
-            // Aplicar en cualquier cambio
-            const observer = new MutationObserver(forceLeftAlignSidebar);
-            observer.observe(document.body, { childList: true, subtree: true });
-        });
-    </script>
+        </main>
     </div>
-
-    <!-- Footer -->
-    <x-footer />
     
     <!-- Scripts -->
     <script src="{{ asset('js/notifications.js') }}"></script>

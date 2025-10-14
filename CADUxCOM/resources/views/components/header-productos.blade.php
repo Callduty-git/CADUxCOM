@@ -1,4 +1,26 @@
 
+<style>
+    .main-header{display:flex;justify-content:space-between;align-items:center;background:#7acb6d;padding:10px 16px;position:sticky;top:0;z-index:900}
+    .left-section{display:flex;align-items:center;gap:10px}
+    .logo{height:40px;width:auto}
+    .logo-text{font-weight:700;color:#0f3d0f}
+    .right-section{display:flex;align-items:center;gap:16px}
+    .header-icon{width:36px;height:36px;cursor:pointer}
+    .dropdown{position:relative}
+    .dropdown-menu{position:absolute;top:48px;right:0;background:#fff;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.15);width:280px;display:none}
+    .dropdown-menu.show{display:block}
+    .dropdown-user-info{display:flex;gap:12px;padding:12px;border-bottom:1px solid #eee;align-items:center}
+    .dropdown-company-icon{width:48px;height:48px;border-radius:50%;object-fit:cover}
+    .dropdown-company-name{margin:0;font-weight:600;color:#222}
+    .dropdown-company-email{margin:0;color:#666;font-size:12px}
+    .dropdown-options{display:flex;flex-direction:column;padding:8px}
+    .dropdown-menu-link,.dropdown-menu-button{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;text-decoration:none;color:#222;background:transparent;border:none;width:100%;text-align:left}
+    .dropdown-menu-link:hover,.dropdown-menu-button:hover{background:#f6f6f6}
+    .dropdown-menu-button.danger{color:#b00020}
+    .menu-icon{width:20px;display:flex;align-items:center;justify-content:center}
+    .filter-panel.hidden{display:none}
+</style>
+
 <header class="main-header">
     <div class="left-section">
         <img src="{{ asset('images/logocort-caduxcom.png') }}" alt="Logo CADUxCOM" class="logo">
@@ -97,24 +119,32 @@
                     @else
                         <img src="{{ asset('images/icon-company.png') }}" alt="Empresa" class="dropdown-company-icon">
                     @endif
-                    <p class="dropdown-company-name">Empresa {{ Auth::guard('empresa')->user()->Nombre ?? 'x' }}</p>
+                    <p class="dropdown-company-name">{{ Auth::guard('empresa')->user()->Nombre ?? 'Empresa' }}</p>
+                    <p class="dropdown-company-email">{{ Auth::guard('empresa')->user()->email ?? 'email@empresa.com' }}</p>
                 </div>
 
                 <div class="dropdown-options">
-                    <a href="#" class="dropdown-menu-link">Ayuda</a>
-                    <a href="#" class="dropdown-menu-link">Comentar</a>
+                    <a href="{{ route('help') }}" class="dropdown-menu-link">
+                        <div class="menu-icon"><i class="fas fa-question-circle"></i></div>
+                        <span>Ayuda</span>
+                    </a>
+                    
 
                     <form method="POST" action="{{ route('empresa.eliminar') }}">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="dropdown-menu-button danger" onclick="return confirm('¿Seguro que deseas eliminar tu cuenta?')">
-                            Eliminar cuenta
+                            <div class="menu-icon"><i class="fas fa-trash-alt"></i></div>
+                            <span>Eliminar cuenta</span>
                         </button>
                     </form>
 
                     <form method="POST" action="{{ route('empresa.logout') }}">
                         @csrf
-                        <button type="submit" class="dropdown-menu-button">Cerrar sesión</button>
+                        <button type="submit" class="dropdown-menu-button">
+                            <div class="menu-icon"><i class="fas fa-sign-out-alt"></i></div>
+                            <span>Cerrar sesión</span>
+                        </button>
                     </form>
                 </div>
             </div>

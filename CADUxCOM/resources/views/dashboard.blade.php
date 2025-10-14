@@ -1232,10 +1232,38 @@
                             <img id="logoPreview" class="logo-preview" src="{{ isset($empresa->Foto) && $empresa->Foto ? asset('storage/'.$empresa->Foto) : asset('images/logo-caduxcom.png') }}" alt="Logo">
                         </div>
                     </div>
-                    <div class="form-row">
+                    <div class="form-grid" style="align-items:center;">
                         <div class="form-field">
                             <label>Certificado Cámara de Comercio</label>
                             <input class="input-control" type="file" name="Certificado_Camara_de_comercio" accept="application/pdf,image/*">
+                        </div>
+                        <div class="form-field" style="text-align:center;">
+                            @php
+                                $certPathModal = isset($empresa->Certificado_Camara_de_comercio) && $empresa->Certificado_Camara_de_comercio
+                                    ? asset('storage/' . $empresa->Certificado_Camara_de_comercio)
+                                    : null;
+                                $certExtModal = $certPathModal
+                                    ? strtolower(pathinfo($empresa->Certificado_Camara_de_comercio, PATHINFO_EXTENSION))
+                                    : null;
+                            @endphp
+                            <div id="certPreview" style="display:inline-block;">
+                                @if($certPathModal)
+                                    @if(in_array($certExtModal, ['jpg', 'jpeg', 'png']))
+                                        <img id="certPreviewImg" class="logo-preview" src="{{ $certPathModal }}" alt="Certificado">
+                                    @else
+                                        <div id="certPreviewIcon" class="w-48 h-48 rounded-2xl bg-gray-100 border-4 border-gray-200 flex items-center justify-center text-gray-600 text-5xl cursor-pointer" onclick="window.open('{{ $certPathModal }}', '_blank')">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </div>
+                                        <div style="margin-top:8px;">
+                                            <a href="{{ $certPathModal }}" target="_blank" class="text-blue-600 underline">Ver certificado</a>
+                                        </div>
+                                    @endif
+                                @else
+                                    <div class="w-48 h-48 rounded-2xl bg-gray-100 border-4 border-gray-200 flex items-center justify-center text-gray-600 text-5xl">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     </div>
                     <div class="modal-actions">
@@ -1483,8 +1511,6 @@
                 }, 5000);
             }
 
-            }
-
             // Toggle de descuento progresivo
             const toggleBtn = document.getElementById('toggleProgressiveDiscountBtn');
             const statusText = document.getElementById('progressiveStatusText');
@@ -1538,6 +1564,28 @@
                     if (file) {
                         const url = URL.createObjectURL(file);
                         logoPreview.src = url;
+                    }
+                });
+            }
+
+            // Vista previa del certificado
+            const certInput = document.querySelector('input[name="Certificado_Camara_de_comercio"]');
+            const certPreview = document.getElementById('certPreview');
+            if (certInput && certPreview) {
+                certInput.addEventListener('change', function() {
+                    const file = this.files && this.files[0];
+                    if (file) {
+                        const ext = (file.name.split('.').pop() || '').toLowerCase();
+                        if (['jpg', 'jpeg', 'png'].includes(ext)) {
+                            const url = URL.createObjectURL(file);
+                            certPreview.innerHTML = `<img class="logo-preview" src="${url}" alt="Certificado">`;
+                        } else {
+                            certPreview.innerHTML = `
+                                <div class="w-48 h-48 rounded-2xl bg-gray-100 border-4 border-gray-200 flex items-center justify-center text-gray-600 text-5xl">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                            `;
+                        }
                     }
                 });
             }

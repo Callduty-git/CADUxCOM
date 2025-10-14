@@ -1,13 +1,35 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/style_register.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .back-button-container {
+            margin-bottom: 20px;
+        }
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        .back-button:hover {
+            color: #374151;
+        }
+    </style>
 @endpush
 
 <x-guest-layout>
     <div class="login-container">
-        <x-admin.back-button href="{{ url('/') }}" label="Regresar" />
+        <div class="back-button-container">
+            <a href="{{ url('/') }}" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                Regresar
+            </a>
+        </div>
 
-        <form method="POST" action="{{ route('admin.login.post') }}" class="register-form login-form">
+        <form method="POST" action="{{ route('admin.login') }}" class="register-form login-form">
             @csrf
 
             <div class="form-header">

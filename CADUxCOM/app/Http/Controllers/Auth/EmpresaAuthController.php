@@ -18,6 +18,12 @@ class EmpresaAuthController extends Controller
      */
     public function showLoginForm()
     {
+        // Si ya está autenticado, redirigir al dashboard
+        if (Auth::guard('empresa')->check()) {
+            \Log::info('🔄 Usuario ya autenticado, redirigiendo al dashboard');
+            return redirect()->route('empresa.dashboard');
+        }
+        
         return view('empresa.auth.login');
     }
 
@@ -26,6 +32,14 @@ class EmpresaAuthController extends Controller
      */
     public function login(Request $request)
     {
+        \Log::info('🚀 INICIO DEL LOGIN - Método ejecutándose', ['email' => $request->email]);
+        
+        // Si ya está autenticado, redirigir al dashboard
+        if (Auth::guard('empresa')->check()) {
+            \Log::info('🔄 Usuario ya autenticado en POST, redirigiendo al dashboard');
+            return redirect()->route('empresa.dashboard');
+        }
+        
         // Validar las credenciales ingresadas
         $credentials = $request->validate([
             'email' => ['required', 'email'],
@@ -35,22 +49,13 @@ class EmpresaAuthController extends Controller
         // Intentar autenticación con el guard empresa
         if (Auth::guard('empresa')->attempt($credentials, $request->filled('remember'))) {
             $empresa = Auth::guard('empresa')->user();
-
-            /**
-             * ✅ Verificar si el correo electrónico de la empresa está verificado
-             */
-            if (is_null($empresa->email_verified_at)) {
-                Auth::guard('empresa')->logout();
-
-                return back()->withErrors([
-                    'email' => 'Debes verificar tu correo electrónico antes de poder iniciar sesión. Revisa tu bandeja de entrada.',
-                ])->onlyInput('email');
-            }
+            \Log::info('🔐 Login exitoso para empresa', ['empresa_id' => $empresa->id, 'email' => $empresa->email]);
 
             /**
              * ✅ Verificar estado de la empresa
              */
             if (!in_array($empresa->status, ['approved', 'sandbox'])) {
+                \Log::warning('❌ Empresa con status no válido', ['status' => $empresa->status]);
                 Auth::guard('empresa')->logout();
 
                 $message = match ($empresa->status) {
@@ -70,6 +75,7 @@ class EmpresaAuthController extends Controller
              * ✅ Regenerar sesión por seguridad
              */
             $request->session()->regenerate();
+            \Log::info('✅ Sesión regenerada, redirigiendo a dashboard');
 
             /**
              * ✅ Redirigir al dashboard de empresa
@@ -80,6 +86,7 @@ class EmpresaAuthController extends Controller
         /**
          * ❌ Si la autenticación falla
          */
+        \Log::info('❌ FALLO EN AUTENTICACIÓN - Credenciales incorrectas');
         return back()->withErrors([
             'email' => 'Las credenciales no coinciden con una empresa registrada.',
         ])->onlyInput('email');

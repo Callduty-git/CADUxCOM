@@ -9,7 +9,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\WompiController;
-use App\Http\Controllers\CouponController;
+
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\HomeController;
@@ -34,7 +34,7 @@ use App\Http\Controllers\NotificationController;
 | Rutas de edición de perfil de empresa y dashboard
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth:empresa'])->group(function () {
+Route::middleware(['auth:empresa', 'empresa.verified'])->group(function () {
     // Dashboard
     Route::get('/empresa/dashboard', [EmpresaDashboardController::class, 'index'])
         ->name('empresa.dashboard');
@@ -93,10 +93,10 @@ Route::middleware(['auth:empresa'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/empresa/facturas', [EmpresaDashboardController::class, 'facturas'])
-    ->middleware(['auth:empresa'])
+    ->middleware(['auth:empresa', 'empresa.verified'])
     ->name('empresa.facturas');
 Route::delete('/empresa/facturas/clear-logs', [EmpresaDashboardController::class, 'clearLogs'])
-    ->middleware(['auth:empresa'])
+    ->middleware(['auth:empresa', 'empresa.verified'])
     ->name('empresa.facturas.clear-logs');
 
 /*
@@ -105,7 +105,7 @@ Route::delete('/empresa/facturas/clear-logs', [EmpresaDashboardController::class
 |--------------------------------------------------------------------------
 */
 Route::get('/empresa/logs', [LogEmpresaController::class, 'index'])
-    ->middleware(['auth:empresa'])
+    ->middleware(['auth:empresa', 'empresa.verified'])
     ->name('empresa.logs');
 
 /*
@@ -128,7 +128,7 @@ Route::post('/productos', [ProductoController::class, 'store'])->name('productos
 Route::get('/productos/{id}/edit', [ProductoController::class, 'edit'])->name('productos.edit');
 Route::put('/productos/{id}', [ProductoController::class, 'update'])->name('productos.update');
 Route::delete('/productos/{id}', [ProductoController::class, 'destroy'])->name('productos.destroy');
-Route::get('/productos/{id}', [ProductoController::class, 'show'])->name('productos.show');
+Route::get('/productos/{id}', [ProductoController::class, 'userShow'])->name('productos.show');
 
 Route::get('/contacto', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
 Route::post('/contacto', [\App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
@@ -229,12 +229,7 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        if (Auth::guard('empresa')->check()) {
-            return view('dashboard');
-        }
-        return redirect()->route('home');
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -292,10 +287,28 @@ Route::post('/empresa/logout', function () {
 
 /*
 |--------------------------------------------------------------------------
+| Rutas de administración - Login
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin')->name('admin.')->group(function () {
+    // Login de admin (sin middleware auth)
+    Route::get('/login', [\App\Http\Controllers\Auth\AdminAuthController::class, 'showLoginForm'])
+        ->name('login');
+    Route::post('/login', [\App\Http\Controllers\Auth\AdminAuthController::class, 'login']);
+    Route::post('/logout', [\App\Http\Controllers\Auth\AdminAuthController::class, 'logout'])
+        ->name('logout');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Rutas de administración de empresas
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard de admin
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])
+        ->name('dashboard');
+    
     Route::get('/empresas/pending', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'index'])
         ->name('empresas.pending');
     Route::get('/empresas/{empresa}', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'show'])
@@ -312,18 +325,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         ->name('empresas.certificado');
     Route::get('/empresas/{empresa}/foto', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'viewFoto'])
         ->name('empresas.foto');
+    
+    // Gestión de usuarios
+    Route::get('/users', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])
+        ->name('users.index');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Rutas de autenticación de empresa
-|--------------------------------------------------------------------------
-*/
-Route::middleware('guest:empresa')->group(function () {
-    Route::get('/empresa/login', [\App\Http\Controllers\Auth\EmpresaAuthController::class, 'showLoginForm'])
-        ->name('empresa.login');
-    Route::post('/empresa/login', [\App\Http\Controllers\Auth\EmpresaAuthController::class, 'login']);
-});
+
 
 /*
 |--------------------------------------------------------------------------

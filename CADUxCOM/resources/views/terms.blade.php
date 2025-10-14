@@ -5,13 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Términos de Servicio - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/terms.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('css/header-pages.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    @unless(request()->boolean('embed'))
+        <link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}">
+        <link rel="stylesheet" href="{{ asset('css/header-pages.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    @endunless
 </head>
 <body>
     <div class="page-container">
-    <x-header-pages />
+    @unless(request()->boolean('embed'))
+        <x-header-pages />
+    @endunless
 
     <div class="terms-container">
         <!-- Header Section -->
@@ -141,8 +145,24 @@
         </div>
     </div>
 
-    <x-footer />
+    @unless(request()->boolean('embed'))
+        <x-footer />
+    @endunless
     </div>
+    <script>
+        // Si se carga embebido en un modal, notificar al padre al llegar al final
+        (function(){
+            var isEmbed = {{ request()->boolean('embed') ? 'true' : 'false' }};
+            if (!isEmbed) return;
+            const onScroll = () => {
+                const scrolledToBottom = (window.innerHeight + window.scrollY) >= document.body.scrollHeight - 2;
+                if (scrolledToBottom) {
+                    try { window.parent.postMessage({ type: 'terms-scroll-bottom' }, '*'); } catch (_) {}
+                }
+            };
+            window.addEventListener('scroll', onScroll);
+        })();
+    </script>
 </body>
 </html>
 
