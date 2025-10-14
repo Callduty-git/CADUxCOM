@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Educación - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header-pages.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/education.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/education.css') }}?v={{ time() }}&force={{ rand(1000, 9999) }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- Font Awesome para iconos -->
@@ -21,8 +22,8 @@
     <style>
         /* Espaciado superior específico para la página de educación */
         .education-container {
-            margin-top: 90px;
-            padding-top: 10px;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
             padding-bottom: 40px;
             width: 100%;
             max-width: none;
@@ -31,6 +32,19 @@
             background: #fff;
             border-radius: 0;
             box-shadow: none;
+        }
+        
+        /* Forzar separación del header */
+        .page-container {
+            padding-top: 100px !important;
+            margin-top: 0 !important;
+        }
+        
+        .hero-section {
+            margin-top: 20px !important;
+            padding-top: 6rem !important;
+            padding-bottom: 4rem !important;
+            z-index: 1 !important;
         }
         .container {
             padding: 0 32px;
@@ -110,6 +124,24 @@
             flex: 1 1 220px;
             min-width: 220px;
             margin-bottom: 18px;
+            position: relative;
+        }
+        .calculator-form .form-group input {
+            padding-right: 4.5rem !important;
+        }
+        .calculator-form .input-unit {
+            position: absolute !important;
+            right: 1.2rem !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            color: #AA5FC7 !important;
+            font-size: 0.9rem !important;
+            font-weight: 600 !important;
+            pointer-events: none !important;
+            background: transparent !important;
+            white-space: nowrap !important;
+            z-index: 10 !important;
+            line-height: 1 !important;
         }
         @media (max-width: 600px) {
             .calculator-form .form-row {
@@ -118,6 +150,43 @@
             }
             .calculator-card {
                 padding: 18px 4px;
+            }
+            .calculator-form .form-group input {
+                padding-right: 3.5rem !important;
+            }
+            .calculator-form .input-unit {
+                right: 1rem !important;
+                font-size: 0.85rem !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .calculator-form .form-group input {
+                padding-right: 2.8rem !important;
+            }
+            .calculator-form .input-unit {
+                right: 0.8rem !important;
+                font-size: 0.75rem !important;
+            }
+        }
+        
+        /* Estilos responsivos para los campos con unidades inline */
+        @media (max-width: 768px) {
+            .form-group div[style*="position: relative"] input {
+                padding-right: 4rem !important;
+            }
+            .form-group div[style*="position: relative"] span {
+                right: 0.8rem !important;
+                font-size: 0.85rem !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .form-group div[style*="position: relative"] input {
+                padding-right: 3rem !important;
+            }
+            .form-group div[style*="position: relative"] span {
+                right: 0.6rem !important;
+                font-size: 0.75rem !important;
             }
         }
         .cta-section {
@@ -332,8 +401,10 @@
                                     <i class="fas fa-weight"></i>
                                     ¿Cuántos kg de comida desperdicias por semana?
                                 </label>
-                                <input type="number" id="food_waste" name="food_waste_per_week" step="0.1" min="0" max="50" required>
-                                <span class="input-unit">kg/semana</span>
+                                <div style="position: relative; display: inline-block; width: 100%;">
+                                    <input type="number" id="food_waste" name="food_waste_per_week" step="0.1" min="0" max="50" required style="width: 100%; padding-right: 5rem; padding-left: 1rem; padding-top: 0.8rem; padding-bottom: 0.8rem; border: 2px solid #89CF6D; border-radius: 10px; font-size: 1rem; background: #F8FFF6; color: #49874E; box-sizing: border-box;">
+                                    <span style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #AA5FC7; font-size: 0.9rem; font-weight: 600; pointer-events: none; background: transparent; white-space: nowrap; z-index: 10;">kg/semana</span>
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -341,8 +412,10 @@
                                     <i class="fas fa-users"></i>
                                     ¿Cuántas personas viven en tu hogar?
                                 </label>
-                                <input type="number" id="household_size" name="household_size" min="1" max="20" required>
-                                <span class="input-unit">personas</span>
+                                <div style="position: relative; display: inline-block; width: 100%;">
+                                    <input type="number" id="household_size" name="household_size" min="1" max="20" required style="width: 100%; padding-right: 5rem; padding-left: 1rem; padding-top: 0.8rem; padding-bottom: 0.8rem; border: 2px solid #89CF6D; border-radius: 10px; font-size: 1rem; background: #F8FFF6; color: #49874E; box-sizing: border-box;">
+                                    <span style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #AA5FC7; font-size: 0.9rem; font-weight: 600; pointer-events: none; background: transparent; white-space: nowrap; z-index: 10;">personas</span>
+                                </div>
                             </div>
                         </div>
 

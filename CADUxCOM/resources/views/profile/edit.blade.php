@@ -3,6 +3,8 @@
 @section('title', 'Mi Perfil - CADUxCOM')
 
 @push('styles')
+<link rel="stylesheet" href="{{ asset('css/editar-foto.css') }}">
+
 <style>
 /* Estilos específicos para el perfil de usuario */
 .profile-main {
@@ -609,6 +611,7 @@
     }
 }
 
+
 /* Responsividad */
 @media (max-width: 768px) {
     .profile-container {
@@ -687,6 +690,7 @@
         padding: 10px 16px;
         font-size: 14px;
     }
+    
 }
 </style>
 @endpush
@@ -719,11 +723,10 @@
                         <span>👤</span>
                     @endif
                 </div>
-                <button class="photo-edit-btn" onclick="document.getElementById('photo-input').click()">
-                    📷
-                </button>
             </div>
-            <input type="file" id="photo-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(this)">
+            <button class="photo-edit-btn" onclick="openPhotoEditModal()" title="Editar foto de perfil">
+                📷
+            </button>
         </div>
         
         <div class="profile-info">
@@ -847,9 +850,9 @@
                         </h3>
                         <p class="setting-description">Actualiza tu contraseña para mantener tu cuenta segura</p>
                     </div>
-                    <button class="btn-secondary" onclick="openPasswordModal()">
+                    <a href="{{ route('profile.password.change') }}" class="btn-secondary" style="text-decoration: none; display: inline-block;">
                         🔑 Cambiar
-                    </button>
+                    </a>
                 </div>
 
                 {{-- Cerrar sesión --}}
@@ -928,6 +931,7 @@
     </div>
 </div>
 
+
 {{-- MODAL PARA ELIMINAR CUENTA --}}
 <div id="delete-modal" class="modal-overlay" style="display: none;">
     <div class="modal-container danger-modal">
@@ -957,10 +961,123 @@
     </div>
 </div>
 
+{{-- MODAL PARA EDITAR FOTO DE PERFIL --}}
+<div id="photo-edit-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-container photo-edit-modal">
+        <div class="modal-header">
+            <h3 class="modal-title">📷 Editar Foto de Perfil</h3>
+            <button class="modal-close" onclick="closePhotoEditModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            {{-- Selector de archivo --}}
+            <div class="photo-upload-section" id="photo-upload-section">
+                <div class="upload-area" onclick="document.getElementById('photo-input').click()">
+                    <div class="upload-icon">📁</div>
+                    <h4>Selecciona una imagen</h4>
+                    <p>Haz clic aquí para elegir una foto desde tu dispositivo</p>
+                    <p class="upload-hint">Formatos soportados: JPG, PNG, GIF (máx. 5MB)</p>
+                </div>
+                <input type="file" id="photo-input" accept="image/*" style="display: none;" onchange="handlePhotoSelect(event)">
+            </div>
+
+            {{-- Editor de imagen --}}
+            <div class="photo-editor-section" id="photo-editor-section" style="display: none;">
+                <div class="editor-container">
+                    <div class="image-preview-container">
+                        <img id="image-preview" class="image-preview">
+                    </div>
+                    
+                    {{-- Controles de edición --}}
+                    <div class="editor-controls">
+                        <div class="control-group">
+                            <label>Rotar:</label>
+                            <div class="rotation-controls">
+                                <button class="control-btn" onclick="rotateImage(-90)" title="Rotar 90° izquierda">↶</button>
+                                <button class="control-btn" onclick="rotateImage(90)" title="Rotar 90° derecha">↷</button>
+                                <button class="control-btn" onclick="rotateImage(180)" title="Voltear">↻</button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Zoom:</label>
+                            <div class="zoom-controls">
+                                <button class="control-btn" onclick="zoomImage(-0.1)" title="Alejar">🔍-</button>
+                                <input type="range" id="zoom-slider" min="0.5" max="3" step="0.1" value="1" oninput="setZoom(this.value)">
+                                <button class="control-btn" onclick="zoomImage(0.1)" title="Acercar">🔍+</button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Resetear:</label>
+                            <button class="control-btn reset-btn" onclick="resetImage()" title="Restaurar imagen original">🔄</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Vista previa del resultado --}}
+            <div class="photo-preview-section" id="photo-preview-section" style="display: none;">
+                <h4>Vista previa:</h4>
+                <div class="preview-container">
+                    <div class="preview-circle">
+                        <img id="final-preview" class="final-preview">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closePhotoEditModal()">Cancelar</button>
+            <button class="btn-secondary" id="back-to-upload" onclick="backToUpload()" style="display: none;">← Volver</button>
+            <button class="btn-save" id="save-photo-btn" onclick="savePhoto()" style="display: none;">💾 Guardar Foto</button>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
+// Variables globales - DEBEN estar al inicio
 let isEditMode = false;
 let originalValues = {};
+let currentImage = null;
+let currentRotation = 0;
+let currentZoom = 1;
+let originalImageData = null;
+
+// Esperar a que el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM cargado, inicializando editor de foto...');
+    
+    // Verificar que todos los elementos estén presentes
+    checkElements();
+    
+    // Inicializar drag and drop
+    initializeDragAndDrop();
+});
+
+// Verificar que todos los elementos necesarios estén presentes
+function checkElements() {
+    const elements = [
+        'photo-edit-modal',
+        'photo-upload-section', 
+        'photo-editor-section',
+        'photo-preview-section',
+        'photo-input',
+        'image-preview',
+        'final-preview',
+        'back-to-upload',
+        'save-photo-btn'
+    ];
+    
+    elements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            console.log(`✓ Elemento ${id} encontrado`);
+        } else {
+            console.error(`✗ Elemento ${id} NO encontrado`);
+        }
+    });
+}
+
 
 // Toggle modo de edición
 function toggleEditMode() {
@@ -1099,104 +1216,6 @@ function saveProfileChanges() {
     });
 }
 
-// Manejar subida de foto
-function handlePhotoUpload(input) {
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        
-        console.log('Archivo seleccionado:', file);
-        console.log('Tipo de archivo:', file.type);
-        console.log('Tamaño del archivo:', file.size);
-        
-        // Validar tipo de archivo
-        if (!file.type.startsWith('image/')) {
-            showAlert('Por favor selecciona un archivo de imagen válido', 'error');
-            input.value = '';
-            return;
-        }
-        
-        // Validar tamaño (máximo 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            showAlert('La imagen no debe superar los 5MB', 'error');
-            input.value = '';
-            return;
-        }
-        
-        const formData = new FormData();
-        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-        formData.append('_method', 'PATCH');
-        formData.append('foto', file);
-        formData.append('name', document.getElementById('name-input') ? document.getElementById('name-input').value : '{{ $user->name }}');
-        formData.append('email', document.getElementById('email-input') ? document.getElementById('email-input').value : '{{ $user->email }}');
-
-        console.log('Enviando petición...');
-        showAlert('Subiendo foto...', 'info');
-
-        fetch('{{ route("profile.update") }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            console.log('Respuesta recibida:', response.status);
-            return response.text().then(text => {
-                console.log('Respuesta del servidor:', text);
-                try {
-                    return JSON.parse(text);
-                } catch (e) {
-                    console.error('Error al parsear JSON:', e);
-                    // Si no es JSON, puede ser HTML con errores de validación
-                    if (response.status === 422) {
-                        throw new Error('Error de validación: El archivo no cumple con los requisitos');
-                    }
-                    throw new Error('Respuesta del servidor no válida');
-                }
-            });
-        })
-        .then(data => {
-            console.log('Datos parseados:', data);
-            if (data.success) {
-                // Actualizar la imagen
-                const container = document.getElementById('profile-photo-container');
-                
-                if (container) {
-                    console.log('URL de la imagen:', data.user.foto);
-                    
-                    // Crear la imagen y verificar que se carga
-                    const img = new Image();
-                    img.onload = function() {
-                        console.log('Imagen cargada correctamente');
-                        container.innerHTML = `<img src="${data.user.foto}" alt="Foto de perfil" class="profile-image">`;
-                    };
-                    img.onerror = function() {
-                        console.error('Error al cargar la imagen:', data.user.foto);
-                        showAlert('Error al cargar la imagen', 'error');
-                    };
-                    img.src = data.user.foto;
-                    
-                    console.log('Imagen actualizada:', data.user.foto);
-                } else {
-                    console.error('No se encontró el contenedor de la imagen');
-                }
-                
-                showAlert('Foto actualizada correctamente', 'success');
-            } else {
-                showAlert(data.message || 'Error al actualizar la foto', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error completo:', error);
-            showAlert('Error al subir la foto: ' + error.message, 'error');
-        });
-        
-        // Limpiar el input para permitir subir la misma imagen otra vez
-        input.value = '';
-    }
-}
-
 // Modal de contraseña
 function openPasswordModal() {
     document.getElementById('password-modal').style.display = 'flex';
@@ -1278,6 +1297,7 @@ function showAlert(message, type) {
 window.addEventListener('click', function(event) {
     const passwordModal = document.getElementById('password-modal');
     const deleteModal = document.getElementById('delete-modal');
+    const photoModal = document.getElementById('photo-edit-modal');
     
     if (event.target === passwordModal) {
         closePasswordModal();
@@ -1285,7 +1305,666 @@ window.addEventListener('click', function(event) {
     if (event.target === deleteModal) {
         closeDeleteModal();
     }
+    if (event.target === photoModal) {
+        closePhotoEditModal();
+    }
 });
+
+// ====== FUNCIONALIDADES DEL EDITOR DE FOTO ======
+
+// Abrir modal de edición de foto
+function openPhotoEditModal() {
+    document.getElementById('photo-edit-modal').style.display = 'flex';
+    resetPhotoEditor();
+}
+
+// Cerrar modal de edición de foto
+function closePhotoEditModal() {
+    document.getElementById('photo-edit-modal').style.display = 'none';
+    resetPhotoEditor();
+}
+
+// Resetear el editor de foto
+function resetPhotoEditor() {
+    // Mostrar sección de subida
+    document.getElementById('photo-upload-section').style.display = 'block';
+    document.getElementById('photo-editor-section').style.display = 'none';
+    document.getElementById('photo-preview-section').style.display = 'none';
+    
+    // Ocultar botones
+    document.getElementById('back-to-upload').style.display = 'none';
+    document.getElementById('save-photo-btn').style.display = 'none';
+    
+    // Resetear variables
+    currentImage = null;
+    currentRotation = 0;
+    currentZoom = 1;
+    originalImageData = null;
+    
+    // Limpiar input
+    document.getElementById('photo-input').value = '';
+}
+
+// Manejar selección de foto - VERSIÓN SIMPLIFICADA
+function handlePhotoSelect(event) {
+    console.log('=== handlePhotoSelect INICIADO ===');
+    
+    try {
+        const file = event.target.files[0];
+        console.log('Archivo obtenido:', file);
+        
+        if (!file) {
+            console.log('No hay archivo seleccionado');
+            return;
+        }
+        
+        console.log('Datos del archivo:', {
+            name: file.name,
+            type: file.type,
+            size: file.size
+        });
+        
+        // Validación básica
+        if (!file.type.startsWith('image/')) {
+            alert('Por favor selecciona un archivo de imagen válido.');
+            return;
+        }
+        
+        if (file.size > 5 * 1024 * 1024) {
+            alert('El archivo es demasiado grande. Máximo 5MB.');
+            return;
+        }
+        
+        // Leer archivo
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            console.log('Archivo leído exitosamente');
+            
+            // Crear imagen
+            const img = new Image();
+            img.onload = function() {
+                console.log('Imagen cargada exitosamente');
+                
+                // Asignar datos
+                currentImage = img;
+                originalImageData = e.target.result;
+                
+                // Mostrar editor
+                console.log('Mostrando editor...');
+                showImageEditor();
+            };
+            
+            img.onerror = function() {
+                console.error('Error al cargar la imagen');
+                alert('Error al cargar la imagen.');
+            };
+            
+            img.src = e.target.result;
+        };
+        
+        reader.onerror = function() {
+            console.error('Error al leer el archivo');
+            alert('Error al leer el archivo.');
+        };
+        
+        reader.readAsDataURL(file);
+        
+    } catch (error) {
+        console.error('Error en handlePhotoSelect:', error);
+        alert('Error al procesar el archivo: ' + error.message);
+    }
+}
+
+// Mostrar editor de imagen - VERSIÓN SIMPLIFICADA
+function showImageEditor() {
+    console.log('=== showImageEditor INICIADO ===');
+    
+    try {
+        // Ocultar sección de subida
+        const uploadSection = document.getElementById('photo-upload-section');
+        if (uploadSection) {
+            uploadSection.style.display = 'none';
+            console.log('✓ Sección de subida ocultada');
+        } else {
+            console.error('✗ No se encontró photo-upload-section');
+        }
+        
+        // Mostrar sección de editor
+        const editorSection = document.getElementById('photo-editor-section');
+        if (editorSection) {
+            editorSection.style.display = 'block';
+            console.log('✓ Sección de editor mostrada');
+        } else {
+            console.error('✗ No se encontró photo-editor-section');
+        }
+        
+        // Mostrar sección de vista previa
+        const previewSection = document.getElementById('photo-preview-section');
+        if (previewSection) {
+            previewSection.style.display = 'block';
+            console.log('✓ Sección de vista previa mostrada');
+        } else {
+            console.error('✗ No se encontró photo-preview-section');
+        }
+        
+        // Mostrar botones
+        const backBtn = document.getElementById('back-to-upload');
+        if (backBtn) {
+            backBtn.style.display = 'inline-block';
+            console.log('✓ Botón volver mostrado');
+        }
+        
+        const saveBtn = document.getElementById('save-photo-btn');
+        if (saveBtn) {
+            saveBtn.style.display = 'inline-block';
+            console.log('✓ Botón guardar mostrado');
+        }
+        
+        // Mostrar imagen en el editor
+        const preview = document.getElementById('image-preview');
+        if (preview && originalImageData) {
+            preview.src = originalImageData;
+            console.log('✓ Imagen asignada al preview');
+        } else {
+            console.error('✗ No se pudo asignar la imagen al preview');
+        }
+        
+        // Actualizar vista previa
+        updatePreview();
+        
+        // Mostrar mensaje de éxito
+        alert('¡Imagen cargada correctamente! Usa los controles para editarla.');
+        
+        // Prueba adicional: verificar que la vista previa se actualice
+        setTimeout(() => {
+            const preview = document.getElementById('final-preview');
+            if (preview && preview.src && preview.src !== '') {
+                console.log('✓ Vista previa verificada:', preview.src.substring(0, 50) + '...');
+            } else {
+                console.error('✗ Vista previa no se actualizó correctamente');
+            }
+        }, 500);
+        
+    } catch (error) {
+        console.error('Error en showImageEditor:', error);
+        alert('Error al mostrar el editor: ' + error.message);
+    }
+}
+
+// Volver a la sección de subida
+function backToUpload() {
+    document.getElementById('photo-upload-section').style.display = 'block';
+    document.getElementById('photo-editor-section').style.display = 'none';
+    document.getElementById('photo-preview-section').style.display = 'none';
+    document.getElementById('back-to-upload').style.display = 'none';
+    document.getElementById('save-photo-btn').style.display = 'none';
+}
+
+// Rotar imagen
+function rotateImage(degrees) {
+    currentRotation += degrees;
+    currentRotation = currentRotation % 360;
+    
+    const preview = document.getElementById('image-preview');
+    preview.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+    
+    updatePreview();
+}
+
+// Zoom de imagen
+function zoomImage(delta) {
+    currentZoom = Math.max(0.5, Math.min(3, currentZoom + delta));
+    
+    const preview = document.getElementById('image-preview');
+    preview.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+    
+    // Actualizar slider
+    document.getElementById('zoom-slider').value = currentZoom;
+    
+    updatePreview();
+}
+
+// Establecer zoom desde slider
+function setZoom(value) {
+    currentZoom = parseFloat(value);
+    
+    const preview = document.getElementById('image-preview');
+    preview.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+    
+    updatePreview();
+}
+
+// Resetear imagen
+function resetImage() {
+    currentRotation = 0;
+    currentZoom = 1;
+    
+    const preview = document.getElementById('image-preview');
+    preview.style.transform = 'rotate(0deg) scale(1)';
+    
+    document.getElementById('zoom-slider').value = 1;
+    
+    updatePreview();
+    
+    showPhotoMessage('Imagen restaurada a su estado original.', 'info');
+}
+
+// Actualizar vista previa - VERSIÓN SIMPLIFICADA Y FUNCIONAL
+function updatePreview() {
+    console.log('=== updatePreview INICIADO ===');
+    
+    if (!originalImageData) {
+        console.error('No hay datos de imagen para la vista previa');
+        return;
+    }
+    
+    const preview = document.getElementById('final-preview');
+    if (!preview) {
+        console.error('No se encontró el elemento final-preview');
+        return;
+    }
+    
+    console.log('Creando vista previa circular...');
+    
+    // Crear imagen temporal
+    const tempImg = new Image();
+    tempImg.onload = function() {
+        console.log('Imagen temporal cargada:', tempImg.width + 'x' + tempImg.height);
+        
+        // Crear canvas
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const size = 120;
+        
+        canvas.width = size;
+        canvas.height = size;
+        
+        // Dibujar fondo blanco sólido para imágenes transparentes
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, size, size);
+        
+        // Crear máscara circular
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI);
+        ctx.clip();
+        
+        // Dibujar fondo blanco nuevamente después del clip para asegurar fondo blanco
+        // Esto es importante para imágenes PNG con transparencia que podrían mostrar fondo negro
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, size, size);
+        
+        // Calcular dimensiones para centrar la imagen
+        const imgSize = Math.min(tempImg.width, tempImg.height);
+        const scale = size / imgSize;
+        const scaledWidth = tempImg.width * scale;
+        const scaledHeight = tempImg.height * scale;
+        
+        // Centrar la imagen
+        const x = (size - scaledWidth) / 2;
+        const y = (size - scaledHeight) / 2;
+        
+        // Aplicar transformaciones si es necesario
+        if (currentRotation !== 0 || currentZoom !== 1) {
+            ctx.save();
+            ctx.translate(size / 2, size / 2);
+            ctx.rotate((currentRotation * Math.PI) / 180);
+            ctx.scale(currentZoom, currentZoom);
+            ctx.drawImage(tempImg, -scaledWidth/2, -scaledHeight/2, scaledWidth, scaledHeight);
+            ctx.restore();
+        } else {
+            ctx.drawImage(tempImg, x, y, scaledWidth, scaledHeight);
+        }
+        
+        // Actualizar vista previa
+        preview.src = canvas.toDataURL();
+        console.log('✓ Vista previa actualizada correctamente');
+    };
+    
+    tempImg.onerror = function() {
+        console.error('Error al cargar imagen temporal para vista previa');
+        // Mostrar imagen de error
+        preview.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSIjRjVGNUY1Ii8+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjUwIiBzdHJva2U9IiNEOUQ5RDkiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSI2MCIgeT0iNjUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+UpDwvdGV4dD4KPC9zdmc+';
+    };
+    
+    tempImg.src = originalImageData;
+}
+
+// Guardar foto - VERSIÓN CORREGIDA
+function savePhoto() {
+    console.log('=== savePhoto INICIADO ===');
+    
+    if (!currentImage || !originalImageData) {
+        console.error('No hay imagen para guardar');
+        alert('No hay imagen para guardar.');
+        return;
+    }
+    
+    // Mostrar estado de carga
+    const saveBtn = document.getElementById('save-photo-btn');
+    if (saveBtn) {
+        saveBtn.classList.add('loading');
+        saveBtn.disabled = true;
+        saveBtn.textContent = '💾 Guardando...';
+    }
+    
+    // Crear canvas para la imagen final
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Configurar tamaño del canvas (300x300 para foto de perfil)
+    const size = 300;
+    canvas.width = size;
+    canvas.height = size;
+    
+    console.log('Canvas creado:', size + 'x' + size);
+    
+    // Crear imagen temporal
+    const tempImg = new Image();
+    tempImg.onload = function() {
+        console.log('Imagen temporal cargada para guardar');
+        
+        // Dibujar fondo blanco sólido para imágenes transparentes
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, size, size);
+        
+        // Crear máscara circular
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI);
+        ctx.clip();
+        
+        // Dibujar fondo blanco nuevamente después del clip para asegurar fondo blanco
+        // Esto es importante para imágenes PNG con transparencia que podrían mostrar fondo negro
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, size, size);
+        
+        // Calcular dimensiones para centrar la imagen
+        const imgSize = Math.min(tempImg.width, tempImg.height);
+        const scale = size / imgSize;
+        const scaledWidth = tempImg.width * scale;
+        const scaledHeight = tempImg.height * scale;
+        
+        // Centrar la imagen
+        const x = (size - scaledWidth) / 2;
+        const y = (size - scaledHeight) / 2;
+        
+        // Aplicar transformaciones si es necesario
+        if (currentRotation !== 0 || currentZoom !== 1) {
+            ctx.save();
+            ctx.translate(size / 2, size / 2);
+            ctx.rotate((currentRotation * Math.PI) / 180);
+            ctx.scale(currentZoom, currentZoom);
+            ctx.drawImage(tempImg, -scaledWidth/2, -scaledHeight/2, scaledWidth, scaledHeight);
+            ctx.restore();
+        } else {
+            ctx.drawImage(tempImg, x, y, scaledWidth, scaledHeight);
+        }
+        
+        console.log('Imagen procesada, convirtiendo a blob...');
+        
+        // Convertir a blob
+        canvas.toBlob(function(blob) {
+            if (!blob) {
+                console.error('Error al crear blob');
+                alert('Error al procesar la imagen.');
+                restoreSaveButton();
+                return;
+            }
+            
+            console.log('Blob creado:', blob.size, 'bytes');
+            
+            // Crear FormData
+            const formData = new FormData();
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            
+            if (!csrfToken) {
+                console.error('No se encontró el token CSRF');
+                alert('Error de seguridad. Recarga la página.');
+                restoreSaveButton();
+                return;
+            }
+            
+            formData.append('_token', csrfToken.getAttribute('content'));
+            formData.append('_method', 'PATCH');
+            formData.append('foto', blob, 'profile-photo.jpg');
+            
+            // Agregar campos requeridos para evitar errores de validación
+            const user = {!! json_encode($user) !!};
+            formData.append('name', user.name || 'Usuario');
+            formData.append('email', user.email || '');
+            formData.append('apellido', user.apellido || '');
+            formData.append('contacto', user.contacto || '');
+            formData.append('ubicacion', user.ubicacion || '');
+            
+            console.log('Enviando petición...');
+            
+            // Enviar petición
+            fetch('{{ route("profile.update") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                console.log('Respuesta recibida:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Datos recibidos:', data);
+                
+                if (data.success) {
+                    // Actualizar imagen en el perfil
+                    const profileContainer = document.getElementById('profile-photo-container');
+                    if (profileContainer && data.user.foto) {
+                        profileContainer.innerHTML = `<img src="${data.user.foto}" alt="Foto de perfil" class="profile-image">`;
+                        console.log('✓ Imagen actualizada en el perfil');
+                    }
+                    
+                    alert('¡Foto de perfil actualizada correctamente!');
+                    
+                    // Cerrar modal después de un breve delay
+                    setTimeout(() => {
+                        closePhotoEditModal();
+                    }, 1000);
+                } else {
+                    console.error('Error del servidor:', data.message);
+                    alert('Error al guardar la foto: ' + (data.message || 'Error desconocido'));
+                }
+            })
+            .catch(error => {
+                console.error('Error en la petición:', error);
+                alert('Error al guardar la foto. Verifica tu conexión.');
+            })
+            .finally(() => {
+                restoreSaveButton();
+            });
+        }, 'image/jpeg', 0.9);
+    };
+    
+    tempImg.onerror = function() {
+        console.error('Error al cargar imagen temporal para guardar');
+        alert('Error al procesar la imagen.');
+        restoreSaveButton();
+    };
+    
+    tempImg.src = originalImageData;
+}
+
+// Función auxiliar para restaurar el botón de guardar
+function restoreSaveButton() {
+    const saveBtn = document.getElementById('save-photo-btn');
+    if (saveBtn) {
+        saveBtn.classList.remove('loading');
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Guardar Foto';
+    }
+}
+
+// Función de prueba para la vista previa (llamar desde consola)
+function testPreview() {
+    console.log('=== TESTING PREVIEW ===');
+    console.log('originalImageData:', originalImageData ? 'Presente' : 'Ausente');
+    console.log('currentRotation:', currentRotation);
+    console.log('currentZoom:', currentZoom);
+    
+    const preview = document.getElementById('final-preview');
+    console.log('Elemento preview:', preview ? 'Encontrado' : 'No encontrado');
+    
+    if (preview) {
+        console.log('Preview src actual:', preview.src);
+    }
+    
+    // Forzar actualización
+    updatePreview();
+}
+
+// Función de prueba para verificar el fondo blanco
+function testWhiteBackground() {
+    console.log('=== TESTING WHITE BACKGROUND ===');
+    
+    if (!originalImageData) {
+        console.log('No hay imagen cargada para probar');
+        return;
+    }
+    
+    // Crear un canvas de prueba
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 120;
+    canvas.height = 120;
+    
+    // Dibujar fondo blanco
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, 120, 120);
+    
+    // Crear máscara circular
+    ctx.beginPath();
+    ctx.arc(60, 60, 60, 0, 2 * Math.PI);
+    ctx.clip();
+    
+    // Dibujar fondo blanco nuevamente
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, 120, 120);
+    
+    // Crear imagen temporal
+    const img = new Image();
+    img.onload = function() {
+        ctx.drawImage(img, 0, 0, 120, 120);
+        
+        // Verificar que el fondo sea blanco
+        const imageData = ctx.getImageData(0, 0, 120, 120);
+        const data = imageData.data;
+        
+        // Verificar algunos píxeles del borde (que deberían ser blancos)
+        let whitePixels = 0;
+        let totalPixels = 0;
+        
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const a = data[i + 3];
+            
+            if (a > 0) { // Solo contar píxeles visibles
+                totalPixels++;
+                if (r === 255 && g === 255 && b === 255) {
+                    whitePixels++;
+                }
+            }
+        }
+        
+        const whitePercentage = (whitePixels / totalPixels) * 100;
+        console.log(`Fondo blanco: ${whitePercentage.toFixed(1)}% de los píxeles`);
+        
+        if (whitePercentage > 50) {
+            console.log('✅ Fondo blanco aplicado correctamente');
+        } else {
+            console.log('❌ El fondo no es completamente blanco');
+        }
+    };
+    
+    img.src = originalImageData;
+}
+
+// Mostrar mensajes en el modal de foto - VERSIÓN SIMPLIFICADA
+function showPhotoMessage(message, type) {
+    console.log(`Mensaje [${type}]:`, message);
+    
+    // Usar alertas simples por ahora
+    if (type === 'error') {
+        alert('❌ ' + message);
+    } else if (type === 'success') {
+        alert('✅ ' + message);
+    } else {
+        alert('ℹ️ ' + message);
+    }
+}
+
+// Inicializar drag and drop - VERSIÓN SEGURA
+function initializeDragAndDrop() {
+    console.log('Inicializando drag and drop...');
+    
+    // Esperar un poco para que el DOM esté completamente listo
+    setTimeout(() => {
+        const uploadArea = document.querySelector('.upload-area');
+        
+        if (!uploadArea) {
+            console.error('No se encontró el área de subida - reintentando...');
+            // Reintentar después de un segundo
+            setTimeout(() => {
+                const retryArea = document.querySelector('.upload-area');
+                if (retryArea) {
+                    console.log('Área de subida encontrada en segundo intento');
+                    setupDragAndDrop(retryArea);
+                } else {
+                    console.error('No se pudo encontrar el área de subida después de múltiples intentos');
+                }
+            }, 1000);
+            return;
+        }
+        
+        setupDragAndDrop(uploadArea);
+    }, 100);
+}
+
+function setupDragAndDrop(uploadArea) {
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                // Simular selección de archivo
+                const input = document.getElementById('photo-input');
+                if (input) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    input.files = dataTransfer.files;
+                    
+                    // Disparar evento de cambio
+                    const event = new Event('change', { bubbles: true });
+                    input.dispatchEvent(event);
+                }
+            } else {
+                alert('Por favor arrastra solo archivos de imagen.');
+            }
+        }
+    });
+    
+    console.log('✓ Drag and drop inicializado correctamente');
+}
 </script>
 @endpush
 @endsection

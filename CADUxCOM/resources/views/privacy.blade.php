@@ -6,6 +6,7 @@
     <title>Política de Privacidad - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/privacy.css') }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/header-pages.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
 </head>
 <body>
@@ -172,10 +173,8 @@
                 <h2>12. Contacto</h2>
                 <p>Si tiene preguntas sobre esta Política de Privacidad o desea ejercer sus derechos, puede contactarnos:</p>
                 <ul>
-                    <li>Email: privacidad@caduxcom.com</li>
-                    <li>Teléfono: +57 (1) 234-5678</li>
-                    <li>Dirección: Bogotá, Colombia</li>
-                    <li>Horario de atención: Lunes a Viernes, 9:00 AM - 6:00 PM</li>
+                    <li>Email: caduxcom.store@gmail.com</li>
+                    <li>Teléfono: 3233526807</li>
                 </ul>
             </div>
         </div>

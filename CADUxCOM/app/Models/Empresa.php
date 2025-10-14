@@ -17,6 +17,9 @@ class Empresa extends Authenticatable
     public $incrementing = true;
     protected $keyType = 'int';
 
+    /**
+     * Campos que se pueden asignar masivamente
+     */
     protected $fillable = [
         'Nombre',
         'Foto',
@@ -43,6 +46,8 @@ class Empresa extends Authenticatable
         'approved_at',
         'rejected_at',
         'rejection_reason',
+        // Descuento progresivo
+        'progressive_discount_enabled',
     ];
 
     protected $hidden = [
@@ -60,6 +65,7 @@ class Empresa extends Authenticatable
         'location_updated_at' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
+        'progressive_discount_enabled' => 'boolean',
     ];
 
     /**
@@ -89,6 +95,11 @@ class Empresa extends Authenticatable
     public function discountRules(): HasMany
     {
         return $this->hasMany(DiscountRule::class, 'empresa_id', 'Id_Empresa');
+    }
+
+    public function comentarios(): HasMany
+    {
+        return $this->hasMany(Comentario::class, 'empresa_id', 'Id_Empresa');
     }
 
     /**
@@ -218,13 +229,5 @@ class Empresa extends Authenticatable
             'location_verified' => true,
             'location_updated_at' => now(),
         ]);
-    }
-
-    /**
-     * Relación: Una empresa tiene muchos comentarios
-     */
-    public function comentarios(): HasMany
-    {
-        return $this->hasMany(Comentario::class, 'empresa_id', 'Id_Empresa');
     }
 }

@@ -52,6 +52,14 @@ class ModernMapManager {
         this.bindEvents();
         this.setupResponsive();
         this.checkApiKey();
+        
+        // Inicializar el mapa automáticamente si Google Maps está disponible
+        if (typeof google !== 'undefined' && google.maps) {
+            console.log('Google Maps disponible, inicializando mapa...');
+            this.initMap();
+        } else {
+            console.log('Google Maps no disponible aún, esperando...');
+        }
     }
     
     /**
@@ -187,45 +195,29 @@ class ModernMapManager {
     }
     
     /**
-     * Cargar Google Maps API
+     * Verificar si Google Maps está disponible
      */
-    async loadGoogleMaps() {
-        if (typeof google !== 'undefined' && google.maps) {
-            return Promise.resolve();
-        }
-        
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${this.config.apiKey}&libraries=places,geometry&callback=initMapCallback`;
-            script.async = true;
-            script.defer = true;
-            
-            window.initMapCallback = () => {
-                resolve();
-                delete window.initMapCallback;
-            };
-            
-            script.onerror = () => {
-                reject(new Error('Error cargando Google Maps API'));
-            };
-            
-            document.head.appendChild(script);
-        });
+    checkGoogleMapsAvailable() {
+        return typeof google !== 'undefined' && google.maps;
     }
     
     /**
      * Inicializar el mapa
      */
-    async initMap() {
+    initMap() {
         if (this.isMapLoaded) return;
         
         console.log('Inicializando mapa...');
         
         try {
             this.showLoading(true);
-            await this.loadGoogleMaps();
             
-            console.log('Google Maps cargado, creando mapa...');
+            // Verificar que Google Maps esté disponible
+            if (!this.checkGoogleMapsAvailable()) {
+                throw new Error('Google Maps API no está disponible');
+            }
+            
+            console.log('Google Maps disponible, creando mapa...');
             
             this.map = new google.maps.Map(this.elements.map, {
                 zoom: this.config.defaultZoom,
@@ -256,7 +248,7 @@ class ModernMapManager {
             
         } catch (error) {
             console.error('Error inicializando mapa:', error);
-            this.showError('Error al cargar el mapa');
+            this.showError('Error al cargar el mapa: ' + error.message);
             this.hideLoading();
         }
     }
@@ -297,8 +289,25 @@ class ModernMapManager {
         this.filteredEmpresas = [...this.empresas];
         
         console.log('Empresas cargadas:', this.empresas);
+        console.log('Número de empresas:', this.empresas.length);
         
         if (this.empresas.length === 0) {
+            console.log('No hay empresas disponibles');
+            this.showNoCompanies();
+            return;
+        }
+        
+        // Verificar que las empresas tengan coordenadas válidas
+        const empresasConCoordenadas = this.empresas.filter(empresa => 
+            empresa.coordinates && 
+            empresa.coordinates.lat && 
+            empresa.coordinates.lng
+        );
+        
+        console.log('Empresas con coordenadas válidas:', empresasConCoordenadas.length);
+        
+        if (empresasConCoordenadas.length === 0) {
+            console.log('No hay empresas con coordenadas válidas');
             this.showNoCompanies();
             return;
         }
@@ -321,12 +330,19 @@ class ModernMapManager {
     addMarkers() {
         this.clearMarkers();
         
-        this.filteredEmpresas.forEach(empresa => {
+        console.log('Agregando marcadores para', this.filteredEmpresas.length, 'empresas');
+        
+        this.filteredEmpresas.forEach((empresa, index) => {
             if (empresa.coordinates && empresa.coordinates.lat && empresa.coordinates.lng) {
+                console.log(`Creando marcador ${index + 1}:`, empresa.name, empresa.coordinates);
                 const marker = this.createMarker(empresa);
                 this.markers.push(marker);
+            } else {
+                console.warn(`Empresa sin coordenadas válidas:`, empresa.name, empresa.coordinates);
             }
         });
+        
+        console.log('Marcadores creados:', this.markers.length);
     }
     
     /**
@@ -998,23 +1014,23 @@ class ModernMapManager {
 // Función global para inicializar el mapa
 function initMap() {
     try {
+        console.log('Inicializando mapa desde callback de Google Maps...');
         window.mapManager = new ModernMapManager();
-        window.mapManager.initMap();
+        // El initMap() se llama automáticamente en el constructor de ModernMapManager
     } catch (error) {
         console.error('Error inicializando el mapa:', error);
     }
 }
 
-// Función callback para Google Maps
-function initMapCallback() {
-    initMap();
-}
-
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM cargado, verificando Google Maps...');
     // Si Google Maps ya está cargado, inicializar inmediatamente
     if (typeof google !== 'undefined' && google.maps) {
+        console.log('Google Maps ya está disponible, inicializando...');
         initMap();
+    } else {
+        console.log('Esperando a que Google Maps se cargue...');
     }
 });
 

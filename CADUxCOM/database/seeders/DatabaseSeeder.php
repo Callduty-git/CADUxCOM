@@ -12,15 +12,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Crear usuario de prueba
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'correo_electronico' => 'test@example.com', // campo extra
-            'documento_id' => '123456789',             // campo extra
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'), 
-            'remember_token' => Str::random(10),
-        ]);
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'email_verified_at' => now(),
+                'password' => Hash::make('password'), 
+                'remember_token' => Str::random(10),
+            ]
+        );
 
         // Ejecutar seeders personalizados
         $this->call([

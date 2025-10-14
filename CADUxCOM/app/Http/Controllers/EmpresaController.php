@@ -14,39 +14,37 @@ use App\Models\LogEmpresa;
 class EmpresaController extends Controller
 {
     /**
-     * Muestra el dashboard de la empresa con sus datos.
+     * Muestra el dashboard de la empresa autenticada con sus datos.
      *
      * @return \Illuminate\View\View
      */
     public function dashboard()
     {
-        // Obtener el usuario autenticado (la empresa) usando el guard 'empresa'
-        // Esto asignará la instancia del modelo Empresa a la variable $empresa
+        // Obtener la empresa autenticada mediante el guard 'empresa'
         $empresa = Auth::guard('empresa')->user();
 
-        // Pasar la variable $empresa a la vista 'empresa.dashboard'
-        // El método compact('empresa') es una forma abreviada de ['empresa' => $empresa]
+        // Retornar la vista con la información de la empresa
         return view('empresa.dashboard', compact('empresa'));
     }
 
     /**
-     * Mostrar empresa pública (para usuarios no autenticados)
+     * Muestra la información pública de una empresa visible a usuarios no autenticados.
      *
      * @param int $id
-     * @return \Illuminate\View\View
+     * @return \Illuminate\View\View|\Illuminate\Http\Response
      */
     public function publicShow($id)
     {
         try {
-            // Buscar la empresa por ID
+            // Buscar la empresa
             $empresa = Empresa::findOrFail($id);
             
-            // Verificar que la empresa esté aprobada
+            // Verificar si está aprobada
             if ($empresa->status !== 'approved') {
                 abort(404, 'Empresa no disponible');
             }
-            
-            // Obtener productos de la empresa con información de descuento
+
+            // Obtener los productos de la empresa con información de descuentos
             $productos = Producto::where('Id_Empresa', $empresa->Id_Empresa)
                 ->where('Cantidad', '>', 0)
                 ->orderBy('created_at', 'desc')
@@ -63,27 +61,31 @@ class EmpresaController extends Controller
                         'expiry_status' => $discountInfo['expiry_status'],
                         'expiry_label' => $discountInfo['expiry_label'],
                         'days_until_expiry' => $discountInfo['days_until_expiry'],
-                        'image' => $producto->Foto ? asset('storage/' . $producto->Foto) : asset('images/default-product.png'),
+                        'image' => $producto->Foto
+                            ? asset('storage/' . $producto->Foto)
+                            : asset('images/default-product.png'),
                         'description' => $producto->Descripcion,
                         'quantity' => $producto->Cantidad,
-                        'category' => $producto->categoria ? $producto->categoria->Nombre : 'Sin categoría'
+                        'category' => $producto->categoria
+                            ? $producto->categoria->Nombre
+                            : 'Sin categoría',
                     ];
                 });
-            
+
             return view('empresa.public-show', compact('empresa', 'productos'));
-            
+
         } catch (\Exception $e) {
             Log::error('Error mostrando empresa pública', [
                 'empresa_id' => $id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             abort(404, 'Empresa no encontrada');
         }
     }
 
     /**
-     * Eliminar la cuenta de la empresa autenticada.
+     * Elimina la cuenta de la empresa autenticada y todos sus datos relacionados.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -94,41 +96,41 @@ class EmpresaController extends Controller
             // Obtener la empresa autenticada
             /** @var \App\Models\Empresa $empresa */
             $empresa = Auth::guard('empresa')->user();
-            
+
             if (!$empresa) {
                 return redirect()->route('empresa.login')
                     ->with('error', 'Debes iniciar sesión para realizar esta acción.');
             }
 
-            // Log del inicio del proceso de eliminación
+            // Log del inicio de la eliminación
             Log::info('Iniciando eliminación de cuenta de empresa', [
                 'empresa_id' => $empresa->Id_Empresa,
-                'empresa_nombre' => $empresa->Nombre
+                'empresa_nombre' => $empresa->Nombre,
             ]);
 
-            // Usar transacción para garantizar integridad de datos
+            // Transacción para garantizar consistencia de datos
             DB::transaction(function () use ($empresa) {
-                // Obtener todos los productos de la empresa para eliminar sus archivos
+                // Eliminar fotos de los productos
                 $productos = Producto::where('Id_Empresa', $empresa->Id_Empresa)->get();
-                
-                // Eliminar archivos de productos (fotos)
+
                 foreach ($productos as $producto) {
                     if ($producto->Foto && Storage::disk('public')->exists($producto->Foto)) {
                         Storage::disk('public')->delete($producto->Foto);
                     }
                 }
 
-                // Eliminar todos los productos de la empresa
+                // Eliminar productos asociados
                 Producto::where('Id_Empresa', $empresa->Id_Empresa)->delete();
 
-                // Eliminar todos los logs de la empresa
+                // Eliminar logs relacionados
                 LogEmpresa::where('empresa_id', $empresa->Id_Empresa)->delete();
 
-                // Eliminar archivos de la empresa (foto y certificado)
+                // Eliminar archivos de la empresa
                 if ($empresa->Foto && Storage::disk('public')->exists($empresa->Foto)) {
                     Storage::disk('public')->delete($empresa->Foto);
                 }
-                if ($empresa->Certificado_Camara_de_comercio && Storage::disk('public')->exists($empresa->Certificado_Camara_de_comercio)) {
+                if ($empresa->Certificado_Camara_de_comercio &&
+                    Storage::disk('public')->exists($empresa->Certificado_Camara_de_comercio)) {
                     Storage::disk('public')->delete($empresa->Certificado_Camara_de_comercio);
                 }
 
@@ -136,30 +138,27 @@ class EmpresaController extends Controller
                 $empresa->delete();
             });
 
-            // Cerrar sesión después de la eliminación exitosa
+            // Cerrar sesión de la empresa
             Auth::guard('empresa')->logout();
 
-            // Invalidar la sesión
+            // Invalidar sesión
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            // Log del éxito
+            // Log de eliminación exitosa
             Log::info('Cuenta de empresa eliminada exitosamente', [
-                'empresa_id' => $empresa->Id_Empresa
+                'empresa_id' => $empresa->Id_Empresa,
             ]);
 
-            // Redirigir a la página principal con mensaje de confirmación
             return redirect()->route('home')
                 ->with('success', 'Tu cuenta ha sido eliminada exitosamente.');
 
         } catch (\Exception $e) {
-            // Log del error
             Log::error('Error al eliminar cuenta de empresa', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
-            // En caso de error, redirigir con mensaje de error
+
             return back()->with('error', 'Ocurrió un error al eliminar la cuenta. Por favor, inténtalo de nuevo.');
         }
     }

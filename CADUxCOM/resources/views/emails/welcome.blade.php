@@ -340,10 +340,9 @@
             <div class="social-section">
                 <div class="social-title">Síguenos en Redes Sociales</div>
                 <div class="social-links">
-                    <a href="#" class="social-link">📘</a>
-                    <a href="#" class="social-link">📷</a>
-                    <a href="#" class="social-link">🐦</a>
-                    <a href="#" class="social-link">💼</a>
+                    <a href="https://www.facebook.com/share/14FJfgWzoRf/" class="social-link" target="_blank">📘</a>
+                    <a href="https://www.instagram.com/caduxcom?igsh=MWxwa2t0NmJoOWtubA==" class="social-link" target="_blank">📷</a>
+                    <a href="https://www.tiktok.com" class="social-link" target="_blank">🎵</a>
                 </div>
             </div>
 

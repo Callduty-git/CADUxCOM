@@ -8,7 +8,7 @@
     {{-- Archivos CSS --}}
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/navbar-new.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/cart.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,7 +20,7 @@
     <div class="app-wrapper">
         {{-- Componentes globales --}}
         <x-header />
-        <x-navbar />
+        <x-navbar-new />
 
         <main class="content min-h-screen py-8">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

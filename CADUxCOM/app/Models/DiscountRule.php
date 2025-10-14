@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Carbon\Carbon;
 
 /**
@@ -126,20 +125,11 @@ class DiscountRule extends Model
      */
     public function isValid(): bool
     {
-        if (!$this->is_active) {
-            return false;
-        }
+        if (!$this->is_active) return false;
 
         $now = now();
-
-        // Verificar fechas de validez
-        if ($this->starts_at && $this->starts_at > $now) {
-            return false;
-        }
-
-        if ($this->expires_at && $this->expires_at < $now) {
-            return false;
-        }
+        if ($this->starts_at && $this->starts_at > $now) return false;
+        if ($this->expires_at && $this->expires_at < $now) return false;
 
         return true;
     }
@@ -149,30 +139,11 @@ class DiscountRule extends Model
      */
     public function isApplicableToProduct(Producto $producto): bool
     {
-        // Verificar que el producto pertenezca a la empresa
-        if ($producto->Id_Empresa !== $this->empresa_id) {
-            return false;
-        }
-
-        // Verificar precio mínimo
-        if ($producto->Precio < $this->minimum_product_price) {
-            return false;
-        }
-
-        // Verificar productos excluidos
-        if ($this->excluded_products && in_array($producto->Id_Producto, $this->excluded_products)) {
-            return false;
-        }
-
-        // Verificar productos específicos aplicables
-        if ($this->applicable_products && !in_array($producto->Id_Producto, $this->applicable_products)) {
-            return false;
-        }
-
-        // Verificar categorías aplicables
-        if ($this->applicable_categories && !in_array($producto->Id_Subcategoria, $this->applicable_categories)) {
-            return false;
-        }
+        if ($producto->Id_Empresa !== $this->empresa_id) return false;
+        if ($producto->Precio < $this->minimum_product_price) return false;
+        if ($this->excluded_products && in_array($producto->Id_Producto, $this->excluded_products)) return false;
+        if ($this->applicable_products && !in_array($producto->Id_Producto, $this->applicable_products)) return false;
+        if ($this->applicable_categories && !in_array($producto->Id_Subcategoria, $this->applicable_categories)) return false;
 
         return true;
     }
@@ -182,6 +153,16 @@ class DiscountRule extends Model
      */
     public function calculateDiscount(Producto $producto): array
     {
+        // No aplicar reglas si el producto ya está vencido
+        if (method_exists($producto, 'isExpired') && $producto->isExpired()) {
+            return [
+                'discount_amount' => 0,
+                'discounted_price' => $producto->Precio,
+                'discount_percentage' => 0,
+                'applied_rule' => null,
+            ];
+        }
+
         if (!$this->isValid() || !$this->isApplicableToProduct($producto)) {
             return [
                 'discount_amount' => 0,
@@ -191,21 +172,33 @@ class DiscountRule extends Model
             ];
         }
 
-        $originalPrice = $producto->Precio;
+        // Verificar si faltan más días que el umbral configurado
+        $daysUntilExpiry = method_exists($producto, 'getDaysUntilExpiry')
+            ? $producto->getDaysUntilExpiry()
+            : ($producto->Fecha_Caducidad ? Carbon::parse($producto->Fecha_Caducidad)->diffInDays(now()) : 999);
+
+        if ($daysUntilExpiry > (int) $this->days_before_expiry) {
+            return [
+                'discount_amount' => 0,
+                'discounted_price' => $producto->Precio,
+                'discount_percentage' => 0,
+                'applied_rule' => null,
+            ];
+        }
+
+        // Base del descuento: precio original si existe, o precio actual
+        $originalPrice = $producto->PrecioOriginal > 0 ? $producto->PrecioOriginal : $producto->Precio;
         $discountAmount = 0;
 
-        // Calcular descuento según el tipo
         switch ($this->discount_type) {
             case self::TYPE_PERCENTAGE:
                 $discountAmount = ($originalPrice * $this->discount_value) / 100;
                 break;
-
             case self::TYPE_FIXED_AMOUNT:
                 $discountAmount = min($this->discount_value, $originalPrice);
                 break;
         }
 
-        // Aplicar límites de descuento
         if ($this->minimum_discount && $discountAmount < $this->minimum_discount) {
             $discountAmount = $this->minimum_discount;
         }
@@ -214,7 +207,6 @@ class DiscountRule extends Model
             $discountAmount = $this->maximum_discount;
         }
 
-        // Asegurar que el descuento no exceda el precio del producto
         $discountAmount = min($discountAmount, $originalPrice);
 
         $discountedPrice = $originalPrice - $discountAmount;
@@ -231,9 +223,9 @@ class DiscountRule extends Model
     /**
      * Obtener reglas aplicables para un producto
      */
-    public static function getApplicableRules(Producto $producto): \Illuminate\Database\Eloquent\Collection
+    public static function getApplicableRules(Producto $producto)
     {
-        $daysUntilExpiry = $producto->Fecha_Caducidad 
+        $daysUntilExpiry = $producto->Fecha_Caducidad
             ? Carbon::parse($producto->Fecha_Caducidad)->diffInDays(now())
             : 999;
 
@@ -242,9 +234,7 @@ class DiscountRule extends Model
             ->byDaysBeforeExpiry($daysUntilExpiry)
             ->orderBy('days_before_expiry', 'desc')
             ->get()
-            ->filter(function ($rule) use ($producto) {
-                return $rule->isApplicableToProduct($producto);
-            });
+            ->filter(fn($rule) => $rule->isApplicableToProduct($producto));
     }
 
     /**
@@ -300,44 +290,49 @@ class DiscountRule extends Model
             'usage_count' => $this->usage_count,
             'total_savings' => $this->total_savings,
             'average_savings_per_use' => $this->usage_count > 0 
-                ? round($this->total_savings / $this->usage_count, 2) 
+                ? round($this->total_savings / $this->usage_count, 2)
                 : 0,
         ];
     }
 
     /**
-     * Crear reglas por defecto para una empresa
+     * Crear reglas por defecto (3) para una empresa
      */
     public static function createDefaultRules(int $empresaId): void
     {
         $defaultRules = [
-            [
-                'name' => 'Descuento 7 días',
-                'description' => 'Descuento del 10% para productos que caducan en 7 días',
-                'days_before_expiry' => 7,
-                'discount_type' => self::TYPE_PERCENTAGE,
-                'discount_value' => 10,
-                'minimum_product_price' => 1000,
-            ],
-            [
-                'name' => 'Descuento 3 días',
-                'description' => 'Descuento del 20% para productos que caducan en 3 días',
-                'days_before_expiry' => 3,
-                'discount_type' => self::TYPE_PERCENTAGE,
-                'discount_value' => 20,
-                'minimum_product_price' => 1000,
-            ],
-            [
-                'name' => 'Descuento 1 día',
-                'description' => 'Descuento del 30% para productos que caducan en 1 día',
-                'days_before_expiry' => 1,
-                'discount_type' => self::TYPE_PERCENTAGE,
-                'discount_value' => 30,
-                'minimum_product_price' => 1000,
-            ],
+            ['name' => 'Descuento 7 días', 'description' => 'Descuento del 10% para productos que caducan en 7 días', 'days_before_expiry' => 7, 'discount_type' => self::TYPE_PERCENTAGE, 'discount_value' => 10, 'minimum_product_price' => 1000],
+            ['name' => 'Descuento 3 días', 'description' => 'Descuento del 20% para productos que caducan en 3 días', 'days_before_expiry' => 3, 'discount_type' => self::TYPE_PERCENTAGE, 'discount_value' => 20, 'minimum_product_price' => 1000],
+            ['name' => 'Descuento 1 día', 'description' => 'Descuento del 30% para productos que caducan en 1 día', 'days_before_expiry' => 1, 'discount_type' => self::TYPE_PERCENTAGE, 'discount_value' => 30, 'minimum_product_price' => 1000],
         ];
 
-        foreach ($defaultRules as $ruleData) {
+        $currentCount = self::byEmpresa($empresaId)->count();
+        $needed = max(0, 3 - $currentCount);
+
+        for ($i = 0; $i < $needed; $i++) {
+            $ruleData = $defaultRules[$i];
+            $ruleData['empresa_id'] = $empresaId;
+            self::create($ruleData);
+        }
+    }
+
+    /**
+     * Crear reglas adicionales hasta completar 5
+     */
+    public static function createAdditionalRulesUpToFive(int $empresaId): void
+    {
+        $additionalRules = [
+            ['name' => 'Descuento 14 días', 'description' => 'Descuento del 5% para productos que caducan en 14 días', 'days_before_expiry' => 14, 'discount_type' => self::TYPE_PERCENTAGE, 'discount_value' => 5, 'minimum_product_price' => 1000],
+            ['name' => 'Descuento 5 días', 'description' => 'Descuento del 15% para productos que caducan en 5 días', 'days_before_expiry' => 5, 'discount_type' => self::TYPE_PERCENTAGE, 'discount_value' => 15, 'minimum_product_price' => 1000],
+        ];
+
+        $limit = (int) config('discount.rules_limit', 5);
+        $currentCount = self::byEmpresa($empresaId)->count();
+        if ($currentCount >= $limit) return;
+
+        $needed = min(max(0, $limit - $currentCount), count($additionalRules));
+        for ($i = 0; $i < $needed; $i++) {
+            $ruleData = $additionalRules[$i];
             $ruleData['empresa_id'] = $empresaId;
             self::create($ruleData);
         }

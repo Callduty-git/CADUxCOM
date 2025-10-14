@@ -5,22 +5,27 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Empresa;
-use App\Models\User;
 use Illuminate\Support\Str;
 
 class CustomLoginController extends Controller
 {
+    /**
+     * Mostrar el formulario de login unificado.
+     * Si se pasa un parámetro "redirect", se guarda para redirigir luego.
+     */
     public function showLoginForm(Request $request)
     {
-        // Guardar la URL de redirección si se proporciona
+        // Guardar la URL de redirección si viene como parámetro
         if ($request->has('redirect')) {
             session(['url.intended' => $request->get('redirect')]);
         }
-        
+
         return view('auth.login'); // Vista unificada para login
     }
 
+    /**
+     * Procesar el intento de login tanto para usuarios como para empresas.
+     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -29,7 +34,7 @@ class CustomLoginController extends Controller
         ]);
 
         /**
-         * Intentar login como usuario normal
+         * Intentar login como usuario común
          */
         if (Auth::guard('web')->attempt([
             'email' => $credentials['email'],
@@ -37,11 +42,13 @@ class CustomLoginController extends Controller
         ], $request->filled('remember'))) {
             $user = Auth::guard('web')->user();
 
-            // Verificar si el email está verificado
-            if (!$user->email_verified) {
+            // Verificar si el correo está verificado (email_verified_at o email_verified)
+            $isVerified = !is_null($user->email_verified_at) || (bool)($user->email_verified ?? false);
+
+            if (!$isVerified) {
                 Auth::guard('web')->logout();
                 return back()->withErrors([
-                    'email' => 'Debes verificar tu email antes de poder iniciar sesión. Revisa tu correo electrónico.',
+                    'email' => 'Debes verificar tu correo electrónico antes de poder iniciar sesión. Revisa tu bandeja de entrada.',
                 ])->onlyInput('email');
             }
 
@@ -50,10 +57,10 @@ class CustomLoginController extends Controller
             // Validar redirección segura
             $intended = session('url.intended');
             if ($intended && $this->isSafeRedirect($intended)) {
-                return redirect()->intended(route('dashboard'));
+                return redirect()->intended(route('home'));
             }
 
-            return redirect()->route('dashboard');
+            return redirect()->route('home');
         }
 
         /**
@@ -65,13 +72,23 @@ class CustomLoginController extends Controller
         ], $request->filled('remember'))) {
             $empresa = Auth::guard('empresa')->user();
 
-            // Validar estado de la empresa
-            if ($empresa->status !== 'approved') {
+            // Verificar si el correo de la empresa está verificado
+            $isVerified = !is_null($empresa->email_verified_at) || (bool)($empresa->email_verified ?? false);
+            if (!$isVerified) {
+                Auth::guard('empresa')->logout();
+                return back()->withErrors([
+                    'email' => 'Debes verificar tu correo electrónico antes de poder iniciar sesión. Revisa tu bandeja de entrada.',
+                ])->onlyInput('email');
+            }
+
+            // Validar estado de la empresa (approved, sandbox, pending, rejected, etc.)
+            if (!in_array($empresa->status, ['approved', 'sandbox'])) {
                 Auth::guard('empresa')->logout();
 
-                $message = match($empresa->status) {
-                    'pending' => 'Tu cuenta está pendiente de aprobación. Recibirás una notificación por correo electrónico una vez que se complete la verificación.',
+                $message = match ($empresa->status) {
+                    'pending' => 'Tu cuenta está pendiente de aprobación. Recibirás una notificación una vez completada la verificación.',
                     'rejected' => 'Tu cuenta ha sido rechazada. Contacta al administrador para más información.',
+                    'suspended' => 'Tu cuenta ha sido suspendida temporalmente. Contacta al soporte.',
                     default => 'Tu cuenta no está disponible en este momento.',
                 };
 
@@ -82,7 +99,7 @@ class CustomLoginController extends Controller
 
             $request->session()->regenerate();
 
-            // Validar redirección segura
+            // Redirección segura
             $intended = session('url.intended');
             if ($intended && $this->isSafeRedirect($intended)) {
                 return redirect()->intended(route('empresa.dashboard'));
@@ -92,13 +109,16 @@ class CustomLoginController extends Controller
         }
 
         /**
-         * Si ambos fallan
+         * Si ambos intentos fallan
          */
         return back()->withErrors([
             'email' => 'Las credenciales no coinciden con nuestros registros.',
         ])->onlyInput('email');
     }
 
+    /**
+     * Cerrar sesión para usuario o empresa.
+     */
     public function logout(Request $request)
     {
         if (Auth::guard('web')->check()) {
@@ -116,7 +136,7 @@ class CustomLoginController extends Controller
     }
 
     /**
-     * Determina si la URL intended es segura para redirigir (no endpoints JSON/API).
+     * Determina si la URL de redirección es segura (no endpoints JSON o API).
      */
     private function isSafeRedirect(string $url): bool
     {
@@ -137,6 +157,7 @@ class CustomLoginController extends Controller
                 return false;
             }
         }
+
         return true;
     }
 }

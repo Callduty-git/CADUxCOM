@@ -23,21 +23,34 @@
 .education-container {
     min-height: 100vh;
     background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
-    padding-top: 0; /* Remover padding extra por header fijo */
+    padding-top: 0 !important; /* Remover padding extra por header fijo */
+    margin-top: 0 !important; /* Sin margen superior */
 }
 
 /* ===== AJUSTES PARA HEADER FIJO ===== */
 body {
-    padding-top: 0; /* Sin padding-top para evitar empujar contenido */
+    padding-top: 0 !important; /* Sin padding-top para evitar empujar contenido */
 }
 
 .page-container {
-    padding-top: 90px; /* Compensar el header fijo */
+    padding-top: 200px !important; /* Compensar el header fijo con espacio muy generoso */
+    margin-top: 0 !important; /* Sin margen superior */
 }
 
 /* Asegurar que el contenido no se oculte detrás del header */
 .education-container > *:first-child {
     margin-top: 0;
+}
+
+/* Ajuste específico para el hero-section */
+.hero-section {
+    background: var(--secondary-color);
+    color: var(--white-color);
+    padding: 15rem 0 4rem 0; /* Mucho más padding arriba para compensar header fijo */
+    position: relative;
+    overflow: hidden;
+    margin-top: 100px; /* Margen superior muy generoso para separar del header */
+    z-index: 1; /* Asegurar que esté por encima del header */
 }
 
 .container {
@@ -50,7 +63,7 @@ body {
 .hero-section {
     background: var(--secondary-color);
     color: var(--white-color);
-    padding: 6rem 0 4rem 0; /* Más padding arriba para compensar header fijo */
+    padding: 10rem 0 4rem 0; /* Mucho más padding arriba para compensar header fijo */
     position: relative;
     overflow: hidden;
     margin-top: 0; /* Asegurar que no haya espacio extra */
@@ -584,11 +597,17 @@ body {
     color: #AA5FC7;
     font-size: 1.1rem;
 }
+.form-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
 .form-group input,
 .form-group select {
     width: 100%;
-    padding: 0.8rem 7rem 0.8rem 1rem;
-    /* Mucho más espacio a la derecha para la unidad */
+    padding: 0.8rem 4.5rem 0.8rem 1rem;
+    /* Espacio suficiente para la unidad */
     border: 2px solid #89CF6D;
     border-radius: 10px;
     font-size: 1rem;
@@ -596,22 +615,21 @@ body {
     color: #49874E;
     transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
+    position: relative;
 }
 .input-unit {
     position: absolute;
-    right: 2rem;
+    right: 1.2rem;
     top: 50%;
     transform: translateY(-50%);
     color: #AA5FC7;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
     pointer-events: none;
     background: transparent;
     white-space: nowrap;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    z-index: 2;
+    z-index: 10;
+    line-height: 1;
 }
 
 .btn-primary.btn-large {
@@ -654,12 +672,11 @@ body {
     .form-group input,
     .form-group select {
         font-size: 0.95rem;
-        padding: 0.7rem 5.5rem 0.7rem 0.7rem;
+        padding: 0.7rem 3.5rem 0.7rem 0.7rem;
     }
     .input-unit {
-        right: 1.2rem;
+        right: 1rem;
         font-size: 0.85rem;
-        max-width: 80px;
     }
     .btn-primary.btn-large {
         font-size: 1rem;
@@ -684,12 +701,11 @@ body {
     .form-group input,
     .form-group select {
         font-size: 0.9rem;
-        padding: 0.5rem 4.2rem 0.5rem 0.5rem;
+        padding: 0.5rem 2.8rem 0.5rem 0.5rem;
     }
     .input-unit {
-        right: 0.7rem;
+        right: 0.8rem;
         font-size: 0.75rem;
-        max-width: 60px;
     }
     .btn-primary.btn-large {
         font-size: 0.95rem;
@@ -1175,12 +1191,11 @@ body {
     .form-group input,
     .form-group select {
         font-size: 0.9rem;
-        padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+        padding: 0.5rem 2.2rem 0.5rem 0.5rem;
         border-radius: 6px;
     }
     .input-unit {
-        top: 1.7rem;
-        right: 0.5rem;
+        right: 0.6rem;
         font-size: 0.75rem;
     }
     .calculator-form {

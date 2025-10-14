@@ -60,11 +60,8 @@ class ProductoController extends Controller
      */
     public function index(Request $request)
     {
-        // Obtener la empresa autenticada
         $empresa = Auth::guard('empresa')->user();
-        if (!$empresa) {
-            abort(403, 'Acceso no autorizado.');
-        }
+        if (!$empresa) abort(403, 'Acceso no autorizado.');
 
         $query = $request->input('query');
         $categoria = $request->input('categoria');
@@ -76,11 +73,11 @@ class ProductoController extends Controller
         $disponibilidad = $request->input('disponibilidad');
 
         $productos = Producto::with(['subcategoria.categoria'])
-            ->where('Id_Empresa', $empresa->Id_Empresa) // FILTRAR POR EMPRESA
+            ->where('Id_Empresa', $empresa->Id_Empresa)
             ->when($query, fn($q) => $q->where('Nombre', 'like', "%{$query}%")
                 ->orWhere('Marca', 'like', "%{$query}%"))
-            ->when($categoria, fn($q) => $q->whereHas('subcategoria.categoria', fn($sq) => $sq->whereIn('Id_Categoria', (array) $categoria)))
-            ->when($subcategoria, fn($q) => $q->whereIn('Id_Subcategoria', (array) $subcategoria))
+            ->when($categoria, fn($q) => $q->whereHas('subcategoria.categoria', fn($sq) => $sq->whereIn('Id_Categoria', (array)$categoria)))
+            ->when($subcategoria, fn($q) => $q->whereIn('Id_Subcategoria', (array)$subcategoria))
             ->when($fechaDesde, fn($q) => $q->where('Fecha_Caducidad', '>=', $fechaDesde))
             ->when($fechaHasta, fn($q) => $q->where('Fecha_Caducidad', '<=', $fechaHasta))
             ->when($precioMin, fn($q) => $q->where('Precio', '>=', $precioMin))
@@ -119,7 +116,8 @@ class ProductoController extends Controller
             $empresa = Auth::guard('empresa')->user();
             return view('productos.create', [
                 'subcategorias' => $subcategorias,
-                'empresas' => collect([$empresa])
+                'empresas' => collect([$empresa]),
+                'empresa' => $empresa
             ]);
         }
 
@@ -132,6 +130,17 @@ class ProductoController extends Controller
      */
     public function store(Request $request)
     {
+        if (Auth::guard('empresa')->check()) {
+            $authEmpresa = Auth::guard('empresa')->user();
+            $request->merge(['Id_Empresa' => $authEmpresa->Id_Empresa]);
+        }
+
+        $empresa = Empresa::find($request->input('Id_Empresa'));
+        if ($empresa && $empresa->progressive_discount_enabled) {
+            $precioOriginal = $request->input('PrecioOriginal');
+            $request->merge(['Precio' => $precioOriginal]);
+        }
+
         $request->validate([
             'Nombre' => 'required|string|max:255',
             'Marca' => 'required|string|max:255',
@@ -143,7 +152,6 @@ class ProductoController extends Controller
             'Foto' => 'nullable|image|max:2048',
         ]);
 
-        // Extra de la primera: precio oferta no mayor al original
         if ($request->Precio > $request->PrecioOriginal) {
             return back()->withInput()->with('error', 'El precio de oferta no puede ser mayor al precio original.');
         }
@@ -154,14 +162,7 @@ class ProductoController extends Controller
         }
         $producto->save();
 
-        $this->manageLogLimit($producto->Id_Empresa);
-
-        LogEmpresa::create([
-            'empresa_id' => $producto->Id_Empresa,
-            'accion' => 'Se agregó un producto',
-            'descripcion' => $producto->Nombre,
-            'created_at' => now(),
-        ]);
+        $this->logAction($producto->Id_Empresa, 'Se agregó un producto', $producto->Nombre);
 
         return Auth::guard('empresa')->check()
             ? redirect()->route('empresa.productos.index')->with('success', 'Producto creado exitosamente.')
@@ -173,17 +174,41 @@ class ProductoController extends Controller
      */
     public function userShow($id)
     {
-        $producto = Producto::findOrFail($id);
-        return view('productos.user-detail', compact('producto'));
+        $producto = Producto::with(['empresa', 'subcategoria.categoria'])->findOrFail($id);
+        $productosRelacionados = $this->getRelatedProducts($producto);
+        return view('productos.user-detail', compact('producto', 'productosRelacionados'));
     }
 
-    /**
-     * Mostrar producto (vista general)
-     */
-    public function show($id)
+    private function getRelatedProducts($producto)
     {
-        $producto = Producto::findOrFail($id);
-        return view('productos.user-detail', compact('producto'));
+        $sameSubcategory = Producto::with(['empresa', 'subcategoria.categoria'])
+            ->where('Id_Subcategoria', $producto->Id_Subcategoria)
+            ->where('Id_Producto', '!=', $producto->Id_Producto)
+            ->where('Cantidad', '>', 0)
+            ->limit(4)
+            ->get();
+
+        if ($sameSubcategory->count() < 4) {
+            $sameCategory = Producto::with(['empresa', 'subcategoria.categoria'])
+                ->whereHas('subcategoria', fn($q) => $q->where('Id_Categoria', $producto->subcategoria->Id_Categoria))
+                ->where('Id_Producto', '!=', $producto->Id_Producto)
+                ->whereNotIn('Id_Producto', $sameSubcategory->pluck('Id_Producto'))
+                ->limit(4 - $sameSubcategory->count())
+                ->get();
+            $sameSubcategory = $sameSubcategory->merge($sameCategory);
+        }
+
+        if ($sameSubcategory->count() < 4) {
+            $sameCompany = Producto::with(['empresa', 'subcategoria.categoria'])
+                ->where('Id_Empresa', $producto->Id_Empresa)
+                ->where('Id_Producto', '!=', $producto->Id_Producto)
+                ->whereNotIn('Id_Producto', $sameSubcategory->pluck('Id_Producto'))
+                ->limit(4 - $sameSubcategory->count())
+                ->get();
+            $sameSubcategory = $sameSubcategory->merge($sameCompany);
+        }
+
+        return $sameSubcategory->take(4);
     }
 
     /**
@@ -192,94 +217,50 @@ class ProductoController extends Controller
     public function showEmpresa($id)
     {
         $empresa = Auth::guard('empresa')->user();
-        if (!$empresa) {
-            abort(403, 'Acceso no autorizado.');
-        }
+        if (!$empresa) abort(403, 'Acceso no autorizado.');
 
         $producto = Producto::where('Id_Producto', $id)
             ->where('Id_Empresa', $empresa->Id_Empresa)
             ->firstOrFail();
-            
+
         return view('productos.show-empresa', compact('producto'));
     }
 
     /**
-     * Eliminar producto
+     * Editar producto
      */
-    public function destroy($id)
+    public function edit($id)
     {
-        // Si es una empresa, verificar que el producto le pertenezca
+        $subcategorias = Subcategoria::all();
+
         if (Auth::guard('empresa')->check()) {
             $empresa = Auth::guard('empresa')->user();
             $producto = Producto::where('Id_Producto', $id)
                 ->where('Id_Empresa', $empresa->Id_Empresa)
                 ->firstOrFail();
-        } else {
-            $producto = Producto::findOrFail($id);
+
+            return view('productos.edit-empresa', [
+                'producto' => $producto,
+                'subcategorias' => $subcategorias,
+                'empresas' => collect([$empresa])
+            ]);
         }
 
-        if ($producto->Foto) {
-            Storage::disk('public')->delete($producto->Foto);
-        }
-
-        $producto->delete();
-
-        $this->manageLogLimit($producto->Id_Empresa);
-
-        LogEmpresa::create([
-            'empresa_id' => $producto->Id_Empresa,
-            'accion' => 'Se eliminó un producto',
-            'descripcion' => $producto->Nombre,
-            'created_at' => now(),
-        ]);
-
-        return back()->with('success', 'Producto eliminado correctamente.');
+        $producto = Producto::findOrFail($id);
+        $empresas = Empresa::all();
+        return view('productos.edit', compact('producto', 'empresas', 'subcategorias'));
     }
-
-    /**
- * Editar producto
- */
-public function edit($id)
-{
-    $subcategorias = Subcategoria::all();
-
-    // Si quien edita es una empresa, usa la vista exclusiva de empresa
-    if (Auth::guard('empresa')->check()) {
-        $empresa = Auth::guard('empresa')->user();
-        
-        // Verificar que el producto pertenezca a la empresa autenticada
-        $producto = Producto::where('Id_Producto', $id)
-            ->where('Id_Empresa', $empresa->Id_Empresa)
-            ->firstOrFail();
-            
-        return view('productos.edit-empresa', [
-            'producto' => $producto,
-            'subcategorias' => $subcategorias,
-            'empresas' => collect([$empresa]) // Solo la empresa autenticada
-        ]);
-    }
-
-    // Si es un administrador u otro rol, muestra la vista general
-    $producto = Producto::findOrFail($id);
-    $empresas = Empresa::all();
-    return view('productos.edit', compact('producto', 'empresas', 'subcategorias'));
-}
-
 
     /**
      * Actualizar producto
      */
     public function update(Request $request, $id)
     {
-        // Si es una empresa, verificar que el producto le pertenezca
-        if (Auth::guard('empresa')->check()) {
-            $empresa = Auth::guard('empresa')->user();
-            $producto = Producto::where('Id_Producto', $id)
-                ->where('Id_Empresa', $empresa->Id_Empresa)
-                ->firstOrFail();
-        } else {
-            $producto = Producto::findOrFail($id);
-        }
+        $producto = Auth::guard('empresa')->check()
+            ? Producto::where('Id_Producto', $id)
+                ->where('Id_Empresa', Auth::guard('empresa')->user()->Id_Empresa)
+                ->firstOrFail()
+            : Producto::findOrFail($id);
 
         $request->validate([
             'Nombre' => 'required|string|max:255',
@@ -292,17 +273,13 @@ public function edit($id)
             'Foto' => 'nullable|image|max:2048',
         ]);
 
-        // Validar precio de oferta no mayor al original
         if ($request->Precio > $request->PrecioOriginal) {
             return back()->withInput()->with('error', 'El precio de oferta no puede ser mayor al precio original.');
         }
 
-        // Actualizar datos del producto
         $producto->fill($request->except('Foto'));
 
-        // Manejar nueva foto si se subió
         if ($request->hasFile('Foto')) {
-            // Eliminar foto anterior si existe
             if ($producto->Foto) {
                 Storage::disk('public')->delete($producto->Foto);
             }
@@ -311,14 +288,7 @@ public function edit($id)
 
         $producto->save();
 
-        $this->manageLogLimit($producto->Id_Empresa);
-
-        LogEmpresa::create([
-            'empresa_id' => $producto->Id_Empresa,
-            'accion' => 'Se editó un producto',
-            'descripcion' => $producto->Nombre,
-            'created_at' => now(),
-        ]);
+        $this->logAction($producto->Id_Empresa, 'Se editó un producto', $producto->Nombre);
 
         return Auth::guard('empresa')->check()
             ? redirect()->route('empresa.productos.index')->with('success', 'Producto actualizado exitosamente.')
@@ -326,15 +296,81 @@ public function edit($id)
     }
 
     /**
-     * Manejar límite de logs (máximo 50)
+     * Eliminar producto
      */
-    private function manageLogLimit($empresaId)
+    public function destroy($id)
     {
+        $producto = Auth::guard('empresa')->check()
+            ? Producto::where('Id_Producto', $id)
+                ->where('Id_Empresa', Auth::guard('empresa')->user()->Id_Empresa)
+                ->firstOrFail()
+            : Producto::findOrFail($id);
+
+        if ($producto->Foto) {
+            Storage::disk('public')->delete($producto->Foto);
+        }
+
+        $producto->delete();
+
+        $this->logAction($producto->Id_Empresa, 'Se eliminó un producto', $producto->Nombre);
+
+        return back()->with('success', 'Producto eliminado correctamente.');
+    }
+
+    /**
+     * Eliminar productos vencidos automáticamente
+     */
+    public function deleteExpired(Request $request)
+    {
+        $empresa = Auth::guard('empresa')->user();
+        if (!$empresa) abort(403, 'Acceso no autorizado.');
+
+        $expiredProducts = Producto::where('Id_Empresa', $empresa->Id_Empresa)
+            ->whereNotNull('Fecha_Caducidad')
+            ->where('Fecha_Caducidad', '<=', now()->subDay())
+            ->get();
+
+        $deletedCount = 0;
+        foreach ($expiredProducts as $producto) {
+            if ($producto->Foto) Storage::disk('public')->delete($producto->Foto);
+            $producto->delete();
+            $deletedCount++;
+        }
+
+        $this->logAction($empresa->Id_Empresa, 'Se eliminaron productos vencidos', "Eliminados {$deletedCount} productos vencidos");
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'deleted_count' => $deletedCount,
+                'message' => $deletedCount
+                    ? "Se eliminaron {$deletedCount} productos vencidos."
+                    : 'No hay productos vencidos para eliminar.'
+            ]);
+        }
+
+        return back()->with('success', $deletedCount
+            ? "Se eliminaron {$deletedCount} productos vencidos."
+            : 'No hay productos vencidos para eliminar.');
+    }
+
+    /**
+     * Registrar log y mantener máximo 50
+     */
+    private function logAction($empresaId, $accion, $descripcion)
+    {
+        LogEmpresa::create([
+            'empresa_id' => $empresaId,
+            'accion' => $accion,
+            'descripcion' => $descripcion,
+            'created_at' => now(),
+        ]);
+
         $logs = LogEmpresa::where('empresa_id', $empresaId)
             ->orderBy('created_at', 'desc')
             ->get();
 
-        if ($logs->count() >= 50) {
+        if ($logs->count() > 50) {
             $logs->slice(50)->each->delete();
         }
     }

@@ -26,7 +26,7 @@ class EmpresaAuthController extends Controller
      */
     public function login(Request $request)
     {
-        // Validar las credenciales
+        // Validar las credenciales ingresadas
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
@@ -36,13 +36,28 @@ class EmpresaAuthController extends Controller
         if (Auth::guard('empresa')->attempt($credentials, $request->filled('remember'))) {
             $empresa = Auth::guard('empresa')->user();
 
-            // Verificar estado de la empresa
-            if ($empresa->status !== 'approved') {
+            /**
+             * ✅ Verificar si el correo electrónico de la empresa está verificado
+             */
+            if (is_null($empresa->email_verified_at)) {
                 Auth::guard('empresa')->logout();
 
-                $message = match($empresa->status) {
+                return back()->withErrors([
+                    'email' => 'Debes verificar tu correo electrónico antes de poder iniciar sesión. Revisa tu bandeja de entrada.',
+                ])->onlyInput('email');
+            }
+
+            /**
+             * ✅ Verificar estado de la empresa
+             */
+            if (!in_array($empresa->status, ['approved', 'sandbox'])) {
+                Auth::guard('empresa')->logout();
+
+                $message = match ($empresa->status) {
                     'pending' => 'Tu cuenta está pendiente de aprobación. Recibirás una notificación por correo electrónico una vez que se complete la verificación.',
                     'rejected' => 'Tu cuenta ha sido rechazada. Contacta al administrador para más información.',
+                    'sandbox' => 'Tu cuenta está en modo Sandbox, pero temporalmente no disponible.',
+                    'suspended' => 'Tu cuenta ha sido suspendida temporalmente. Contacta al soporte.',
                     default => 'Tu cuenta no está disponible en este momento.',
                 };
 
@@ -51,14 +66,20 @@ class EmpresaAuthController extends Controller
                 ])->onlyInput('email');
             }
 
-            // Regenerar la sesión para seguridad
+            /**
+             * ✅ Regenerar sesión por seguridad
+             */
             $request->session()->regenerate();
 
-            // Redirigir al panel de productos o dashboard de la empresa
+            /**
+             * ✅ Redirigir al dashboard de empresa
+             */
             return redirect()->route('empresa.dashboard');
         }
 
-        // Si falla, volver con error
+        /**
+         * ❌ Si la autenticación falla
+         */
         return back()->withErrors([
             'email' => 'Las credenciales no coinciden con una empresa registrada.',
         ])->onlyInput('email');
@@ -69,7 +90,9 @@ class EmpresaAuthController extends Controller
      */
     public function logout(Request $request)
     {
-        Auth::guard('empresa')->logout();
+        if (Auth::guard('empresa')->check()) {
+            Auth::guard('empresa')->logout();
+        }
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

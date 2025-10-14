@@ -78,7 +78,7 @@ class OffersMapController extends Controller
                     ],
                     'products_count' => 15,
                     'discounted_products_count' => 8,
-                    'products' => collect([
+                    'products' => [
                         [
                             'id' => 1,
                             'name' => 'Arroz Diana 500g',
@@ -103,7 +103,7 @@ class OffersMapController extends Controller
                             'expiry_status' => 'urgent',
                             'expiry_label' => 'Urgente'
                         ]
-                    ])
+                    ]
                 ],
                 [
                     'id' => 2,
@@ -115,7 +115,7 @@ class OffersMapController extends Controller
                     ],
                     'products_count' => 12,
                     'discounted_products_count' => 5,
-                    'products' => collect([
+                    'products' => [
                         [
                             'id' => 3,
                             'name' => 'Pan Bimbo Integral',
@@ -128,7 +128,7 @@ class OffersMapController extends Controller
                             'expiry_status' => 'near-expiry',
                             'expiry_label' => 'Por vencer'
                         ]
-                    ])
+                    ]
                 ],
                 [
                     'id' => 3,
@@ -140,7 +140,7 @@ class OffersMapController extends Controller
                     ],
                     'products_count' => 8,
                     'discounted_products_count' => 3,
-                    'products' => collect([
+                    'products' => [
                         [
                             'id' => 4,
                             'name' => 'Aceite Gourmet 900ml',
@@ -153,9 +153,11 @@ class OffersMapController extends Controller
                             'expiry_status' => 'fresh',
                             'expiry_label' => 'Fresco'
                         ]
-                    ])
+                    ]
                 ]
             ];
+            
+            \Log::info('Empresas cargadas para el mapa:', ['count' => count($empresas)]);
             
             return $empresas;
         } catch (\Exception $e) {

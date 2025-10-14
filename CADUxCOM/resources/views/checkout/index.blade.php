@@ -344,12 +344,6 @@
                                     </span>
                                 </div>
                                 
-                                @if($couponDiscount > 0)
-                                    <div class="flex justify-between text-sm text-green-600">
-                                        <span>Descuento</span>
-                                        <span class="font-medium">-${{ number_format($couponDiscount, 0, ',', '.') }}</span>
-                                    </div>
-                                @endif
                                 
                                 <hr class="my-3">
                                 

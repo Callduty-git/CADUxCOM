@@ -4,24 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, HasApiTokens;
 
     /**
-     * The attributes that are mass assignable.
+     * Los atributos que se pueden asignar en masa.
      *
      * @var list<string>
      */
     protected $fillable = [
         'name',
+        'apellido',
         'email',
         'password',
         'email_verified',
-        'apellido',
         'contacto',
         'ubicacion',
         'foto',
@@ -32,7 +33,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Los atributos que deben ocultarse para la serialización.
      *
      * @var list<string>
      */
@@ -42,7 +43,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
+     * Los atributos que deben ser convertidos a tipos nativos.
      *
      * @return array<string, string>
      */
@@ -56,7 +57,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Relación: Un usuario tiene muchas reseñas
+     * Relación: Un usuario tiene muchas reseñas.
      */
     public function reviews()
     {
@@ -64,7 +65,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Relación: Un usuario tiene muchos puntos de fidelidad
+     * Relación: Un usuario tiene muchos puntos de fidelidad.
      */
     public function loyaltyPoints()
     {
@@ -72,7 +73,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Relación: Un usuario tiene muchas órdenes
+     * Relación: Un usuario tiene muchas órdenes.
      */
     public function orders()
     {
@@ -80,7 +81,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Relación: Un usuario tiene muchos logs de actividad
+     * Relación: Un usuario tiene muchos logs de actividad.
      */
     public function activityLogs()
     {
@@ -88,7 +89,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Relación: Un usuario tiene muchos productos en su wishlist (many-to-many)
+     * Relación: Un usuario tiene muchos productos en su wishlist (many-to-many).
      */
     public function wishlists()
     {
@@ -96,10 +97,20 @@ class User extends Authenticatable
     }
 
     /**
-     * Relación: Un usuario tiene muchos comentarios
+     * Relación: Un usuario tiene muchos comentarios.
      */
     public function comentarios()
     {
         return $this->hasMany(Comentario::class);
+    }
+
+    /**
+     * Accesor para obtener la URL completa de la foto.
+     */
+    public function getFotoUrlAttribute()
+    {
+        return $this->foto
+            ? asset('storage/' . $this->foto)
+            : asset('images/default-user.png');
     }
 }

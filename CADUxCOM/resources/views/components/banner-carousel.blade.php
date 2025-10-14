@@ -4,24 +4,18 @@
             <img src="{{ asset('images/Banner1.png') }}" 
                  alt="Banner promocional CADUxCOM" 
                  loading="eager"
-                 width="1200" 
-                 height="400"
                  class="carousel-image">
         </div>
         <div class="carousel-item">
             <img src="{{ asset('images/banner2.jpeg') }}" 
                  alt="Ofertas especiales CADUxCOM" 
                  loading="lazy"
-                 width="1200" 
-                 height="400"
                  class="carousel-image">
         </div>
         <div class="carousel-item">
             <img src="{{ asset('images/Banner3.jpg') }}" 
                  alt="Productos frescos CADUxCOM" 
                  loading="lazy"
-                 width="1200" 
-                 height="400"
                  class="carousel-image">
         </div>
     </div>
@@ -102,16 +96,24 @@
             
             isTransitioning = true;
             
+            // Ocultar todos los slides primero
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+                slide.style.display = 'none';
+            });
+            
+            // Mostrar el slide activo
+            if (slides[index]) {
+                slides[index].classList.add('active');
+                slides[index].style.display = 'flex';
+            }
+            
             // Actualizar indicadores
             indicators.forEach(indicator => indicator.classList.remove('active'));
             if (indicators[index]) {
                 indicators[index].classList.add('active');
             }
             
-            // Transición suave
-            carouselInner.style.transform = `translateX(-${index * 100}%)`;
-            slides.forEach(slide => slide.classList.remove('active'));
-            slides[index].classList.add('active');
             currentIndex = index;
             
             // Resetear flag de transición

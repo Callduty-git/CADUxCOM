@@ -11,12 +11,14 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('admin')->insert([
-            'usuario' => 'admin', // nombre de usuario para login
-            'password' => Hash::make('admin123'), // puedes cambiar la contraseña
-            'remember_token' => Str::random(10),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        DB::table('admin')->updateOrInsert(
+            ['usuario' => 'admin'],
+            [
+                'password' => Hash::make('admin123'),
+                'remember_token' => Str::random(10),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
     }
 }

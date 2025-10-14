@@ -15,6 +15,7 @@ class Subcategoria extends Model
         'Id_Categoria',
         'Nombre',
         'Icono',
+        'imagen',
     ];
 
     // Si tienes una relación con Categoría

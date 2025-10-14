@@ -52,15 +52,17 @@ body {
 /* Contenedor principal del mapa */
 .map-page-container {
     display: flex;
-    height: calc(100vh - 80px); /* Ajustar según altura del header */
-    margin-top: 80px; /* Espacio para el header fijo */
+    height: calc(100vh + 350px); /* Extender un poco más hacia abajo para empujar el footer */
+    min-height: calc(100vh + 350px); /* Forzar altura mínima extendida */
+    margin-top: 80px; /* Mantener espacio adecuado para el header */
+    margin-bottom: 0; /* Sin margen inferior */
     overflow: hidden;
     position: relative;
 }
 
 /* Sidebar de filtros */
 .map-sidebar {
-    width: 400px;
+    width: 500px; /* Más ancho para mejor visibilidad */
     background: var(--white);
     border-right: 1px solid var(--border-color);
     display: flex;
@@ -797,19 +799,83 @@ body {
     }
 }
 
+/* Pantallas extra grandes - Extender un poco más hacia abajo */
+@media (min-width: 1600px) {
+    .map-page-container {
+        height: calc(100vh + 450px); /* Extender un poco más hacia abajo en pantallas grandes */
+        min-height: calc(100vh + 450px); /* Forzar altura mínima extendida */
+        margin-top: 80px; /* Mantener espacio para header */
+        margin-bottom: 0; /* Sin margen inferior */
+    }
+}
+
+/* Pantallas grandes - Extender un poco más hacia abajo */
+@media (min-width: 1200px) {
+    .map-page-container {
+        height: calc(100vh + 400px); /* Extender un poco más hacia abajo para empujar el footer */
+        min-height: calc(100vh + 400px); /* Forzar altura mínima extendida */
+        margin-top: 80px; /* Mantener espacio para header */
+        margin-bottom: 0; /* Sin margen inferior */
+    }
+}
+
+/* Pantallas pequeñas de escritorio - Extender un poco más hacia abajo */
+@media (min-width: 769px) and (max-width: 1023px) {
+    .map-page-container {
+        height: calc(100vh + 300px); /* Extender un poco más hacia abajo para pantallas pequeñas */
+        min-height: calc(100vh + 300px); /* Forzar altura mínima extendida */
+        margin-top: 60px; /* Mantener espacio para header */
+        margin-bottom: 0; /* Sin margen inferior */
+    }
+    
+    .map-sidebar {
+        width: 420px; /* Más ancho para tablets */
+    }
+}
+
+/* Pantallas medianas - Extender un poco más hacia abajo */
+@media (min-width: 1024px) and (max-width: 1199px) {
+    .map-page-container {
+        height: calc(100vh + 350px); /* Extender un poco más hacia abajo para laptops pequeñas */
+        min-height: calc(100vh + 350px); /* Forzar altura mínima extendida */
+        margin-top: 70px; /* Mantener espacio para header */
+        margin-bottom: 0; /* Sin margen inferior */
+    }
+    
+    .map-sidebar {
+        width: 450px; /* Ancho intermedio para pantallas medianas */
+    }
+}
+
+/* Pantallas grandes - Sidebar aún más ancho */
+@media (min-width: 1200px) {
+    .map-sidebar {
+        width: 550px; /* Más ancho en pantallas grandes */
+    }
+}
+
+/* Pantallas extra grandes - Sidebar muy ancho */
+@media (min-width: 1600px) {
+    .map-sidebar {
+        width: 600px; /* Máximo ancho para pantallas extra grandes */
+    }
+}
+
 /* Móviles */
 @media (max-width: 768px) {
         .map-page-container {
-            height: calc(100vh - 60px);
-            margin-top: 60px;
+            height: calc(100vh - 15px); /* Usar casi toda la altura disponible en móviles */
+            min-height: calc(100vh - 15px); /* Forzar altura mínima */
+            margin-top: 15px; /* Mínimo espacio para header móvil */
+            margin-bottom: 0; /* Sin margen inferior */
         }
     
     .map-sidebar {
         position: fixed;
-        top: 60px;
+        top: 15px; /* Ajustar para header móvil */
         left: 0;
         width: 100%;
-        height: calc(100vh - 60px);
+        height: calc(100vh - 15px); /* Usar casi toda la altura disponible */
         transform: translateX(-100%);
         z-index: 1000;
         box-shadow: var(--shadow-xl);
@@ -914,13 +980,15 @@ body {
 /* Móviles pequeños */
 @media (max-width: 480px) {
         .map-page-container {
-            height: calc(100vh - 50px);
-            margin-top: 50px;
+            height: calc(100vh - 10px); /* Usar casi toda la altura disponible en móviles pequeños */
+            min-height: calc(100vh - 10px); /* Forzar altura mínima */
+            margin-top: 10px; /* Mínimo espacio para header móvil pequeño */
+            margin-bottom: 0; /* Sin margen inferior */
         }
     
     .map-sidebar {
-        top: 50px;
-        height: calc(100vh - 50px);
+        top: 10px; /* Ajustar para header móvil pequeño */
+        height: calc(100vh - 10px); /* Usar casi toda la altura disponible */
     }
     
     .sidebar-header {

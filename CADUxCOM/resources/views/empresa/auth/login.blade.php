@@ -18,6 +18,11 @@
             <h1 class="login-title">Login Empresa</h1>
             <p class="login-subtitle">Accede a tu panel de control</p>
         </div>
+        @if(session('success'))
+            <div style="background:#e6fffa;color:#065f46;border:1px solid #99f6e4;padding:10px 12px;border-radius:8px;margin-bottom:12px;">
+                <i class="fas fa-check-circle"></i> {{ session('success') }}
+            </div>
+        @endif
 
         <form method="POST" action="{{ route('empresa.login') }}">
             @csrf

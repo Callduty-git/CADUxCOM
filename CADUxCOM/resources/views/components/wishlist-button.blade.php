@@ -153,6 +153,11 @@ function updateWishlistCount(count) {
     if (countElement) {
         countElement.textContent = count;
     }
+    
+    // También actualizar el contador del header si existe la función
+    if (window.updateWishlistCountHeader) {
+        window.updateWishlistCountHeader();
+    }
 }
 
 // Sistema de debounce para notificaciones

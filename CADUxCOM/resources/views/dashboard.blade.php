@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/empresa-dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/empresa-sidebar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header-empresa.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -462,12 +463,33 @@
         .modal-content {
             background-color: #fff;
             margin: 5% auto;
-            padding: 30px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 800px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-radius: 18px;
+            width: 92%;
+            max-width: 840px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
             animation: modalSlideIn 0.3s ease-out;
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, #89CF6D 0%, #49874E 100%);
+            color: #fff;
+        }
+        .modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-body {
+            padding: 24px;
+            background: #fff;
         }
         @keyframes modalSlideIn {
             from {
@@ -480,19 +502,69 @@
             }
         }
         .close {
-            color: #6c757d;
-            font-size: 28px;
+            color: rgba(255,255,255,0.9);
+            font-size: 26px;
             font-weight: bold;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: opacity 0.3s ease;
         }
-        .close:hover {
-            color: #dc3545;
+        .close:hover { opacity: 0.8; }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 18px;
         }
-        .save-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        .form-row { margin-bottom: 18px; }
+        .form-field label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.95rem;
         }
+        .input-control {
+            width: 100%;
+            padding: 12px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background: #fff;
+        }
+        .input-control:focus {
+            border-color: #49874E;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(73, 135, 78, 0.12);
+        }
+        .modal-actions { text-align: center; margin-top: 6px; }
+        .save-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 6px 18px rgba(40, 167, 69, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .save-btn:hover { transform: translateY(-1px); }
+        .logo-preview {
+            width: 100%;
+            max-width: 160px;
+            height: 160px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid #e9ecef;
+            background: #f8f9fa;
+        }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+        .save-btn:hover { box-shadow: 0 10px 25px rgba(40, 167, 69, 0.35); }
 
         /* ====== ESTILOS MODAL BIENVENIDA ====== */
         .modal-bienvenida {
@@ -865,6 +937,25 @@
             border-color: #000000;
         }
 
+        /* ====== SANDBOX BANNER ====== */
+        .sandbox-banner {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: pulse-banner 2s infinite;
+        }
+
+        @keyframes pulse-banner {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
     </style>
 </head>
 <body>
@@ -873,6 +964,13 @@
     <x-empresa-sidebar />
     <div class="main-container">
         <main class="dashboard-panel">
+            @php $empresa = Auth::guard('empresa')->user(); @endphp
+            @if($empresa && strtolower($empresa->status ?? '') === 'sandbox')
+                <div class="sandbox-banner">
+                    <strong>Modo Sandbox:</strong>
+                    Estás operando en modo de pruebas. Validaremos tus datos antes de pasar a producción.
+                </div>
+            @endif
             <div class="dashboard-container">
                 <div class="dashboard-header">
                     <div class="flex items-center justify-center gap-5 mb-5">
@@ -890,6 +988,16 @@
                     </div>
                 </div>
                 <div class="dashboard-content">
+                    @if(session('success'))
+                        <div style="background: #e6fffa; color: #065f46; border: 1px solid #99f6e4; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
+                            <i class="fas fa-check-circle"></i> {{ session('success') }}
+                        </div>
+                    @endif
+                    @if(session('error'))
+                        <div style="background: #fee2e2; color: #7f1d1d; border: 1px solid #fecaca; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
+                            <i class="fas fa-exclamation-triangle"></i> {{ session('error') }}
+                        </div>
+                    @endif
                     <div class="stats-grid">
                         <div class="stat-card">
                             <i class="fas fa-boxes stat-icon"></i>
@@ -914,6 +1022,43 @@
                     </div>
                     <div class="quick-actions">
                         <h3><i class="fas fa-bolt"></i> Acciones Rápidas</h3>
+                            <style>
+                            .toggle-btn-clean {
+                                border: none;
+                                border-radius: 999px;
+                                font-weight: 800;
+                                color: #fff;
+                                cursor: pointer;
+                                transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+                                display: inline-flex;
+                                align-items: center;
+                                position: relative;
+                                width: 100px;
+                                height: 36px;
+                                padding: 0 12px;
+                                justify-content: center;
+                                letter-spacing: 0.5px;
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                                overflow: hidden;
+                            }
+                            .toggle-btn-clean.toggle-on { background: #22c55e; }
+                            .toggle-btn-clean.toggle-off { background: #ef4444; }
+                            .toggle-btn-clean:disabled { opacity: 0.7; cursor: not-allowed; }
+                            .toggle-btn-clean::before {
+                                content: '';
+                                position: absolute;
+                                width: 24px;
+                                height: 24px;
+                                border-radius: 50%;
+                                background: #fff;
+                                top: 6px;
+                                left: 8px;
+                                transition: left 0.2s ease;
+                                box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+                            }
+                            .toggle-btn-clean.toggle-on::before { left: 68px; }
+                            .toggle-btn-clean .toggle-label { color: #fff; font-weight: 800; }
+                            </style>
                         <div class="quick-actions-grid">
                             <a href="{{ route('productos.create') }}" class="quick-action-btn">
                                 <i class="fas fa-plus quick-action-icon"></i>
@@ -923,6 +1068,23 @@
                                 <i class="fas fa-key quick-action-icon"></i>
                                 <span class="quick-action-text">Cambiar Contraseña</span>
                             </a>
+                            <a href="#" id="openProgressiveModal" class="quick-action-btn" onclick="return false;">
+                                <i class="fas fa-percent quick-action-icon"></i>
+                                <span class="quick-action-text">Descuento progresivo</span>
+                            </a>
+                            <!-- Eliminar productos vencidos -->
+                            <form id="deleteExpiredForm" method="POST" action="{{ route('empresa.productos.delete-expired') }}" style="display:none;">
+                                @csrf
+                            </form>
+                            <div class="quick-action-btn" style="display:flex; align-items:center; justify-content:space-between;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <i class="fas fa-trash-alt quick-action-icon"></i>
+                                    <span class="quick-action-text">Eliminar vencidos</span>
+                                </div>
+                                <button id="deleteExpiredToggleBtn" type="button" class="toggle-btn-clean toggle-off" onclick="return toggleDeleteExpired(event);" title="Borra productos 1 día después de su fecha de caducidad" aria-pressed="false">
+                                    <span class="toggle-label">OFF</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="info-section">
@@ -1015,65 +1177,135 @@
     </div>
     <div id="editModal" class="modal">
         <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="margin: 0; color: #495057; font-size: 1.5rem; font-weight: 600;">
+            <div class="modal-header">
+                <h3 class="modal-title">
                     <i class="fas fa-edit"></i> Editar Perfil
                 </h3>
-                <span class="close" id="closeModal" style="font-size: 28px; cursor: pointer; color: #6c757d;">&times;</span>
+                <span class="close" id="closeModal">&times;</span>
             </div>
-            <form id="editProfileForm" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057;">Nombre de la Empresa</label>
-                        <input type="text" name="Nombre" value="{{ $empresa->Nombre }}" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#28a745'" onblur="this.style.borderColor='#e9ecef'">
+            <div class="modal-body">
+                <form id="editProfileForm" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>Nombre de la Empresa</label>
+                            <input class="input-control" type="text" name="Nombre" value="{{ $empresa->Nombre }}" placeholder="Ej. Panadería La Estrella">
+                        </div>
+                        <div class="form-field">
+                            <label>Correo Electrónico</label>
+                            <input class="input-control" type="email" name="email" value="{{ $empresa->email }}" placeholder="empresa@correo.com">
+                        </div>
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057;">Correo Electrónico</label>
-                        <input type="email" name="email" value="{{ $empresa->email }}" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#28a745'" onblur="this.style.borderColor='#e9ecef'">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>Dirección</label>
+                            <input class="input-control" type="text" name="Direccion" value="{{ $empresa->Direccion }}" placeholder="Calle 123 #45-67">
+                        </div>
+                        <div class="form-field">
+                            <label>Teléfono de Contacto</label>
+                            <input class="input-control" type="text" name="Contacto" value="{{ $empresa->Contacto }}" placeholder="300 123 4567">
+                        </div>
                     </div>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>NIT</label>
+                            <input class="input-control" type="text" name="NIT" value="{{ $empresa->NIT }}" placeholder="900123456-7">
+                        </div>
+                        <div class="form-field">
+                            <label>Ubicación</label>
+                            <input class="input-control" type="text" name="Ubicacion" value="{{ $empresa->Ubicacion }}" placeholder="Ciudad / Departamento">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Municipio</label>
+                            <input class="input-control" type="text" name="Municipio" value="{{ $empresa->Municipio }}" placeholder="Municipio">
+                        </div>
+                    </div>
+                    <div class="form-grid" style="align-items:center;">
+                        <div class="form-field">
+                            <label>Logo de la Empresa</label>
+                            <input class="input-control" type="file" name="Foto" accept="image/*">
+                        </div>
+                        <div class="form-field" style="text-align:center;">
+                            <img id="logoPreview" class="logo-preview" src="{{ isset($empresa->Foto) && $empresa->Foto ? asset('storage/'.$empresa->Foto) : asset('images/logo-caduxcom.png') }}" alt="Logo">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Certificado Cámara de Comercio</label>
+                            <input class="input-control" type="file" name="Certificado_Camara_de_comercio" accept="application/pdf,image/*">
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="save-btn">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal: Descuento Progresivo -->
+    <div id="progressiveDiscountModal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #495057; font-size: 1.5rem; font-weight: 600;">
+                    <i class="fas fa-percent"></i> Descuento progresivo
+                </h3>
+                <span class="close" id="closeProgressiveModal" style="font-size: 28px; cursor: pointer; color: #6c757d;">&times;</span>
+            </div>
+            <div style="color: #495057; line-height: 1.6; font-size: 0.98rem;">
+                <p style="margin-bottom: 10px;">
+                    El descuento progresivo reduce automáticamente el precio de tus productos a medida que se acerca su fecha de caducidad. Así fomentas la rotación de inventario y evitas pérdidas por vencimiento.
+                </p>
+                <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #343a40;">Reglas predeterminadas</div>
+                    <ul style="margin-left: 18px;">
+                        <li>7 días antes de caducar: descuento del 10%.</li>
+                        <li>3 días antes de caducar: descuento del 20%.</li>
+                        <li>1 día antes de caducar: descuento del 30%.</li>
+                    </ul>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057;">Dirección</label>
-                        <input type="text" name="Direccion" value="{{ $empresa->Direccion }}" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#28a745'" onblur="this.style.borderColor='#e9ecef'">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057;">Teléfono de Contacto</label>
-                        <input type="text" name="Contacto" value="{{ $empresa->Contacto }}" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#28a745'" onblur="this.style.borderColor='#e9ecef'">
-                    </div>
+                <div style="background: #fff; border: 1px dashed #dee2e6; border-radius: 10px; padding: 12px; margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 6px; color: #495057;">¿Cómo afecta a tus productos?</div>
+                    <ul style="margin-left: 18px;">
+                        <li>Aplica a productos con <em>Fecha_Caducidad</em> definida y stock disponible.</li>
+                        <li>Se calcula sobre el precio actual y nunca deja el precio en negativo.</li>
+                        <li>No aplica si el precio del producto es inferior a $1.000 (valor mínimo por defecto).</li>
+                    </ul>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057;">NIT</label>
-                        <input type="text" name="NIT" value="{{ $empresa->NIT }}" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#28a745'" onblur="this.style.borderColor='#e9ecef'">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057;">Ubicación</label>
-                        <input type="text" name="Ubicacion" value="{{ $empresa->Ubicacion }}" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#28a745'" onblur="this.style.borderColor='#e9ecef'">
-                    </div>
+
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <form method="POST" action="{{ route('discount-rules.create-defaults') }}">
+                        @csrf
+                        <button type="submit" class="btn-action btn-success" style="display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-play"></i>
+                            Activar reglas por defecto
+                        </button>
+                    </form>
+                    <a href="{{ route('discount-rules.discount-rules.index') }}" class="btn-action btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-cogs"></i>
+                        Gestionar reglas
+                    </a>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057;">Municipio</label>
-                    <input type="text" name="Municipio" value="{{ $empresa->Municipio }}" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#28a745'" onblur="this.style.borderColor='#e9ecef'">
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+
+                <hr style="margin: 16px 0; border: none; border-top: 1px solid #e9ecef;">
+
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
                     <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057;">Logo de la Empresa</label>
-                        <input type="file" name="Foto" accept="image/*" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#28a745'" onblur="this.style.borderColor='#e9ecef'">
+                        <div style="font-weight: 600; color: #495057;">Estado actual</div>
+                        <div id="progressiveStatusText" class="{{ $empresa->progressive_discount_enabled ? 'text-success' : 'text-danger' }}" style="font-weight: 600;">
+                            {{ $empresa->progressive_discount_enabled ? 'Activo' : 'Inactivo' }}
+                        </div>
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057;">Certificado Cámara de Comercio</label>
-                        <input type="file" name="Certificado_Camara_de_comercio" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#28a745'" onblur="this.style.borderColor='#e9ecef'">
-                    </div>
-                </div>
-                <div style="text-align: center;">
-                    <button type="submit" class="save-btn" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);">
-                        <i class="fas fa-save"></i> Guardar Cambios
+                    <button id="toggleProgressiveDiscountBtn" class="btn-action {{ $empresa->progressive_discount_enabled ? 'btn-warning' : 'btn-success' }}" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas {{ $empresa->progressive_discount_enabled ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
+                        {{ $empresa->progressive_discount_enabled ? 'Desactivar' : 'Activar' }} descuento progresivo
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
     
@@ -1091,10 +1323,58 @@
         </div>
     </div>
     <script>
+        function toggleDeleteExpired(e) {
+            e.preventDefault();
+            const btn = document.getElementById('deleteExpiredToggleBtn');
+            const isOff = btn.classList.contains('toggle-off');
+            if (isOff) {
+                const confirmed = confirm('¿Quieres eliminar ahora los productos vencidos? Se eliminarán los que tengan más de 1 día desde su fecha de caducidad. Esta acción es permanente.');
+                if (!confirmed) return false;
+                btn.disabled = true;
+                btn.classList.remove('toggle-off');
+                btn.classList.add('toggle-on');
+                btn.setAttribute('aria-pressed', 'true');
+                btn.querySelector('.toggle-label').textContent = 'ON';
+
+                const url = "{{ route('empresa.productos.delete-expired') }}";
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    }
+                }).then(async (res) => {
+                    let message = 'Limpieza ejecutada';
+                    try {
+                        const data = await res.json();
+                        if (data && data.message) message = data.message;
+                    } catch (_) {}
+                    showSuccessNotification(message);
+                }).catch((err) => {
+                    console.error('Error al eliminar productos vencidos:', err);
+                }).finally(() => {
+                    // Mantener ON hasta que el usuario lo apague manualmente
+                    btn.disabled = false;
+                });
+            } else {
+                // Apagar manualmente
+                btn.classList.remove('toggle-on');
+                btn.classList.add('toggle-off');
+                btn.setAttribute('aria-pressed', 'false');
+                btn.querySelector('.toggle-label').textContent = 'OFF';
+            }
+            return false;
+        }
+    </script>
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const openModalBtn = document.getElementById('openModal');
             const closeModalBtn = document.getElementById('closeModal');
             const editModal = document.getElementById('editModal');
+            const openProgressiveBtn = document.getElementById('openProgressiveModal');
+            const closeProgressiveBtn = document.getElementById('closeProgressiveModal');
+            const progressiveModal = document.getElementById('progressiveDiscountModal');
 
             if(openModalBtn) {
                 openModalBtn.addEventListener('click', function() {
@@ -1107,10 +1387,31 @@
                     editModal.style.display = 'none';
                 });
             }
+            // Cerrar con tecla ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && editModal && editModal.style.display === 'block') {
+                    editModal.style.display = 'none';
+                }
+            });
             
+            // Abrir/cerrar modal de descuento progresivo
+            if (openProgressiveBtn) {
+                openProgressiveBtn.addEventListener('click', function() {
+                    progressiveModal.style.display = 'block';
+                });
+            }
+            if (closeProgressiveBtn) {
+                closeProgressiveBtn.addEventListener('click', function() {
+                    progressiveModal.style.display = 'none';
+                });
+            }
+
             window.addEventListener('click', function(event) {
                 if (event.target === editModal) {
                     editModal.style.display = 'none';
+                }
+                if (event.target === progressiveModal) {
+                    progressiveModal.style.display = 'none';
                 }
             });
 
@@ -1180,6 +1481,65 @@
                     welcomeModal.style.display = 'none';
                     localStorage.setItem('welcomeMessageShown', 'true');
                 }, 5000);
+            }
+
+            }
+
+            // Toggle de descuento progresivo
+            const toggleBtn = document.getElementById('toggleProgressiveDiscountBtn');
+            const statusText = document.getElementById('progressiveStatusText');
+            if (toggleBtn && statusText) {
+                toggleBtn.addEventListener('click', async function() {
+                    toggleBtn.disabled = true;
+                    const originalHtml = toggleBtn.innerHTML;
+                    toggleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+
+                    try {
+                        const toggleUrl = "{{ route('empresa.progressive-discount.toggle') }}";
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                        const res = await fetch(toggleUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: JSON.stringify({})
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            const enabled = !!data.enabled;
+                            statusText.textContent = enabled ? 'Activo' : 'Inactivo';
+                            statusText.classList.toggle('text-success', enabled);
+                            statusText.classList.toggle('text-danger', !enabled);
+                            toggleBtn.classList.toggle('btn-success', !enabled);
+                            toggleBtn.classList.toggle('btn-warning', enabled);
+                            toggleBtn.innerHTML = `<i class="fas ${enabled ? 'fa-toggle-off' : 'fa-toggle-on'}"></i> ${enabled ? 'Desactivar' : 'Activar'} descuento progresivo`;
+                            showSuccessNotification(`Descuento progresivo ${enabled ? 'activado' : 'desactivado'}.`);
+                        } else {
+                            alert('No se pudo alternar el estado.');
+                            toggleBtn.innerHTML = originalHtml;
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        alert('Error de red al alternar el estado.');
+                        toggleBtn.innerHTML = originalHtml;
+                    } finally {
+                        toggleBtn.disabled = false;
+                    }
+                });
+            }
+
+            // Vista previa del logo
+            const logoInput = document.querySelector('input[name="Foto"]');
+            const logoPreview = document.getElementById('logoPreview');
+            if (logoInput && logoPreview) {
+                logoInput.addEventListener('change', function() {
+                    const file = this.files && this.files[0];
+                    if (file) {
+                        const url = URL.createObjectURL(file);
+                        logoPreview.src = url;
+                    }
+                });
             }
 
             // Función para mostrar notificación de éxito moderna
@@ -1313,5 +1673,7 @@
     </style>
     
     <x-footer />
+</body>
+</html>
 </body>
 </html>

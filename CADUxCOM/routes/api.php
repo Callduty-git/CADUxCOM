@@ -4,7 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\ProductoController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\GeolocationController;
 
 // Endpoints REST para wishlist (protegidos con auth:sanctum)
@@ -22,10 +21,6 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('/productos/{id}', [ProductoController::class, 'show']); // Ver detalle
     // Puedes agregar POST, PUT, DELETE según permisos
 
-    // Endpoints REST para notificaciones (protegidos con rate limiting)
-    Route::get('/notificaciones', [NotificationController::class, 'index']); // Listar notificaciones
-    Route::patch('/notificaciones/{notification}/read', [NotificationController::class, 'markAsRead']); // Marcar como leída
-    Route::delete('/notificaciones/{notification}', [NotificationController::class, 'destroy']); // Eliminar
 });
 
 // Endpoints REST para órdenes (protegidos con auth:sanctum)

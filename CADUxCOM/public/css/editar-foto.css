@@ -1,0 +1,598 @@
+/* ====== ESTILOS PARA EDITOR DE FOTO DE PERFIL ====== */
+
+/* Variables de colores corporativos */
+:root {
+    --verde-claro: #89CF6D;
+    --verde-oscuro: #49874E;
+    --morado-acento: #AA5FC7;
+    --blanco: #FFFFFF;
+    --gris-claro: #f8f9fa;
+    --gris-medio: #6c757d;
+    --gris-oscuro: #495057;
+    --sombra-suave: rgba(0, 0, 0, 0.1);
+    --sombra-media: rgba(0, 0, 0, 0.2);
+    --sombra-fuerte: rgba(0, 0, 0, 0.3);
+}
+
+/* ====== MODAL DE EDICIÓN DE FOTO ====== */
+.photo-edit-modal {
+    max-width: 800px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.photo-edit-modal .modal-title {
+    color: var(--verde-oscuro);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* ====== SECCIÓN DE SUBIDA DE ARCHIVO ====== */
+.photo-upload-section {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.upload-area {
+    border: 3px dashed var(--verde-claro);
+    border-radius: 15px;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, var(--gris-claro) 0%, var(--blanco) 100%);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-area:hover {
+    border-color: var(--verde-oscuro);
+    background: linear-gradient(135deg, var(--verde-claro) 0%, var(--blanco) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--sombra-suave);
+}
+
+.upload-area:active {
+    transform: translateY(0);
+}
+
+.upload-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: var(--verde-oscuro);
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.upload-area h4 {
+    color: var(--verde-oscuro);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+}
+
+.upload-area p {
+    color: var(--gris-medio);
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.upload-hint {
+    font-size: 14px !important;
+    color: var(--gris-medio) !important;
+    font-style: italic;
+}
+
+/* ====== SECCIÓN DE EDITOR DE IMAGEN ====== */
+.photo-editor-section {
+    padding: 20px 0;
+}
+
+.editor-container {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.image-preview-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--gris-claro);
+    border-radius: 15px;
+    padding: 20px;
+    min-height: 300px;
+    border: 2px solid var(--verde-claro);
+    position: relative;
+    overflow: hidden;
+}
+
+.image-preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px var(--sombra-media);
+    transition: all 0.3s ease;
+    cursor: move;
+}
+
+.image-preview:hover {
+    transform: scale(1.02);
+}
+
+/* ====== CONTROLES DE EDICIÓN ====== */
+.editor-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    background: var(--blanco);
+    border-radius: 15px;
+    border: 2px solid var(--gris-claro);
+    box-shadow: 0 4px 15px var(--sombra-suave);
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.control-group label {
+    font-weight: 600;
+    color: var(--verde-oscuro);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rotation-controls,
+.zoom-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn {
+    background: var(--verde-claro);
+    color: var(--blanco);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px var(--sombra-suave);
+}
+
+.control-btn:hover {
+    background: var(--verde-oscuro);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px var(--sombra-media);
+}
+
+.control-btn:active {
+    transform: scale(0.95);
+}
+
+.reset-btn {
+    background: var(--morado-acento);
+    width: 50px;
+    height: 50px;
+    font-size: 18px;
+}
+
+.reset-btn:hover {
+    background: #8B4A9E;
+}
+
+/* ====== SLIDER DE ZOOM ====== */
+#zoom-slider {
+    width: 120px;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--gris-claro);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+#zoom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--verde-oscuro);
+    cursor: pointer;
+    box-shadow: 0 2px 6px var(--sombra-media);
+    transition: all 0.3s ease;
+}
+
+#zoom-slider::-webkit-slider-thumb:hover {
+    background: var(--morado-acento);
+    transform: scale(1.2);
+}
+
+#zoom-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--verde-oscuro);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px var(--sombra-media);
+}
+
+#zoom-slider::-moz-range-thumb:hover {
+    background: var(--morado-acento);
+    transform: scale(1.2);
+}
+
+/* ====== SECCIÓN DE VISTA PREVIA ====== */
+.photo-preview-section {
+    text-align: center;
+    padding: 20px 0;
+    border-top: 2px solid var(--gris-claro);
+    margin-top: 20px;
+}
+
+.photo-preview-section h4 {
+    color: var(--verde-oscuro);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+}
+
+.preview-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.preview-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid var(--verde-claro);
+    box-shadow: 0 4px 15px var(--sombra-media);
+    position: relative;
+    background: var(--gris-claro);
+}
+
+.final-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+
+.final-preview:hover {
+    transform: scale(1.05);
+}
+
+/* ====== BOTONES DEL MODAL ====== */
+.photo-edit-modal .btn-save {
+    background: var(--verde-oscuro);
+    color: var(--blanco);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(73, 135, 78, 0.3);
+}
+
+.photo-edit-modal .btn-save:hover {
+    background: var(--morado-acento);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(170, 95, 199, 0.4);
+}
+
+.photo-edit-modal .btn-secondary {
+    background: var(--morado-acento);
+    color: var(--blanco);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(170, 95, 199, 0.3);
+}
+
+.photo-edit-modal .btn-secondary:hover {
+    background: #8B4A9E;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(170, 95, 199, 0.4);
+}
+
+.photo-edit-modal .btn-cancel {
+    background: var(--gris-medio);
+    color: var(--blanco);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.photo-edit-modal .btn-cancel:hover {
+    background: var(--gris-oscuro);
+    transform: translateY(-2px);
+}
+
+/* ====== ANIMACIONES Y TRANSICIONES ====== */
+.photo-edit-modal .modal-container {
+    animation: slideUpScale 0.4s ease-out;
+}
+
+@keyframes slideUpScale {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.photo-upload-section,
+.photo-editor-section,
+.photo-preview-section {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ====== ESTADOS DE CARGA ====== */
+.loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--verde-claro);
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ====== MENSAJES DE ERROR Y ÉXITO ====== */
+.photo-message {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-weight: 500;
+    animation: slideDown 0.3s ease-out;
+}
+
+.photo-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.photo-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.photo-message.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* ====== RESPONSIVIDAD ====== */
+@media (max-width: 768px) {
+    .photo-edit-modal {
+        width: 98%;
+        margin: 10px;
+    }
+    
+    .editor-controls {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .rotation-controls,
+    .zoom-controls {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .control-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+    
+    .reset-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 16px;
+    }
+    
+    #zoom-slider {
+        width: 100px;
+    }
+    
+    .upload-area {
+        padding: 30px 15px;
+    }
+    
+    .upload-icon {
+        font-size: 36px;
+    }
+    
+    .image-preview-container {
+        min-height: 250px;
+        padding: 15px;
+    }
+    
+    .preview-circle {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .photo-edit-modal .modal-header {
+        padding: 15px 20px;
+    }
+    
+    .photo-edit-modal .modal-body {
+        padding: 20px;
+    }
+    
+    .photo-edit-modal .modal-footer {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .photo-edit-modal .btn-save,
+    .photo-edit-modal .btn-secondary,
+    .photo-edit-modal .btn-cancel {
+        width: 100%;
+        padding: 14px 20px;
+    }
+    
+    .upload-area h4 {
+        font-size: 1.1rem;
+    }
+    
+    .upload-area p {
+        font-size: 14px;
+    }
+    
+    .control-group label {
+        font-size: 12px;
+    }
+}
+
+/* ====== EFECTOS ESPECIALES ====== */
+.upload-area.dragover {
+    border-color: var(--morado-acento);
+    background: linear-gradient(135deg, var(--morado-acento) 0%, var(--blanco) 100%);
+    transform: scale(1.02);
+}
+
+.upload-area.dragover .upload-icon {
+    color: var(--blanco);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ====== INDICADOR DE PROGRESO ====== */
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--gris-claro);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--verde-claro) 0%, var(--verde-oscuro) 100%);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    animation: progressGlow 2s infinite;
+}
+
+@keyframes progressGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px var(--verde-claro);
+    }
+    50% {
+        box-shadow: 0 0 15px var(--verde-claro);
+    }
+}
+
+/* ====== MEJORAS DE ACCESIBILIDAD ====== */
+.control-btn:focus,
+.photo-edit-modal .btn-save:focus,
+.photo-edit-modal .btn-secondary:focus,
+.photo-edit-modal .btn-cancel:focus {
+    outline: 2px solid var(--verde-oscuro);
+    outline-offset: 2px;
+}
+
+.upload-area:focus {
+    outline: 2px solid var(--verde-oscuro);
+    outline-offset: 2px;
+}
+
+/* ====== ESTADOS DE HOVER MEJORADOS ====== */
+.image-preview-container:hover {
+    border-color: var(--morado-acento);
+    box-shadow: 0 4px 20px rgba(170, 95, 199, 0.2);
+}
+
+.preview-circle:hover {
+    border-color: var(--morado-acento);
+    box-shadow: 0 6px 20px rgba(170, 95, 199, 0.3);
+}
+

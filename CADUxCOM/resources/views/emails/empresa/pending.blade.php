@@ -2,7 +2,8 @@
 # Hola {{ $empresa->Nombre }}
 
 Tu empresa ha sido registrada exitosamente en **Caduxcom**.  
-Actualmente tu cuenta está en revisión. Te notificaremos una vez haya sido verificada.  
+Tu cuenta ya está activa en **modo Sandbox** para que puedas ingresar y operar de forma limitada mientras verificamos tus datos.  
+Te notificaremos por correo cuando pases a producción.
 
 📌 Estos son los datos que registraste:
 
@@ -21,7 +22,7 @@ Actualmente tu cuenta está en revisión. Te notificaremos una vez haya sido ver
   @endif
 
 Gracias por confiar en **Caduxcom**.  
-Pronto recibirás noticias nuestras.
+Si tienes dudas, responde a este correo.
 
 Saludos,<br>
 El equipo de {{ config('app.name') }}

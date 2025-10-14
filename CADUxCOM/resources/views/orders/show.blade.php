@@ -197,11 +197,6 @@
                                 </div>
                             @endif
                             
-                            @if($order->coupon_code)
-                                <div class="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-                                    Cupón aplicado: <span class="font-medium">{{ $order->coupon_code }}</span>
-                                </div>
-                            @endif
                             
                             <hr class="my-4">
                             

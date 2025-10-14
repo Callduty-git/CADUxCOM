@@ -44,6 +44,23 @@
     margin: 0 auto;
 }
 
+.subcategoria-placeholder {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #9b59b6;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.subcategoria-icon {
+    font-size: 30px;
+    color: white;
+}
+
 .subcategoria-item p {
     margin-top: 8px;
     font-size: 14px;

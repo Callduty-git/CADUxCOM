@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Empresa;
 use App\Mail\EmpresaRegistrationNotification;
+use App\Mail\UserRegistrationNotification;
 use App\Mail\EmpresaPendingVerification;
+use App\Mail\EmpresaEmailVerification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,14 +18,21 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules;
+use App\Models\Notification;
 
 class RegisteredUserController extends Controller
 {
+    /**
+     * Mostrar formulario de registro.
+     */
     public function create()
     {
         return view('auth.register');
     }
 
+    /**
+     * Procesar registro de usuario o empresa.
+     */
     public function store(Request $request): RedirectResponse
     {
         // Reglas comunes
@@ -50,10 +59,11 @@ class RegisteredUserController extends Controller
                 'nit' => ['required', 'string', 'max:50', 'unique:empresas,NIT'],
                 'foto' => ['required', 'image', 'max:2048'],
                 'certificado_camara_de_comercio' => ['required', 'file', 'mimes:pdf,jpg,png', 'max:5120'],
+                'terms' => ['accepted'],
             ];
         }
 
-        // Validar todo
+        // Validación
         $validator = Validator::make(
             $request->all(),
             array_merge($baseRules, $additionalRules)
@@ -64,7 +74,7 @@ class RegisteredUserController extends Controller
         }
 
         /**
-         * Registro usuario normal (entra directo sin verificación ni correos al admin)
+         * Registro de usuario común
          */
         if ($request->role === 'usuario') {
             $user = User::create([
@@ -72,23 +82,36 @@ class RegisteredUserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => 'usuario',
-                'email_verified' => true, // Marcar como verificado para usuarios normales
             ]);
 
             event(new Registered($user));
             Auth::login($user);
 
-            return redirect()->route('dashboard')
-                ->with('success', 'Registro exitoso. Bienvenido a tu panel.');
+            // Notificar al administrador
+            try {
+                $adminEmail = 'caduxcom.store@gmail.com';
+                Mail::to($adminEmail)->send(new UserRegistrationNotification($user));
+            } catch (\Exception $e) {
+                Log::error('Error enviando notificación de registro de usuario: '.$e->getMessage(), [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                ]);
+            }
+
+            return redirect()->route('verification.notice')
+                ->with('success', 'Registro exitoso. Te enviamos un enlace para verificar tu correo.')
+                ->with('status', 'verification-link-sent');
         }
 
         /**
-         * Registro empresa (requiere verificación)
+         * Registro de empresa (modo sandbox + verificación)
          */
         if ($request->role === 'empresa') {
+            // Guardar archivos
             $fotoPath = $request->file('foto')->store('empresas/fotos', 'public');
             $certificadoPath = $request->file('certificado_camara_de_comercio')->store('empresas/certificados', 'public');
 
+            // Crear empresa
             $empresa = Empresa::create([
                 'Nombre' => $request->name,
                 'Foto' => $fotoPath,
@@ -100,20 +123,30 @@ class RegisteredUserController extends Controller
                 'NIT' => $request->nit,
                 'Certificado_Camara_de_comercio' => $certificadoPath,
                 'password' => Hash::make($request->password),
-                'status' => 'pending',
+                'status' => 'sandbox', // Empresa entra en modo sandbox
             ]);
 
-            // Notificar al admin
-            $adminEmail = 'caduxcom.store@gmail.com';
-            Mail::to($adminEmail)->send(new EmpresaRegistrationNotification($empresa));
+            try {
+                $adminEmail = 'caduxcom.store@gmail.com';
 
-            // Notificar a la empresa
-            Mail::to($empresa->email)->send(new EmpresaPendingVerification($empresa));
+                // Notificar al administrador
+                Mail::to($adminEmail)->send(new EmpresaRegistrationNotification($empresa));
 
-            Log::info('Empresa registrada exitosamente (pendiente de verificación)', $empresa->toArray());
+                // Notificar a la empresa
+                Mail::to($empresa->email)->send(new EmpresaPendingVerification($empresa));
+                Mail::to($empresa->email)->send(new EmpresaEmailVerification($empresa));
+
+                Log::info('Empresa registrada exitosamente (modo sandbox activado)', $empresa->toArray());
+            } catch (\Exception $e) {
+                Log::error('Error enviando correos de registro de empresa: '.$e->getMessage(), [
+                    'empresa_id' => $empresa->id,
+                    'email' => $empresa->email,
+                ]);
+            }
 
             return redirect()->route('login')
-                ->with('success', 'Registro de empresa exitoso. Tu solicitud está en verificación. Recibirás un correo cuando sea aprobada.');
+                ->with('success', 'Registro de empresa exitoso. Te enviamos un enlace para verificar tu correo. 
+                Luego podrás ingresar en modo Sandbox mientras validamos tu información.');
         }
 
         return back()->withErrors(['role' => 'Rol no válido']);

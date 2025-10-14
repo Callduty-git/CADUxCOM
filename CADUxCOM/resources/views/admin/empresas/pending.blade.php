@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
+    <x-admin.back-button href="{{ route('admin.dashboard') }}" />
     <div class="container mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex justify-between items-center mb-6">
@@ -61,7 +62,7 @@
                                         {{ $empresa->created_at->format('d/m/Y H:i') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                        <a href="{{ route('admin.empresas.show', $empresa) }}" 
+                                        <a href="{{ route('admin.empresas.show', ['empresa' => $empresa, 'return_to' => 'pending']) }}" 
                                            class="text-blue-600 hover:text-blue-900">Ver Detalles</a>
                                     </td>
                                 </tr>

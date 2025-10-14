@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Modelo ActivityLog - Representa logs de actividad del sistema
  * 
  * Este modelo registra todas las acciones importantes realizadas
- * por usuarios y empresas en el sistema.
+ * por usuarios y empresas dentro del sistema CADUxCOM.
  */
 class ActivityLog extends Model
 {
@@ -153,7 +153,7 @@ class ActivityLog extends Model
     }
 
     /**
-     * Obtener el nombre del usuario o empresa
+     * Obtener el nombre del actor (usuario o empresa)
      */
     public function getActorName(): string
     {
@@ -264,11 +264,11 @@ class ActivityLog extends Model
     {
         parent::boot();
 
-        // Limpiar logs antiguos cada 1000 registros nuevos
+        // Limpia logs antiguos automáticamente cada 1000 registros
         static::created(function () {
             static $count = 0;
             $count++;
-            
+
             if ($count % 1000 === 0) {
                 self::cleanOldLogs();
             }

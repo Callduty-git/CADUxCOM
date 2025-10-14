@@ -33,6 +33,13 @@
         window.empresasData = @json($empresas);
         window.municipiosData = @json($municipiosHuila);
         window.categoriasData = @json($categorias);
+        
+        // Debug: Verificar datos cargados
+        console.log('Datos cargados en el mapa:');
+        console.log('Empresas:', window.empresasData);
+        console.log('Municipios:', window.municipiosData);
+        console.log('Categorías:', window.categoriasData);
+        console.log('API Key:', window.googleMapsApiKey);
     </script>
 </head>
 <body>
@@ -152,11 +159,11 @@
                                     @endif
                                 </div>
                                 
-                                @if($empresa['products']->count() > 0)
+                                @if(count($empresa['products']) > 0)
                                     <div class="result-products">
                                         <h4>Productos destacados:</h4>
                                         <div class="products-grid">
-                                            @foreach($empresa['products']->take(3) as $producto)
+                                            @foreach(array_slice($empresa['products'], 0, 3) as $producto)
                                                 <div class="product-card">
                                                     <img src="{{ $producto['image'] }}" alt="{{ $producto['name'] }}" 
                                                          class="product-image" 
@@ -176,8 +183,8 @@
                                                 </div>
                                             @endforeach
                                         </div>
-                                        @if($empresa['products']->count() > 3)
-                                            <p class="more-products">+{{ $empresa['products']->count() - 3 }} productos más</p>
+                                        @if(count($empresa['products']) > 3)
+                                            <p class="more-products">+{{ count($empresa['products']) - 3 }} productos más</p>
                                         @endif
                                     </div>
                                 @endif

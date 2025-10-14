@@ -147,7 +147,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const autorNombre = comentario.user ? comentario.user.name : comentario.empresa.Nombre;
         const autorTipo = comentario.user ? 'user' : 'empresa';
         const autorBadge = comentario.user ? 'Usuario' : 'Empresa';
-        const avatarLetra = autorNombre.charAt(0).toUpperCase();
+        
+        // Generar avatar - usar foto de perfil si está disponible, sino usar inicial
+        let avatarHTML = '';
+        
+        // Debug: verificar datos del usuario
+        console.log('Comentario user data:', comentario.user);
+        console.log('User foto:', comentario.user ? comentario.user.foto : 'No user');
+        
+        if (comentario.user && comentario.user.foto) {
+            // Usuario con foto de perfil
+            avatarHTML = `<img src="{{ asset('storage') }}/${comentario.user.foto}" alt="${autorNombre}" class="comentario-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
+            avatarHTML += `<div class="comentario-avatar" style="display: none;">${autorNombre.charAt(0).toUpperCase()}</div>`;
+        } else if (comentario.empresa && comentario.empresa.Foto) {
+            // Empresa con foto de perfil
+            avatarHTML = `<img src="{{ asset('storage') }}/${comentario.empresa.Foto}" alt="${autorNombre}" class="comentario-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
+            avatarHTML += `<div class="comentario-avatar" style="display: none;">${autorNombre.charAt(0).toUpperCase()}</div>`;
+        } else {
+            // Sin foto de perfil, usar inicial
+            avatarHTML = `<div class="comentario-avatar">${autorNombre.charAt(0).toUpperCase()}</div>`;
+        }
 
         const puedeEliminar = verificarPermisosEliminacion(comentario);
         const puedeResponder = verificarPermisosRespuesta(comentario);
@@ -166,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="comentario-item ${comentario.parent_id ? 'comentario-reply' : 'comentario-main'}" data-id="${comentario.id}">
                 <div class="comentario-header">
                     <div class="comentario-author">
-                        <div class="comentario-avatar">${avatarLetra}</div>
+                        ${avatarHTML}
                         <div class="comentario-author-info">
                             <h4>${autorNombre}</h4>
                             <p>${fecha}</p>

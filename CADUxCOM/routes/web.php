@@ -7,6 +7,8 @@ use App\Http\Controllers\Auth\CustomLoginController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\WompiController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\OrderController;
@@ -14,6 +16,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ComentarioController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\EmpresaDashboardController;
 use App\Http\Controllers\empresa\LogEmpresaController;
 use App\Http\Controllers\EmpresaProfileController;
@@ -21,9 +24,10 @@ use App\Http\Controllers\empresa\EmpresaPasswordController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\DiscountRuleController;
 use App\Http\Controllers\GeolocationController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\EmpresaAdvancedDashboardController;
 use App\Http\Controllers\EducationController;
+use App\Http\Controllers\PasswordVerificationController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,6 +65,10 @@ Route::middleware(['auth:empresa'])->group(function () {
     Route::put('/empresa/productos/{producto}', [ProductoController::class, 'update'])->name('empresa.productos.update');
     Route::delete('/empresa/productos/{producto}', [ProductoController::class, 'destroy'])->name('empresa.productos.destroy');
 
+    // Acción rápida: eliminar productos vencidos (+1 día)
+    Route::post('/empresa/productos/eliminar-expirados', [ProductoController::class, 'deleteExpired'])
+        ->name('empresa.productos.delete-expired');
+
     // Rutas para reglas de descuento progresivo
     Route::resource('/empresa/discount-rules', DiscountRuleController::class, [
         'as' => 'discount-rules'
@@ -69,6 +77,10 @@ Route::middleware(['auth:empresa'])->group(function () {
         ->name('discount-rules.create-defaults');
     Route::patch('/empresa/discount-rules/{id}/toggle', [DiscountRuleController::class, 'toggle'])
         ->name('discount-rules.toggle');
+
+    // Toggle de descuento progresivo (flag por empresa)
+    Route::post('/empresa/progressive-discount/toggle', [EmpresaDashboardController::class, 'toggleProgressiveDiscount'])
+        ->name('empresa.progressive-discount.toggle');
 
     // Ruta para eliminar cuenta de empresa
     Route::delete('/empresa/eliminar', [EmpresaController::class, 'eliminarCuenta'])
@@ -124,6 +136,11 @@ Route::post('/contacto', [\App\Http\Controllers\ContactController::class, 'send'
 Route::get('/about', function () { return view('about'); })->name('about');
 Route::get('/ayuda', function () { return view('help'); })->name('help');
 Route::get('/terminos', function () { return view('terms'); })->name('terms');
+Route::post('/terminos/aceptar', function (Request $request) {
+    // Marcar en sesión que el usuario ha leído los términos
+    $request->session()->put('terms_read', true);
+    return redirect()->route('register')->with('success', 'Has leído los términos. Ahora puedes aceptarlos para continuar.');
+})->name('terms.accept');
 Route::get('/privacidad', function () { return view('privacy'); })->name('privacy');
 
 /*
@@ -135,6 +152,7 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->name('regi
 Route::get('/login', [CustomLoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [CustomLoginController::class, 'login'])->middleware('throttle:10,1');
 Route::post('/logout', [CustomLoginController::class, 'logout'])->name('logout');
+Route::get('/logout', [CustomLoginController::class, 'logout'])->name('logout.get'); // Ruta GET para logout
 
 /*
 |--------------------------------------------------------------------------
@@ -164,17 +182,29 @@ Route::get('/cart/count', [CartController::class, 'getCount'])->name('cart.count
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 
+// Pasarela de pagos (Stripe)
+Route::post('/payments/stripe/session', [PaymentController::class, 'createStripeSession'])
+    ->name('payments.stripe.session');
+Route::get('/payments/stripe/success', [PaymentController::class, 'success'])
+    ->name('payments.stripe.success');
+Route::get('/payments/stripe/cancel', [PaymentController::class, 'cancel'])
+    ->name('payments.stripe.cancel');
+Route::post('/payments/stripe/webhook', [PaymentController::class, 'webhook'])
+    ->name('payments.stripe.webhook');
+
+// Pasarela de pagos (Wompi)
+Route::post('/payments/wompi/start', [WompiController::class, 'start'])
+    ->name('payments.wompi.start');
+Route::get('/payments/wompi/callback', [WompiController::class, 'callback'])
+    ->name('payments.wompi.callback');
+Route::post('/payments/wompi/webhook', [WompiController::class, 'webhook'])
+    ->name('payments.wompi.webhook');
+
 /*
 |--------------------------------------------------------------------------
 | Cupones
 |--------------------------------------------------------------------------
 */
-Route::post('/coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
-Route::post('/coupons/apply', [CouponController::class, 'apply'])->name('coupons.apply');
-Route::post('/coupons/remove', [CouponController::class, 'remove'])->name('coupons.remove');
-Route::get('/coupons/applied', [CouponController::class, 'getApplied'])->name('coupons.applied');
-Route::get('/coupons/available', [CouponController::class, 'getAvailable'])->name('coupons.available');
-Route::post('/coupons/check-product', [CouponController::class, 'checkProduct'])->name('coupons.check-product');
 
 /*
 |--------------------------------------------------------------------------
@@ -297,12 +327,40 @@ Route::middleware('guest:empresa')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Cambio de Contraseña con Verificación por Email
+|--------------------------------------------------------------------------
+*/
+Route::get('/password/change-request', [PasswordVerificationController::class, 'showRequestForm'])
+    ->name('password.request');
+
+Route::post('/password/send-verification', [PasswordVerificationController::class, 'sendVerificationEmail'])
+    ->name('password.send-verification');
+
+Route::get('/password/verify', [PasswordVerificationController::class, 'showVerificationForm'])
+    ->name('password.verify');
+
+
+Route::post('/password/change', [PasswordVerificationController::class, 'changePassword'])
+    ->name('password.change');
+
+/*
+|--------------------------------------------------------------------------
+| Cambio de Contraseña desde Perfil
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/password-change', [PasswordVerificationController::class, 'showProfilePasswordForm'])
+        ->name('profile.password.change');
+    
+    Route::post('/profile/password/send-verification', [PasswordVerificationController::class, 'sendProfileVerificationEmail'])
+        ->name('profile.password.send-verification');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Auth Breeze
 |--------------------------------------------------------------------------
 */
-Route::get('/test-comentarios', function () {
-    return view('test-comentarios');
-});
 
 /*
 ||--------------------------------------------------------------------------

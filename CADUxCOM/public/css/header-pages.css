@@ -1,0 +1,93 @@
+/* === ESTILOS PARA PÁGINAS CON HEADER-PAGES === */
+
+/* Eliminar espaciado entre header y contenido */
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Compensar la altura del header fijo (80px) pero sin crear espacio en blanco */
+.page-container,
+.main-container,
+.content-container,
+.container {
+    margin-top: 0 !important; /* Sin margen superior */
+    padding-top: 80px !important; /* Solo padding para compensar header fijo */
+}
+
+/* Estilos específicos para páginas que usan header-pages */
+.contact-container,
+.privacy-container,
+.terms-container,
+.help-container,
+.education-container {
+    margin-top: 0 !important;
+    padding-top: 0 !important; /* Sin padding adicional */
+}
+
+/* Espaciado específico para página de contacto */
+.contact-container {
+    padding-top: 20px !important; /* Un poco de espacio para contacto */
+}
+
+/* Eliminar cualquier espaciado adicional */
+.contact-header,
+.privacy-header,
+.terms-header,
+.help-header,
+.hero-section {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Asegurar que el header esté pegado al contenido */
+.main-header {
+    margin-bottom: 0 !important;
+    border-bottom: none !important;
+}
+
+/* Eliminar sombras o efectos que puedan crear espaciado visual */
+.main-header {
+    box-shadow: none !important;
+}
+
+/* Para páginas específicas que puedan tener espaciado adicional */
+.about-container,
+.sobre-container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Asegurar que no haya espacios en blanco */
+* {
+    box-sizing: border-box;
+}
+
+/* Eliminar márgenes por defecto de elementos comunes */
+h1, h2, h3, h4, h5, h6,
+p, div, section, article {
+    margin-top: 0;
+}
+
+/* Para elementos que puedan tener margin-top por defecto */
+.hero-content,
+.content-wrapper,
+.main-content {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Asegurar que el contenido no se oculte detrás del header fijo */
+.help-container,
+.contact-container,
+.privacy-container,
+.terms-container,
+.education-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* NO agregar padding-top al body para evitar espacio en blanco */
+/* body {
+    padding-top: 80px !important;
+} */

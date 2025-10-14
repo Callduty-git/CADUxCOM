@@ -6,6 +6,7 @@
     <title>Centro de Ayuda - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/help.css') }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/header-pages.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     
 </head>
@@ -131,7 +132,7 @@
                     <img src="{{ asset('images/icon-user.png') }}" alt="Contacto" class="support-icon">
                     Contactar Soporte
                 </a>
-                <a href="mailto:ayuda@caduxcom.com" class="support-btn secondary">
+                <a href="mailto:caduxcom.store@gmail.com" class="support-btn secondary">
                     <img src="{{ asset('images/icon-user.png') }}" alt="Email" class="support-icon">
                     Enviar Email
                 </a>

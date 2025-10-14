@@ -290,12 +290,6 @@
                         @endif
                     </span>
                 </div>
-                @if($order->coupon_discount > 0)
-                    <div class="total-row">
-                        <span>Descuento ({{ $order->coupon_code }})</span>
-                        <span>-${{ number_format($order->coupon_discount, 0, ',', '.') }}</span>
-                    </div>
-                @endif
                 <div class="total-row final">
                     <span>Total</span>
                     <span>${{ number_format($order->total_amount, 0, ',', '.') }}</span>

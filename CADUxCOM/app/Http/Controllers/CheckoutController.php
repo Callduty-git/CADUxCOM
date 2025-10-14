@@ -14,8 +14,7 @@ use Illuminate\Support\Facades\Session;
 /**
  * Controlador CheckoutController - Maneja el proceso de checkout y creación de órdenes
  * 
- * Este controlador gestiona todo el proceso de finalización de compra,
- * desde la validación del carrito hasta la creación de la orden.
+ * Fusionado: incluye manejo de cupones, IVA, envío dinámico y validaciones completas.
  */
 class CheckoutController extends Controller
 {
@@ -37,10 +36,9 @@ class CheckoutController extends Controller
             ->get()
             ->keyBy('Id_Producto');
 
-        // Calcular totales
         $items = [];
         $subtotal = 0;
-        $errors = [];
+        $cartErrors = [];
 
         foreach ($cart as $productId => $cartItem) {
             $product = $products[$productId] ?? null;
@@ -53,7 +51,7 @@ class CheckoutController extends Controller
             
             // Verificar stock
             if ($product->Cantidad < $quantity) {
-                $errors[] = "Solo hay {$product->Cantidad} unidades disponibles de {$product->Nombre}";
+                $cartErrors[] = "Solo hay {$product->Cantidad} unidades disponibles de {$product->Nombre}";
                 continue;
             }
 
@@ -67,7 +65,7 @@ class CheckoutController extends Controller
             ];
         }
 
-        // Actualizar carrito si hay productos no encontrados
+        // Actualizar carrito si hay productos eliminados
         if (count($cart) !== count($productIds)) {
             Session::put('cart', $cart);
         }
@@ -76,10 +74,10 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'No hay productos válidos en tu carrito.');
         }
 
-        // Calcular totales finales
+        // Calcular IVA y envío
         $tax = $subtotal * 0.19; // IVA 19%
         $shipping = $subtotal > 100000 ? 0 : 5000; // Envío gratis sobre $100,000
-        
+
         // Aplicar cupón si existe
         $appliedCoupon = Session::get('applied_coupon');
         $couponDiscount = 0;
@@ -90,19 +88,18 @@ class CheckoutController extends Controller
             if ($coupon && $coupon->canBeAppliedToAmount($subtotal)) {
                 $couponDiscount = $appliedCoupon['discount'];
                 $freeShipping = $appliedCoupon['is_free_shipping'] ?? false;
-                
+
                 if ($freeShipping) {
                     $shipping = 0;
                 }
             } else {
-                // Remover cupón inválido
                 Session::forget('applied_coupon');
             }
         }
 
         $total = $subtotal + $tax + $shipping - $couponDiscount;
 
-        // Obtener datos del usuario si está autenticado
+        // Datos del usuario autenticado
         $user = Auth::user();
         $userData = $user ? [
             'name' => $user->name,
@@ -118,7 +115,7 @@ class CheckoutController extends Controller
             'total', 
             'appliedCoupon',
             'userData',
-            'errors'
+            'cartErrors'
         ));
     }
 
@@ -144,29 +141,20 @@ class CheckoutController extends Controller
             'payment_method' => 'required|in:credit_card,debit_card,bank_transfer,cash_on_delivery,digital_wallet',
             'notes' => 'nullable|string|max:1000',
             'same_as_shipping' => 'nullable|boolean',
-        ], [
-            'customer_name.required' => 'El nombre es obligatorio.',
-            'customer_email.required' => 'El correo es obligatorio.',
-            'customer_email.email' => 'El correo no es válido.',
-            'shipping_address.required' => 'La dirección de envío es obligatoria.',
-            'shipping_city.required' => 'La ciudad de envío es obligatoria.',
-            'shipping_state.required' => 'El departamento/estado de envío es obligatorio.',
-            'shipping_postal_code.required' => 'El código postal de envío es obligatorio.',
-            'shipping_country.required' => 'El país de envío es obligatorio.',
-            'payment_method.required' => 'El método de pago es obligatorio.',
-            'payment_method.in' => 'El método de pago seleccionado no es válido.'
         ]);
 
         $cart = Session::get('cart', []);
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Tu carrito está vacío.');
         }
-        // Validación extra: no permitir procesar si algún producto no existe o está agotado
+
+        // Validar disponibilidad de productos
         $productIds = array_keys($cart);
         $products = Producto::with(['empresa', 'subcategoria'])
             ->whereIn('Id_Producto', $productIds)
             ->get()
             ->keyBy('Id_Producto');
+
         foreach ($cart as $productId => $cartItem) {
             $product = $products[$productId] ?? null;
             if (!$product || $product->Cantidad < 1) {
@@ -178,48 +166,28 @@ class CheckoutController extends Controller
             }
         }
 
-        // Usar dirección de facturación igual a envío si se especifica
-        if ($request->same_as_shipping) {
-            $billingData = [
-                'billing_address' => $request->shipping_address,
-                'billing_city' => $request->shipping_city,
-                'billing_state' => $request->shipping_state,
-                'billing_postal_code' => $request->shipping_postal_code,
-                'billing_country' => $request->shipping_country,
-            ];
-        } else {
-            $billingData = [
-                'billing_address' => $request->billing_address ?: $request->shipping_address,
-                'billing_city' => $request->billing_city ?: $request->shipping_city,
-                'billing_state' => $request->billing_state ?: $request->shipping_state,
-                'billing_postal_code' => $request->billing_postal_code ?: $request->shipping_postal_code,
-                'billing_country' => $request->billing_country ?: $request->shipping_country,
-            ];
-        }
+        // Dirección de facturación
+        $billingData = $request->same_as_shipping ? [
+            'billing_address' => $request->shipping_address,
+            'billing_city' => $request->shipping_city,
+            'billing_state' => $request->shipping_state,
+            'billing_postal_code' => $request->shipping_postal_code,
+            'billing_country' => $request->shipping_country,
+        ] : [
+            'billing_address' => $request->billing_address ?: $request->shipping_address,
+            'billing_city' => $request->billing_city ?: $request->shipping_city,
+            'billing_state' => $request->billing_state ?: $request->shipping_state,
+            'billing_postal_code' => $request->billing_postal_code ?: $request->shipping_postal_code,
+            'billing_country' => $request->billing_country ?: $request->shipping_country,
+        ];
 
-        // Obtener productos y calcular totales
-        $productIds = array_keys($cart);
-        $products = Producto::with(['empresa', 'subcategoria'])
-            ->whereIn('Id_Producto', $productIds)
-            ->get()
-            ->keyBy('Id_Producto');
-
+        // Calcular totales
         $subtotal = 0;
         $orderItems = [];
 
         foreach ($cart as $productId => $cartItem) {
-            $product = $products[$productId] ?? null;
-            if (!$product) {
-                continue;
-            }
-
+            $product = $products[$productId];
             $quantity = max(1, (int)($cartItem['quantity'] ?? 1));
-            
-            // Verificar stock una vez más
-            if ($product->Cantidad < $quantity) {
-                return back()->with('error', "Solo hay {$product->Cantidad} unidades disponibles de {$product->Nombre}");
-            }
-
             $lineTotal = $quantity * (float)$product->Precio;
             $subtotal += $lineTotal;
 
@@ -240,14 +208,9 @@ class CheckoutController extends Controller
             ];
         }
 
-        if (empty($orderItems)) {
-            return redirect()->route('cart.index')->with('error', 'No hay productos válidos en tu carrito.');
-        }
-
-        // Calcular totales finales
         $tax = $subtotal * 0.19;
         $shipping = $subtotal > 100000 ? 0 : 5000;
-        
+
         // Aplicar cupón
         $appliedCoupon = Session::get('applied_coupon');
         $couponDiscount = 0;
@@ -258,7 +221,6 @@ class CheckoutController extends Controller
             if ($coupon && $coupon->canBeAppliedToAmount($subtotal)) {
                 $couponDiscount = $appliedCoupon['discount'];
                 $couponCode = $coupon->code;
-                
                 if ($appliedCoupon['is_free_shipping'] ?? false) {
                     $shipping = 0;
                 }
@@ -267,7 +229,6 @@ class CheckoutController extends Controller
 
         $total = $subtotal + $tax + $shipping - $couponDiscount;
 
-        // Crear la orden en una transacción
         try {
             DB::beginTransaction();
 
@@ -292,18 +253,16 @@ class CheckoutController extends Controller
                 'discount_amount' => $couponDiscount,
                 'total_amount' => $total,
                 'coupon_code' => $couponCode,
-                'coupon_discount' => $couponDiscount,
                 'status' => Order::STATUS_PENDING,
                 'payment_method' => $request->payment_method,
                 'notes' => $request->notes,
             ]);
 
-            // Crear items de la orden
             foreach ($orderItems as $item) {
                 OrderItem::create(array_merge($item, ['order_id' => $order->id]));
             }
 
-            // Actualizar stock de productos
+            // Reducir stock
             foreach ($orderItems as $item) {
                 $product = Producto::find($item['product_id']);
                 if ($product) {
@@ -311,7 +270,7 @@ class CheckoutController extends Controller
                 }
             }
 
-            // Incrementar uso del cupón si se aplicó
+            // Incrementar uso del cupón si aplica
             if ($couponCode) {
                 $coupon = Coupon::byCode($couponCode)->first();
                 if ($coupon) {
@@ -321,17 +280,13 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            // Limpiar carrito y cupón aplicado
             Session::forget(['cart', 'applied_coupon']);
 
             return redirect()->route('orders.show', $order->id)
                 ->with('success', '¡Orden creada exitosamente! Te hemos enviado un email de confirmación.');
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
-            return back()->with('error', 'Hubo un error al procesar tu orden. Por favor, intenta nuevamente.')
-                ->withInput();
+            return back()->with('error', 'Hubo un error al procesar tu orden. Por favor, intenta nuevamente.')->withInput();
         }
     }
 }

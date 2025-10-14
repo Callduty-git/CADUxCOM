@@ -36,8 +36,7 @@ class CartController extends Controller
         foreach ($cart as $pid => $row) {
             $product = $products[$pid] ?? null;
             if (!$product) { 
-                // Producto no encontrado, lo removemos del carrito
-                unset($cart[$pid]);
+                unset($cart[$pid]); // Eliminar productos inexistentes del carrito
                 continue; 
             }
             
@@ -60,7 +59,7 @@ class CartController extends Controller
             session()->put('cart', $cart);
         }
 
-        // Cálculos de totales
+        // Cálculos de totales (IVA + envío condicional)
         $tax = $subtotal * 0.19; // IVA 19%
         $shipping = $subtotal > 100000 ? 0 : 5000; // Envío gratis sobre $100,000
         $total = $subtotal + $tax + $shipping;
@@ -93,43 +92,26 @@ class CartController extends Controller
         ]);
 
         $productId = (int) $validated['product_id'];
-        $quantity = (int) ($validated['quantity'] ?? 1);
-        if ($quantity < 1) $quantity = 1;
+        $quantity = max(1, (int)($validated['quantity'] ?? 1));
 
         $product = Producto::find($productId);
         if (!$product) {
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json(['success' => false, 'error' => 'Producto no encontrado'], 404);
-            }
-            return back()->with('error', 'Producto no encontrado.');
+            return $this->responseError($request, 'Producto no encontrado.', 404);
         }
+
         if ($product->Cantidad <= 0) {
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json(['success' => false, 'error' => 'Este producto está agotado'], 400);
-            }
-            return back()->with('error', 'Este producto está agotado.');
+            return $this->responseError($request, 'Este producto está agotado.', 400);
         }
+
         if ($product->Cantidad < $quantity) {
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'No puedes agregar más de la cantidad disponible de este producto. Solo quedan ' . $product->Cantidad . ' unidades'
-                ], 400);
-            }
-            return back()->with('error', 'No puedes agregar más de la cantidad disponible de este producto.');
+            return $this->responseError($request, 'No puedes agregar más de la cantidad disponible. Solo quedan ' . $product->Cantidad . ' unidades.', 400);
         }
 
         $cart = session()->get('cart', []);
         if (isset($cart[$productId])) {
-            $newQuantity = max(1, (int)$cart[$productId]['quantity']) + $quantity;
+            $newQuantity = $cart[$productId]['quantity'] + $quantity;
             if ($newQuantity > $product->Cantidad) {
-                if ($request->wantsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'error' => 'No puedes agregar más de la cantidad disponible de este producto. Stock disponible: ' . $product->Cantidad . ' unidades'
-                    ], 400);
-                }
-                return back()->with('error', 'No puedes agregar más de la cantidad disponible de este producto.');
+                return $this->responseError($request, 'No puedes agregar más de la cantidad disponible. Stock disponible: ' . $product->Cantidad . ' unidades.', 400);
             }
             $cart[$productId]['quantity'] = $newQuantity;
         } else {
@@ -138,18 +120,9 @@ class CartController extends Controller
                 'added_at' => now()->toDateTimeString()
             ];
         }
+
         session()->put('cart', $cart);
-        if ($request->wantsJson() || $request->ajax()) {
-            $count = array_sum(array_map(function($row) {
-                return max(1, (int)($row['quantity'] ?? 1));
-            }, $cart));
-            return response()->json([
-                'success' => true,
-                'count' => $count,
-                'message' => 'Producto agregado al carrito'
-            ]);
-        }
-        return back()->with('success', 'Producto agregado al carrito exitosamente.');
+        return $this->responseSuccess($request, 'Producto agregado al carrito exitosamente.', $cart);
     }
 
     public function update(Request $request)
@@ -157,112 +130,86 @@ class CartController extends Controller
         $validated = $request->validate([
             'product_id' => ['required', 'integer', 'exists:productos,Id_Producto'],
             'quantity' => ['required', 'integer', 'min:1']
-        ], [
-            'product_id.required' => 'El ID de producto es obligatorio.',
-            'product_id.integer' => 'El ID de producto debe ser un número.',
-            'product_id.exists' => 'El producto seleccionado no existe.',
-            'quantity.required' => 'La cantidad es obligatoria.',
-            'quantity.integer' => 'La cantidad debe ser un número entero.',
-            'quantity.min' => 'La cantidad mínima es 1.'
         ]);
 
         $productId = (int) $validated['product_id'];
-        $quantity = (int) $validated['quantity'];
-        if ($quantity < 1) $quantity = 1;
+        $quantity = max(1, (int)$validated['quantity']);
 
         $product = Producto::find($productId);
         if (!$product) {
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json(['success' => false, 'error' => 'Producto no encontrado'], 404);
-            }
-            return back()->with('error', 'Producto no encontrado.');
+            return $this->responseError($request, 'Producto no encontrado.', 404);
         }
+
         if ($product->Cantidad < $quantity) {
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'No puedes seleccionar más de la cantidad disponible. Solo quedan ' . $product->Cantidad . ' unidades'
-                ], 400);
-            }
-            return back()->with('error', 'No puedes seleccionar más de la cantidad disponible.');
+            return $this->responseError($request, 'Solo quedan ' . $product->Cantidad . ' unidades disponibles.', 400);
         }
+
         $cart = session('cart', []);
         if (!isset($cart[$productId])) {
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'El producto no está en el carrito.'
-                ], 404);
-            }
-            return back()->with('error', 'El producto no está en el carrito.');
+            return $this->responseError($request, 'El producto no está en el carrito.', 404);
         }
+
         $cart[$productId]['quantity'] = $quantity;
         session()->put('cart', $cart);
-        if ($request->wantsJson() || $request->ajax()) {
-            $count = array_sum(array_map(function($row) {
-                return max(1, (int)($row['quantity'] ?? 1));
-            }, $cart));
-            return response()->json([
-                'success' => true,
-                'message' => 'Cantidad actualizada',
-                'count' => $count
-            ]);
-        }
-        return back()->with('success', 'Cantidad actualizada exitosamente.');
+
+        return $this->responseSuccess($request, 'Cantidad actualizada exitosamente.', $cart);
     }
 
     public function remove(Request $request)
     {
         $validated = $request->validate([
             'product_id' => ['required', 'integer', 'exists:productos,Id_Producto']
-        ], [
-            'product_id.required' => 'El ID de producto es obligatorio.',
-            'product_id.integer' => 'El ID de producto debe ser un número.',
-            'product_id.exists' => 'El producto seleccionado no existe.'
         ]);
-        $cart = session('cart', []);
+
         $productId = (int) $validated['product_id'];
+        $cart = session('cart', []);
+
         if (isset($cart[$productId])) {
             unset($cart[$productId]);
             session()->put('cart', $cart);
-            if ($request->wantsJson() || $request->ajax()) {
-                $count = array_sum(array_map(function($row) {
-                    return max(1, (int)($row['quantity'] ?? 1));
-                }, $cart));
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Producto eliminado del carrito',
-                    'count' => $count
-                ]);
-            }
-            return back()->with('success', 'Producto eliminado del carrito.');
+            return $this->responseSuccess($request, 'Producto eliminado del carrito.', $cart);
         }
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Producto no encontrado en el carrito'
-            ], 404);
-        }
-        return back()->with('error', 'Producto no encontrado en el carrito.');
+
+        return $this->responseError($request, 'Producto no encontrado en el carrito.', 404);
     }
 
     public function clear()
     {
         session()->forget('cart');
         if (request()->wantsJson() || request()->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Carrito vaciado']);
+            return response()->json(['success' => true, 'message' => 'Carrito vaciado.']);
         }
         return back()->with('success', 'Carrito vaciado exitosamente.');
     }
 
     public function getCount()
     {
-        // Obtener el carrito de la sesión (funciona tanto para usuarios autenticados como no autenticados)
         $cart = session('cart', []);
         $count = array_sum(array_column($cart, 'quantity'));
-        
         return response()->json(['count' => $count]);
     }
+
+    /**
+     * Métodos auxiliares para respuesta JSON o normal
+     */
+    private function responseError(Request $request, string $message, int $status)
+    {
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'error' => $message], $status);
+        }
+        return back()->with('error', $message);
+    }
+
+    private function responseSuccess(Request $request, string $message, array $cart)
+    {
+        if ($request->wantsJson() || $request->ajax()) {
+            $count = array_sum(array_map(fn($row) => max(1, (int)($row['quantity'] ?? 1)), $cart));
+            return response()->json([
+                'success' => true,
+                'count' => $count,
+                'message' => $message
+            ]);
+        }
+        return back()->with('success', $message);
+    }
 }
-
-

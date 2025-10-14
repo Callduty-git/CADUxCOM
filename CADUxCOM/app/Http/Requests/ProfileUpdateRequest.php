@@ -28,7 +28,7 @@ class ProfileUpdateRequest extends FormRequest
             'apellido' => ['nullable', 'string', 'max:255'],
             'contacto' => ['nullable', 'string', 'max:20'],
             'ubicacion' => ['nullable', 'string', 'max:255'],
-            'foto' => ['nullable', 'file', 'max:5120'], // 5MB máximo, sin restricción de tipo
+            'foto' => ['nullable', 'file', 'max:5120'], // Máximo 5MB
         ];
     }
 }

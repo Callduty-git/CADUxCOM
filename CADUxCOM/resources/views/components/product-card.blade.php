@@ -34,14 +34,8 @@
         @endif
 
         {{-- Wishlist --}}
-        @if($showWishlist && auth()->check())
-            <button data-product-id="{{ $product->Id_Producto }}" 
-                    class="wishlist-toggle-btn absolute top-2 right-2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-red-50 transition-colors group"
-                    id="wishlist-btn-{{ $product->Id_Producto }}">
-                <svg class="w-4 h-4 text-gray-500 hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                </svg>
-            </button>
+        @if($showWishlist)
+            <x-wishlist-button :product-id="$product->Id_Producto" />
         @endif
     </div>
 
@@ -115,13 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Event listeners para botones de wishlist
-    document.querySelectorAll('.wishlist-toggle-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const productId = this.getAttribute('data-product-id');
-            toggleWishlist(productId);
-        });
-    });
 });
 
 async function addToCart(productId) {
@@ -162,44 +149,6 @@ async function addToCart(productId) {
     }
 }
 
-async function toggleWishlist(productId) {
-    // Usar el sistema unificado de wishlist si está disponible
-    if (window.toggleWishlist) {
-        return window.toggleWishlist(productId);
-    }
-    
-    // Fallback: implementación local (mantener compatibilidad)
-    try {
-        const response = await fetch('{{ route("wishlist.toggle") }}', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'X-CSRF-TOKEN': '{{ csrf_token() }}' 
-            },
-            body: JSON.stringify({ product_id: productId })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            updateWishlistCount();
-            // Usar el sistema unificado de notificaciones
-            if (window.cartManager && window.cartManager.showNotification) {
-                const notificationType = data.is_in_wishlist ? 'success' : 'info';
-                window.cartManager.showNotification(data.message, notificationType);
-            }
-        } else {
-            if (window.cartManager && window.cartManager.showNotification) {
-                window.cartManager.showNotification(data.message || 'Error al actualizar favoritos', 'error');
-            }
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        if (window.cartManager && window.cartManager.showNotification) {
-            window.cartManager.showNotification('Error al actualizar favoritos', 'error');
-        }
-    }
-}
 
 function updateCartCount() {
     // Usar el sistema unificado si está disponible

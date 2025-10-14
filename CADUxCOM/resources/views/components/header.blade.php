@@ -27,7 +27,7 @@
         <!-- Favoritos -->
         <a href="{{ route('wishlist.index') }}" class="header-icon-link" title="Mis Favoritos">
             <img src="{{ asset('images/favoritos.png') }}" alt="Favoritos" class="header-icon">
-            <span class="wishlist-count is-hidden" id="wishlist-count" data-url="{{ auth()->check() ? route('wishlist.count') : '' }}">0</span>
+            <span class="wishlist-count" id="wishlist-count" data-url="{{ auth()->check() ? route('wishlist.count') : '' }}">0</span>
         </a>
 
         <!-- Ayuda -->
@@ -93,7 +93,14 @@
         const wishlistUrl = (document.getElementById('wishlist-count')?.dataset.url || null);
 
         function updateWishlistCountHeader() {
-            if (!wishlistUrl) return;
+            if (!wishlistUrl) {
+                // Si no hay URL, ocultar el contador
+                const countElement = document.getElementById('wishlist-count');
+                if (countElement) {
+                    countElement.style.display = 'none';
+                }
+                return;
+            }
 
             fetch(wishlistUrl)
                 .then(response => response.json())
@@ -114,6 +121,9 @@
                     console.log('Error al obtener contador de wishlist:', error);
                 });
         }
+
+        // Hacer la función disponible globalmente
+        window.updateWishlistCountHeader = updateWishlistCountHeader;
 
         updateWishlistCountHeader();
 

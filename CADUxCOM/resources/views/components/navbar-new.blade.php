@@ -3,8 +3,7 @@
     use App\Models\Subcategoria;
     
     // Obtener categorías y subcategorías desde la base de datos
-    $categorias = Categoria::all();
-    $subcategorias = Subcategoria::all();
+    $categorias = Categoria::with('subcategorias')->get();
 @endphp
 
 <nav class="navbar-container">
@@ -27,7 +26,7 @@
             @foreach($categorias as $categoria)
                 @php
                     $iconName = $categoryIcons[$categoria->Nombre] ?? 'icon-default.png';
-                    $subcategoriasCategoria = $subcategorias->where('Id_Categoria', $categoria->Id_Categoria);
+                    $subcategoriasCategoria = $categoria->subcategorias;
                 @endphp
                 
                 <li class="category-item" data-category-id="{{ $categoria->Id_Categoria }}">
@@ -44,7 +43,7 @@
                             <div class="dropdown-content">
                                 @foreach($subcategoriasCategoria as $subcategoria)
                                     <a href="{{ route('productos.by-subcategory', $subcategoria->Id_Subcategoria) }}" class="subcategory-link">
-                                        <span class="subcategory-icon">📦</span>
+                                        <span class="subcategory-icon">{{ $subcategoria->Icono }}</span>
                                         <span class="subcategory-name">{{ $subcategoria->Nombre }}</span>
                                     </a>
                                 @endforeach

@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Modelo Order - Representa una orden de compra en el sistema
+ * Modelo Order - Representa una orden de compra en el sistema.
  * 
  * Este modelo maneja toda la información relacionada con las órdenes de compra,
- * incluyendo datos del cliente, envío, facturación, totales y estado.
+ * incluyendo datos del cliente, envío, facturación, totales, cupones,
+ * estado, puntos de fidelidad y métodos de pago.
  */
 class Order extends Model
 {
@@ -95,7 +96,7 @@ class Order extends Model
     const PAYMENT_DIGITAL_WALLET = 'digital_wallet';
 
     /**
-     * Relación: Una orden pertenece a un usuario (opcional)
+     * Relación: Una orden pertenece a un usuario
      */
     public function user(): BelongsTo
     {
@@ -103,7 +104,7 @@ class Order extends Model
     }
 
     /**
-     * Relación: Una orden tiene muchos items
+     * Relación: Una orden tiene muchos ítems
      */
     public function items(): HasMany
     {
@@ -121,7 +122,7 @@ class Order extends Model
     /**
      * Relación: Una orden tiene muchos puntos de fidelidad
      */
-    public function loyaltyPoints()
+    public function loyaltyPoints(): HasMany
     {
         return $this->hasMany(LoyaltyPoint::class);
     }
@@ -129,7 +130,7 @@ class Order extends Model
     /**
      * Scope: Filtrar órdenes por estado
      */
-    public function scopeByStatus($query, $status)
+    public function scopeByStatus($query, string $status)
     {
         return $query->where('status', $status);
     }
@@ -137,7 +138,7 @@ class Order extends Model
     /**
      * Scope: Filtrar órdenes por usuario
      */
-    public function scopeByUser($query, $userId)
+    public function scopeByUser($query, int $userId)
     {
         return $query->where('user_id', $userId);
     }
@@ -213,7 +214,7 @@ class Order extends Model
     }
 
     /**
-     * Calcular el total de items en la orden
+     * Calcular el total de ítems en la orden
      */
     public function getTotalItemsAttribute(): int
     {
@@ -225,15 +226,12 @@ class Order extends Model
      */
     public function getEstimatedDeliveryAttribute(): string
     {
-        if ($this->status === self::STATUS_SHIPPED) {
-            return '2-3 días hábiles';
-        } elseif ($this->status === self::STATUS_PROCESSING) {
-            return '1-2 días hábiles';
-        } elseif ($this->status === self::STATUS_PAID) {
-            return '3-5 días hábiles';
-        }
-
-        return 'No disponible';
+        return match ($this->status) {
+            self::STATUS_SHIPPED => '2-3 días hábiles',
+            self::STATUS_PROCESSING => '1-2 días hábiles',
+            self::STATUS_PAID => '3-5 días hábiles',
+            default => 'No disponible',
+        };
     }
 
     /**

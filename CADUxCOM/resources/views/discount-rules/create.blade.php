@@ -6,32 +6,34 @@
     <title>Nueva Regla de Descuento - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header-empresa.css') }}">
     <link rel="stylesheet" href="{{ asset('css/discount-rules.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
-    <x-header-pages />
+    <x-header-empresa />
     
+    <div class="page-container">
     <div class="discount-rules-container">
         <!-- Header -->
-        <div class="page-header">
+        <div class="page-header stacked">
             <div class="header-content">
                 <h1 class="page-title">Nueva Regla de Descuento</h1>
                 <p class="page-subtitle">Configura una nueva regla de descuento progresivo basada en la proximidad a la fecha de caducidad</p>
             </div>
             <div class="header-actions">
-                <a href="{{ route('discount-rules.index') }}" class="btn btn-secondary">
+                <a href="{{ route('discount-rules.discount-rules.index') }}" class="btn btn-secondary btn-sm">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
-                    Volver
+                    Volver a Descuento Progresivo
                 </a>
             </div>
         </div>
 
         <!-- Formulario -->
         <div class="form-container">
-            <form action="{{ route('discount-rules.store') }}" method="POST" class="discount-form">
+            <form action="{{ route('discount-rules.discount-rules.store') }}" method="POST" class="discount-form">
                 @csrf
                 
                 <!-- Información básica -->
@@ -41,7 +43,7 @@
                         <div class="form-group">
                             <label for="name" class="form-label">Nombre de la regla *</label>
                             <input type="text" id="name" name="name" class="form-input" 
-                                   value="{{ old('name') }}" required>
+                                   value="{{ old('name') }}" required placeholder="Ej: Descuento o regla de tales días">
                             @error('name')
                                 <span class="form-error">{{ $message }}</span>
                             @enderror
@@ -50,7 +52,7 @@
                         <div class="form-group">
                             <label for="description" class="form-label">Descripción</label>
                             <textarea id="description" name="description" class="form-textarea" 
-                                      rows="3">{{ old('description') }}</textarea>
+                                      rows="3" placeholder="Ej: Describe brevemente la regla o descuento aplicado">{{ old('description') }}</textarea>
                             @error('description')
                                 <span class="form-error">{{ $message }}</span>
                             @enderror
@@ -214,13 +216,17 @@
                         <div class="form-group">
                             <label class="form-label">Configuración automática</label>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="is_automatic" name="is_automatic" 
+                                <input type="hidden" name="is_automatic" value="0">
+                                <input type="checkbox" id="is_automatic" name="is_automatic" value="1"
                                        {{ old('is_automatic', true) ? 'checked' : '' }}>
                                 <label for="is_automatic" class="checkbox-label">
                                     Aplicar descuento automáticamente
                                 </label>
                             </div>
                             <small class="form-help">Si está marcado, el descuento se aplicará automáticamente a los productos que cumplan los criterios</small>
+                            @error('is_automatic')
+                                <span class="form-error">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="form-group">
@@ -247,7 +253,7 @@
 
                 <!-- Botones de acción -->
                 <div class="form-actions">
-                    <a href="{{ route('discount-rules.index') }}" class="btn btn-secondary">
+                    <a href="{{ route('discount-rules.discount-rules.index') }}" class="btn btn-secondary">
                         Cancelar
                     </a>
                     <button type="submit" class="btn btn-primary">
@@ -259,6 +265,7 @@
                 </div>
             </form>
         </div>
+    </div>
     </div>
 
     <x-footer />
@@ -325,10 +332,21 @@
             }
         });
 
-        // Mostrar errores de validación
-        @if($errors->any())
+        // Mostrar notificaciones sin usar directivas con '@' dentro del script
+        const successMsg = "{{ session('success') }}";
+        if (successMsg) {
+            showNotification(successMsg, 'success');
+        }
+
+        const errorMsg = "{{ session('error') }}";
+        if (errorMsg) {
+            showNotification(errorMsg, 'error');
+        }
+
+        const hasFormErrors = "{{ $errors->any() ? '1' : '' }}" === '1';
+        if (hasFormErrors) {
             showNotification('Por favor corrige los errores en el formulario', 'error');
-        @endif
+        }
 
         function showNotification(message, type) {
             const notification = document.createElement('div');
@@ -352,5 +370,7 @@
         }
     </script>
     <script src="{{ asset('js/modal-alert.js') }}"></script>
+    
+    <x-edit-empresa-modal />
 </body>
 </html>

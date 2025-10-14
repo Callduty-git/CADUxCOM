@@ -1,6 +1,17 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/style_register.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .is-hidden { display: none !important; }
+        /* Asegurar que los campos de empresa estén ocultos por defecto */
+        #empresa-fields {
+            display: none;
+        }
+        /* Mostrar cuando se selecciona empresa */
+        #empresa-fields:not(.is-hidden) {
+            display: block !important;
+        }
+    </style>
 @endpush
 
 <x-guest-layout>
@@ -16,6 +27,26 @@
         <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data" class="register-form">
             @csrf
             <input type="hidden" name="role" id="role" value="usuario" required>
+
+            <!-- Script inmediato para detectar estado del botón -->
+            <script>
+                // Ejecutar inmediatamente para detectar el estado del botón empresa
+                (function() {
+                    const empresaBtn = document.getElementById('btn-empresa');
+                    if (empresaBtn && empresaBtn.classList.contains('selected')) {
+                        console.log('Empresa button is selected on page load');
+                        const empresaFields = document.getElementById('empresa-fields');
+                        const roleInput = document.getElementById('role');
+                        if (empresaFields) {
+                            empresaFields.style.display = 'block';
+                            empresaFields.classList.remove('is-hidden');
+                        }
+                        if (roleInput) {
+                            roleInput.value = 'empresa';
+                        }
+                    }
+                })();
+            </script>
 
             <!-- Header del formulario -->
             <div class="form-header">
@@ -184,6 +215,29 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Términos y condiciones (solo empresas) -->
+                <div id="terms-group" class="form-section" style="margin-top: 12px;">
+                    <h3 class="section-title">
+                        <i class="fas fa-file-contract"></i>
+                        Términos y condiciones
+                    </h3>
+                    <div class="input-group">
+                        <label for="terms" style="display:flex; align-items:center; gap:8px;">
+                            <input id="terms" type="checkbox" name="terms" value="1" {{ session('terms_read') ? '' : 'disabled' }}>
+                            He leído y acepto los
+                            <a href="{{ route('terms') }}" class="terms-link" style="text-decoration: underline;">
+                                Términos y Condiciones
+                            </a>
+                        </label>
+                        <p class="helper-text" style="margin-top:8px; color:#666;">
+                            Debes abrir y leer los términos. Al final de la página encontrarás un botón para habilitar esta casilla.
+                        </p>
+                        <p id="terms-status" class="helper-text text-success is-hidden" style="margin-top:6px;">
+                            Términos aceptados. Ya puedes marcar la casilla.
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Contraseñas -->
@@ -233,24 +287,121 @@
         const usuarioBtn = document.getElementById('btn-usuario');
         const empresaBtn = document.getElementById('btn-empresa');
         const empresaFields = document.getElementById('empresa-fields');
+        const termsGroup = document.getElementById('terms-group');
         const roleInput = document.getElementById('role');
+        const termsCheckbox = document.getElementById('terms');
+        const termsStatus = document.getElementById('terms-status');
 
-        usuarioBtn.addEventListener('click', () => {
-            empresaFields.style.display = 'none';
-            usuarioBtn.classList.add('selected');
-            empresaBtn.classList.remove('selected');
-            roleInput.value = 'usuario';
-        });
-
-        empresaBtn.addEventListener('click', () => {
-            empresaFields.style.display = 'block';
+        // Función para cambiar a modo empresa
+        function switchToEmpresa() {
+            console.log('Switching to empresa mode');
+            empresaFields.classList.remove('is-hidden');
+            if (termsGroup) termsGroup.classList.remove('is-hidden');
             empresaBtn.classList.add('selected');
             usuarioBtn.classList.remove('selected');
             roleInput.value = 'empresa';
+            console.log('Role set to:', roleInput.value);
+            saveFormData();
+        }
+
+        // Función para cambiar a modo usuario
+        function switchToUsuario() {
+            console.log('Switching to usuario mode');
+            empresaFields.classList.add('is-hidden');
+            if (termsGroup) termsGroup.classList.add('is-hidden');
+            usuarioBtn.classList.add('selected');
+            empresaBtn.classList.remove('selected');
+            roleInput.value = 'usuario';
+            console.log('Role set to:', roleInput.value);
+            saveFormData();
+        }
+
+        // Autosave: guardar y restaurar datos del formulario (excepto archivos y contraseñas)
+        const autosaveFields = ['role','name','email','direccion','municipio','ubicacion','contacto','email_empresa','nit'];
+
+        function saveFormData() {
+            const data = {};
+            autosaveFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) data[id] = el.value;
+            });
+            try { localStorage.setItem('registerFormData', JSON.stringify(data)); } catch (_) {}
+        }
+
+        function restoreFormData() {
+            try {
+                const raw = localStorage.getItem('registerFormData');
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                Object.entries(data).forEach(([id, val]) => {
+                    const el = document.getElementById(id);
+                    if (el && typeof val === 'string') el.value = val;
+                });
+            } catch (_) {}
+        }
+
+        // Estado inicial en base al rol seleccionado + restauración
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing form');
+            
+            // Restaurar datos previamente guardados
+            restoreFormData();
+
+            // Verificar si hay datos guardados que indiquen que se seleccionó empresa
+            const savedRole = localStorage.getItem('registerFormData');
+            let isEmpresaSelected = false;
+            
+            if (savedRole) {
+                try {
+                    const data = JSON.parse(savedRole);
+                    isEmpresaSelected = data.role === 'empresa';
+                    console.log('Found saved data:', data);
+                } catch (_) {}
+            }
+
+            console.log('Initial role value:', roleInput.value);
+            console.log('Is empresa selected from localStorage:', isEmpresaSelected);
+            
+            // Determinar el modo inicial
+            if (roleInput.value === 'empresa' || isEmpresaSelected) {
+                switchToEmpresa();
+            } else {
+                switchToUsuario();
+            }
+
+            // Forzar actualización visual después de un pequeño delay
+            setTimeout(() => {
+                if (roleInput.value === 'empresa') {
+                    empresaFields.style.display = 'block';
+                    empresaFields.classList.remove('is-hidden');
+                } else {
+                    empresaFields.style.display = 'none';
+                    empresaFields.classList.add('is-hidden');
+                }
+            }, 100);
+
+            // Si ya aceptó términos en otra pestaña, habilitar la casilla
+            try {
+                if (termsCheckbox && localStorage.getItem('terms_read') === '1') {
+                    termsCheckbox.removeAttribute('disabled');
+                    if (termsStatus) termsStatus.classList.remove('is-hidden');
+                }
+            } catch (_) {}
+        });
+
+        // Event listeners para los botones
+        usuarioBtn.addEventListener('click', switchToUsuario);
+        empresaBtn.addEventListener('click', switchToEmpresa);
+
+        // Guardar cambios conforme se escribe
+        autosaveFields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', saveFormData);
+            if (el) el.addEventListener('change', saveFormData);
         });
 
         document.querySelector('form').addEventListener('submit', () => {
-            console.log("Rol enviado:", roleInput.value);
+            // Mantener datos por si hay validaciones del servidor; si deseas limpiar al éxito, podemos hacerlo luego.
         });
 
         // Funciones para vista previa de archivos
@@ -278,7 +429,10 @@
                         const reader = new FileReader();
                         reader.onload = function(e) {
                             imageContainer.innerHTML = `<img src="${e.target.result}" alt="Vista previa" class="preview-image">`;
-                            imageContainer.style.display = 'block';
+                            if (imageContainer) {
+                                imageContainer.classList.remove('is-hidden');
+                                imageContainer.style.display = 'block';
+                            }
                         };
                         reader.readAsDataURL(file);
                     } else {
@@ -289,9 +443,13 @@
                                 <p>Archivo PDF seleccionado</p>
                             </div>
                         `;
-                        imageContainer.style.display = 'block';
+                        if (imageContainer) {
+                            imageContainer.classList.remove('is-hidden');
+                            imageContainer.style.display = 'block';
+                        }
                     }
-
+                    // Mostrar contenedor de vista previa
+                    preview.classList.remove('is-hidden');
                     preview.style.display = 'block';
                 }
             });
@@ -301,19 +459,111 @@
         function removeCertificado() {
             const input = document.getElementById('certificado');
             const preview = document.getElementById('certificado-preview');
+            const info = document.getElementById('certificado-info');
+            const imageContainer = document.getElementById('certificado-image');
             input.value = '';
+            preview.classList.add('is-hidden');
             preview.style.display = 'none';
+            if (info) info.innerHTML = '';
+            if (imageContainer) {
+                imageContainer.classList.add('is-hidden');
+                imageContainer.style.display = 'none';
+                imageContainer.innerHTML = '';
+            }
         }
 
         function removeFoto() {
             const input = document.getElementById('foto');
             const preview = document.getElementById('foto-preview');
+            const info = document.getElementById('foto-info');
+            const imageContainer = document.getElementById('foto-image');
             input.value = '';
+            preview.classList.add('is-hidden');
             preview.style.display = 'none';
+            if (info) info.innerHTML = '';
+            if (imageContainer) {
+                imageContainer.classList.add('is-hidden');
+                imageContainer.style.display = 'none';
+                imageContainer.innerHTML = '';
+            }
         }
 
         // Configurar vistas previas
         setupFilePreview('certificado', 'certificado-preview', 'certificado-info', 'certificado-image');
         setupFilePreview('foto', 'foto-preview', 'foto-info', 'foto-image');
     </script>
+    
+    <!-- Modal de Términos y Condiciones -->
+    <div id="terms-modal" class="modal-overlay is-hidden" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-contract"></i> Términos y Condiciones</h3>
+                <button type="button" class="modal-close" id="terms-modal-close" aria-label="Cerrar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <iframe id="terms-iframe" src="{{ route('terms', ['embed' => 1]) }}" title="Términos y Condiciones" class="modal-iframe"></iframe>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="modal-accept-btn">
+                    He leído y acepto
+                </button>
+                <button type="button" class="btn btn-primary" id="modal-cancel-btn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal Términos
+        const termsLink = document.querySelector('.terms-link');
+        const termsModal = document.getElementById('terms-modal');
+        const modalAcceptBtn = document.getElementById('modal-accept-btn');
+        const modalCloseBtn = document.getElementById('terms-modal-close');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+        function openTermsModal(e) {
+            if (e) e.preventDefault();
+            termsModal.classList.remove('is-hidden');
+            termsModal.setAttribute('aria-hidden', 'false');
+            // Botón habilitado inmediatamente
+            if (modalAcceptBtn) modalAcceptBtn.disabled = false;
+        }
+
+        function closeTermsModal() {
+            termsModal.classList.add('is-hidden');
+            termsModal.setAttribute('aria-hidden', 'true');
+        }
+
+        if (termsLink) termsLink.addEventListener('click', openTermsModal);
+        if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeTermsModal);
+        if (modalCancelBtn) modalCancelBtn.addEventListener('click', closeTermsModal);
+
+        // Aceptar desde el modal: habilita casilla y persiste aceptación
+        if (modalAcceptBtn) {
+            modalAcceptBtn.addEventListener('click', () => {
+                try { localStorage.setItem('terms_read', '1'); } catch (_) {}
+                if (termsCheckbox) termsCheckbox.removeAttribute('disabled');
+                if (termsStatus) termsStatus.classList.remove('is-hidden');
+                closeTermsModal();
+            });
+        }
+
+        // Escuchar mensaje desde iframe de términos cuando se llega al final
+        window.addEventListener('message', (event) => {
+            try {
+                // Habilitar sin comprobar origen estrictamente, validando solo el tipo de mensaje
+                if (event.data && event.data.type === 'terms-scroll-bottom') {
+                    modalAcceptBtn.disabled = false;
+                }
+            } catch (_) {}
+        });
+    </script>
 </x-guest-layout>
+        // Escucha cambios de localStorage desde otra pestaña (términos)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'terms_read' && e.newValue === '1') {
+                if (termsCheckbox) termsCheckbox.removeAttribute('disabled');
+                if (termsStatus) termsStatus.classList.remove('is-hidden');
+            }
+        });

@@ -6,35 +6,34 @@
     <title>Reglas de Descuento - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header-empresa.css') }}">
     <link rel="stylesheet" href="{{ asset('css/discount-rules.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
-    <x-header-pages />
+    <x-header-empresa />
     
-    <div class="discount-rules-container">
+    <div class="page-container">
+        <div class="discount-rules-container">
+        
         <!-- Header -->
-        <div class="page-header">
+        <div class="page-header stacked">
             <div class="header-content">
                 <h1 class="page-title">Reglas de Descuento Progresivo</h1>
                 <p class="page-subtitle">Gestiona los descuentos automáticos basados en la proximidad a la fecha de caducidad</p>
             </div>
             <div class="header-actions">
-                <a href="{{ route('discount-rules.create') }}" class="btn btn-primary">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    Nueva Regla
-                </a>
-                <form action="{{ route('discount-rules.create-defaults') }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit" class="btn btn-secondary" onclick="return confirm('¿Crear reglas de descuento por defecto?')">
+                @php($limit = (int) config('discount.rules_limit', 5))
+                @if($stats['total_rules'] < $limit)
+                    <a href="{{ route('discount-rules.discount-rules.create') }}" class="btn btn-primary">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
-                        Reglas por Defecto
-                    </button>
-                </form>
+                        Nueva Regla
+                    </a>
+                @else
+                    <span class="limit-message">Has alcanzado el límite de {{ $limit }} reglas.</span>
+                @endif
             </div>
         </div>
 
@@ -112,13 +111,13 @@
                                     </div>
                                 </div>
                                 <div class="rule-actions">
-                                    <a href="{{ route('discount-rules.show', $rule->id) }}" class="action-btn view">
+                                    <a href="{{ route('discount-rules.discount-rules.show', $rule->id) }}" class="action-btn view">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                         </svg>
                                     </a>
-                                    <a href="{{ route('discount-rules.edit', $rule->id) }}" class="action-btn edit">
+                                    <a href="{{ route('discount-rules.discount-rules.edit', $rule->id) }}" class="action-btn edit">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                         </svg>
@@ -138,7 +137,7 @@
                                             @endif
                                         </button>
                                     </form>
-                                    <form action="{{ route('discount-rules.destroy', $rule->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar esta regla?')">
+                                    <form action="{{ route('discount-rules.discount-rules.destroy', $rule->id) }}" method="POST" class="inline delete-form" data-message="¿Estás seguro de eliminar esta regla?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="action-btn delete">
@@ -184,9 +183,14 @@
                     @endforeach
                 </div>
 
-                <!-- Paginación -->
+                <!-- Botón de regreso al Dashboard de la empresa -->
                 <div class="pagination-container">
-                    {{ $discountRules->links() }}
+                    <a href="{{ route('empresa.dashboard') }}" class="btn btn-secondary">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Regresar al Dashboard
+                    </a>
                 </div>
             @else
                 <div class="empty-state">
@@ -198,7 +202,7 @@
                     <h3 class="empty-title">No hay reglas de descuento</h3>
                     <p class="empty-description">Crea tu primera regla de descuento progresivo para empezar a ofrecer descuentos automáticos basados en la proximidad a la fecha de caducidad.</p>
                     <div class="empty-actions">
-                        <a href="{{ route('discount-rules.create') }}" class="btn btn-primary">
+                        <a href="{{ route('discount-rules.discount-rules.create') }}" class="btn btn-primary">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
@@ -210,7 +214,7 @@
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                 </svg>
-                                Usar Reglas por Defecto
+                                Restablecer reglas predeterminadas
                             </button>
                         </form>
                     </div>
@@ -220,37 +224,96 @@
     </div>
 
     <x-footer />
+    
+    <x-edit-empresa-modal />
 
     <script>
-        // Mostrar mensajes de éxito/error
-        @if(session('success'))
-            showNotification('{{ session('success') }}', 'success');
-        @endif
+        // Mostrar mensajes de éxito/error sin directivas Blade dentro de JS
+        const successMsg = `{{ session('success') }}`;
+        if (successMsg) {
+            showNotification(successMsg, 'success');
+        }
 
-        @if(session('error'))
-            showNotification('{{ session('error') }}', 'error');
-        @endif
+        const errorMsg = `{{ session('error') }}`;
+        if (errorMsg) {
+            showNotification(errorMsg, 'error');
+        }
 
         function showNotification(message, type) {
+            // Contenedor global de toasts
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.style.position = 'fixed';
+                container.style.top = '16px';
+                container.style.right = '16px';
+                container.style.zIndex = '9999';
+                container.style.display = 'flex';
+                container.style.flexDirection = 'column';
+                container.style.gap = '8px';
+                document.body.appendChild(container);
+            }
+
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white font-medium transform transition-all duration-300 ${
-                type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            }`;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
+            notification.className = 'toast-notification';
+            notification.style.display = 'flex';
+            notification.style.alignItems = 'center';
+            notification.style.gap = '8px';
+            notification.style.padding = '12px 14px';
+            notification.style.borderRadius = '10px';
+            notification.style.boxShadow = '0 10px 20px rgba(0,0,0,0.12)';
+            notification.style.color = '#fff';
+            notification.style.transform = 'translateX(120%)';
+            notification.style.transition = 'transform 240ms ease, opacity 240ms ease';
+            notification.style.opacity = '0.95';
+            notification.style.background = type === 'success' ? '#16a34a' : '#ef4444';
+
+            // Icono
+            const icon = document.createElement('span');
+            icon.innerHTML = type === 'success' 
+                ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>'
+                : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 105.636 5.636a9 9 0 0012.728 12.728z" /></svg>';
+
+            // Texto
+            const text = document.createElement('span');
+            text.textContent = message;
+
+            // Botón cerrar
+            const close = document.createElement('button');
+            close.setAttribute('aria-label', 'Cerrar');
+            close.textContent = '×';
+            close.style.marginLeft = '8px';
+            close.style.background = 'transparent';
+            close.style.color = 'inherit';
+            close.style.border = 'none';
+            close.style.fontSize = '18px';
+            close.style.cursor = 'pointer';
+            close.addEventListener('click', () => {
+                notification.style.transform = 'translateX(120%)';
+                setTimeout(() => notification.remove(), 240);
+            });
+
+            notification.appendChild(icon);
+            notification.appendChild(text);
+            notification.appendChild(close);
+            container.appendChild(notification);
+
+            requestAnimationFrame(() => {
                 notification.style.transform = 'translateX(0)';
-            }, 100);
-            
+            });
+
             setTimeout(() => {
-                notification.style.transform = 'translateX(100%)';
+                notification.style.transform = 'translateX(120%)';
                 setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 3000);
+                    if (notification && notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 240);
+            }, 3500);
         }
+
+        // Sin confirmación: el servidor enviará el mensaje de éxito en sesión
     </script>
 </body>
 </html>

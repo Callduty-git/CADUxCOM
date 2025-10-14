@@ -12,7 +12,7 @@ class Producto extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'Id_Producto'; 
+    protected $primaryKey = 'Id_Producto';
 
     protected $fillable = [
         'Nombre',
@@ -30,7 +30,7 @@ class Producto extends Model
     ];
 
     /**
-     * Campos que deben ser convertidos a tipos específicos
+     * Casts automáticos
      */
     protected $casts = [
         'Fecha_Caducidad' => 'datetime',
@@ -39,7 +39,11 @@ class Producto extends Model
         'Cantidad' => 'integer',
     ];
 
-    // Relaciones
+    /* ============================
+     * RELACIONES
+     * ============================
+     */
+
     public function empresa(): BelongsTo
     {
         return $this->belongsTo(Empresa::class, 'Id_Empresa', 'Id_Empresa');
@@ -55,7 +59,24 @@ class Producto extends Model
         return $this->hasMany(DiscountRule::class, 'empresa_id', 'Id_Empresa');
     }
 
-    // Métodos de descuento
+    public function comentarios(): HasMany
+    {
+        return $this->hasMany(Comentario::class, 'producto_id', 'Id_Producto');
+    }
+
+    public function comentariosPrincipales(): HasMany
+    {
+        return $this->comentarios()
+            ->mainComments()
+            ->with(['replies', 'user', 'empresa'])
+            ->orderBy('created_at', 'desc');
+    }
+
+    /* ============================
+     * DESCUENTOS
+     * ============================
+     */
+
     public function getDiscountedPrice(): array
     {
         return DiscountRule::getBestDiscount($this);
@@ -82,11 +103,19 @@ class Producto extends Model
         return $this->getDiscountAmount() > 0;
     }
 
-    // Métodos de caducidad
+    /* ============================
+     * CADUCIDAD
+     * ============================
+     */
+
     public function getDaysUntilExpiry(): int
     {
         if (!$this->Fecha_Caducidad) return 999;
-        return Carbon::parse($this->Fecha_Caducidad)->diffInDays(now());
+
+        $expiryEndOfDay = Carbon::parse($this->Fecha_Caducidad)->endOfDay();
+        $now = Carbon::now();
+
+        return $expiryEndOfDay->lessThan($now) ? 0 : $now->diffInDays($expiryEndOfDay);
     }
 
     public function isNearExpiry(int $days = 7): bool
@@ -132,7 +161,11 @@ class Producto extends Model
         }
     }
 
-    // Scopes
+    /* ============================
+     * SCOPES
+     * ============================
+     */
+
     public function scopeNearExpiry($query, int $days = 7)
     {
         return $query->where('Fecha_Caducidad', '<=', now()->addDays($days))
@@ -151,11 +184,34 @@ class Producto extends Model
         });
     }
 
-    // Información de descuento
+    /* ============================
+     * INFORMACIÓN COMPLETA DE DESCUENTO
+     * ============================
+     */
+
     public function getDiscountInfo(): array
     {
         $daysUntilExpiry = $this->getDaysUntilExpiry();
+        $discount = $this->getDiscountedPrice();
 
+        // 1️⃣ Descuento por regla progresiva
+        if ($discount['discount_amount'] > 0) {
+            return [
+                'original_price' => $this->PrecioOriginal > 0 ? $this->PrecioOriginal : $this->Precio,
+                'discounted_price' => $discount['discounted_price'],
+                'discount_amount' => $discount['discount_amount'],
+                'discount_percentage' => $discount['discount_percentage'],
+                'has_discount' => true,
+                'applied_rule' => $discount['applied_rule'],
+                'days_until_expiry' => $daysUntilExpiry,
+                'expiry_status' => $this->getExpiryStatus(),
+                'expiry_label' => $this->getExpiryLabel(),
+                'expiry_class' => $this->getExpiryClass(),
+                'savings_message' => $this->getSavingsMessage(),
+            ];
+        }
+
+        // 2️⃣ Descuento manual (PrecioOriginal > Precio)
         if ($this->PrecioOriginal > $this->Precio) {
             $discountAmount = $this->PrecioOriginal - $this->Precio;
             $discountPercentage = ($discountAmount / $this->PrecioOriginal) * 100;
@@ -175,20 +231,19 @@ class Producto extends Model
             ];
         }
 
-        $discount = $this->getDiscountedPrice();
-
+        // 3️⃣ Sin descuento
         return [
             'original_price' => $this->Precio,
             'discounted_price' => $discount['discounted_price'],
             'discount_amount' => $discount['discount_amount'],
             'discount_percentage' => $discount['discount_percentage'],
-            'has_discount' => $discount['discount_amount'] > 0,
-            'applied_rule' => $discount['applied_rule'],
+            'has_discount' => false,
+            'applied_rule' => null,
             'days_until_expiry' => $daysUntilExpiry,
             'expiry_status' => $this->getExpiryStatus(),
             'expiry_label' => $this->getExpiryLabel(),
             'expiry_class' => $this->getExpiryClass(),
-            'savings_message' => $this->getSavingsMessage(),
+            'savings_message' => '',
         ];
     }
 
@@ -201,21 +256,5 @@ class Producto extends Model
         $percentage = round($discount['discount_percentage'], 0);
 
         return "Ahorras \${$amount} ({$percentage}%)";
-    }
-
-    /**
-     * Relación: Un producto tiene muchos comentarios
-     */
-    public function comentarios(): HasMany
-    {
-        return $this->hasMany(Comentario::class, 'producto_id', 'Id_Producto');
-    }
-
-    /**
-     * Obtener comentarios principales del producto
-     */
-    public function comentariosPrincipales(): HasMany
-    {
-        return $this->comentarios()->mainComments()->with(['replies', 'user', 'empresa'])->orderBy('created_at', 'desc');
     }
 }

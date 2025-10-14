@@ -287,16 +287,200 @@ body {
 }
 
 .btn-add-cart {
-    background-color: var(--purple);
+    background: linear-gradient(135deg, #90D575, #49874E);
     color: var(--white);
     flex: 1;
     min-width: 200px;
+    box-shadow: 0 8px 25px rgba(144, 213, 117, 0.4);
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 18px 30px;
 }
 
-.btn-add-cart:hover {
-    background-color: var(--green);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+.btn-add-cart:active {
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #49874E, #90D575);
+}
+
+.btn-add-cart.success {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    transform: scale(1.05);
+    animation: buttonSuccess 0.5s ease-out;
+}
+
+@keyframes buttonSuccess {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* === RESPONSIVE PARA LA SECCIÓN DEL CARRITO === */
+
+/* Pantallas grandes (desktop) */
+@media (min-width: 1200px) {
+    .btn-add-cart {
+        min-width: 250px;
+        padding: 20px 35px;
+        font-size: 1.3rem;
+    }
+    
+    .action-buttons {
+        gap: 20px;
+    }
+}
+
+/* Pantallas medianas (tablet landscape) */
+@media (max-width: 1199px) and (min-width: 992px) {
+    .btn-add-cart {
+        min-width: 220px;
+        padding: 18px 32px;
+        font-size: 1.2rem;
+    }
+    
+    .action-buttons {
+        gap: 18px;
+    }
+}
+
+/* Tablets (768px - 991px) */
+@media (max-width: 991px) and (min-width: 768px) {
+    .btn-add-cart {
+        min-width: 200px;
+        padding: 16px 28px;
+        font-size: 1.1rem;
+    }
+    
+    .action-buttons {
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+}
+
+/* Móviles grandes (576px - 767px) */
+@media (max-width: 767px) and (min-width: 576px) {
+    .btn-add-cart {
+        min-width: 100%;
+        padding: 16px 24px;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+    
+    .btn-add-cart,
+    .btn-wishlist {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Móviles pequeños (hasta 575px) */
+@media (max-width: 575px) {
+    .btn-add-cart {
+        min-width: 100%;
+        padding: 14px 20px;
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        padding: 0 10px;
+    }
+    
+    .btn-add-cart,
+    .btn-wishlist {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+        font-size: 1rem;
+    }
+}
+
+/* Pantallas muy pequeñas (hasta 375px) */
+@media (max-width: 375px) {
+    .btn-add-cart {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+    
+    .action-buttons {
+        padding: 0 5px;
+    }
+    
+    .btn-add-cart,
+    .btn-wishlist {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Orientación landscape en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+    .btn-add-cart {
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+    
+    .action-buttons {
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .btn-add-cart,
+    .btn-wishlist {
+        flex: 1;
+        min-width: auto;
+    }
+}
+
+/* === RESPONSIVE PARA EL CONTENEDOR PRINCIPAL === */
+
+/* Asegurar que el contenedor principal sea responsivo */
+.product-detail-content {
+    padding: 20px;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Pantallas grandes */
+@media (min-width: 1200px) {
+    .product-detail-content {
+        padding: 40px;
+    }
+}
+
+/* Tablets */
+@media (max-width: 991px) and (min-width: 768px) {
+    .product-detail-content {
+        padding: 30px 20px;
+    }
+}
+
+/* Móviles */
+@media (max-width: 767px) {
+    .product-detail-content {
+        padding: 20px 15px;
+    }
+}
+
+/* Móviles pequeños */
+@media (max-width: 575px) {
+    .product-detail-content {
+        padding: 15px 10px;
+    }
+}
+
+/* Asegurar que los elementos no se desborden */
+.product-detail-content * {
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .btn-wishlist {

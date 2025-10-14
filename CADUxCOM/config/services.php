@@ -7,10 +7,9 @@ return [
     | Third Party Services
     |--------------------------------------------------------------------------
     |
-    | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
+    | Este archivo almacena las credenciales para servicios de terceros como
+    | Mailgun, Postmark, AWS, Stripe, Wompi, etc. Aquí puedes definir las
+    | llaves y configuraciones para que Laravel las use globalmente.
     |
     */
 
@@ -37,6 +36,28 @@ return [
 
     'google' => [
         'maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
+
+    // Stripe payment gateway
+    'stripe' => [
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+
+    // Wompi payment gateway
+    'wompi' => [
+        'public_key' => env('WOMPI_PUBLIC_KEY'),
+        'private_key' => env('WOMPI_PRIVATE_KEY'),
+        'integrity_secret' => env('WOMPI_INTEGRITY_SECRET'),
+        // sandbox | production
+        'environment' => env('WOMPI_ENV', 'sandbox'),
+        // URL de retorno después del pago
+        'redirect_url' => env('WOMPI_REDIRECT_URL', env('APP_URL', 'http://localhost') . '/payments/wompi/callback'),
+        // Endpoint base según entorno
+        'base_url' => env('WOMPI_ENV', 'sandbox') === 'production'
+            ? 'https://production.wompi.co'
+            : 'https://sandbox.wompi.co',
     ],
 
 ];

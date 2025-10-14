@@ -6,6 +6,7 @@
     <title>Contacto - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/contact.css') }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/header-pages.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
 </head>
 <body>
@@ -92,14 +93,14 @@
                         <div class="info-item">
                             <img src="{{ asset('images/icon-user.png') }}" alt="Teléfono" class="info-icon">
                             <div>
-                                <strong>+57 (1) 234-5678</strong>
-                                <span>Lun - Vie: 9AM - 6PM</span>
+                                <strong>3233526807</strong>
+                                <span>Disponible para consultas</span>
                             </div>
                         </div>
                         <div class="info-item">
                             <img src="{{ asset('images/icon-user.png') }}" alt="Email" class="info-icon">
                             <div>
-                                <strong>contacto@caduxcom.com</strong>
+                                <strong>caduxcom.store@gmail.com</strong>
                                 <span>Respuesta en 24h</span>
                             </div>
                         </div>
@@ -113,15 +114,15 @@
                         <h3>Síguenos</h3>
                     </div>
                     <div class="social-buttons">
-                        <a href="#" class="social-btn facebook">
+                        <a href="https://www.facebook.com/share/14FJfgWzoRf/" class="social-btn facebook" target="_blank">
                             <img src="{{ asset('images/facebook.png') }}" alt="Facebook" class="social-icon">
                             Facebook
                         </a>
-                        <a href="#" class="social-btn instagram">
+                        <a href="https://www.instagram.com/caduxcom?igsh=MWxwa2t0NmJoOWtubA==" class="social-btn instagram" target="_blank">
                             <img src="{{ asset('images/instagram.png') }}" alt="Instagram" class="social-icon">
                             Instagram
                         </a>
-                        <a href="#" class="social-btn tiktok">
+                        <a href="https://www.tiktok.com" class="social-btn tiktok" target="_blank">
                             <img src="{{ asset('images/tik-tok.png') }}" alt="TikTok" class="social-icon">
                             TikTok
                         </a>
@@ -136,14 +137,14 @@
                         <p>¿Necesitas ayuda inmediata? Usa nuestros canales de atención rápida</p>
                     </div>
                     <div class="quick-contact">
-                        <a href="tel:+5712345678" class="quick-btn call">
+                        <a href="tel:+573233526807" class="quick-btn call">
                             <i class="icon-phone">📞</i>
                             <div>
                                 <strong>Llamar Ahora</strong>
                                 <span>Atención inmediata</span>
                             </div>
                         </a>
-                        <a href="mailto:contacto@caduxcom.com" class="quick-btn email">
+                        <a href="mailto:caduxcom.store@gmail.com" class="quick-btn email">
                             <i class="icon-email">✉️</i>
                             <div>
                                 <strong>Email Directo</strong>

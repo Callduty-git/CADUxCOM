@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/user-details.css') }}">
     <link rel="stylesheet" href="{{ asset('css/comentarios.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/related-products.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- JavaScript del carrito -->
@@ -201,15 +202,70 @@
         </div>
 
         <!-- Productos relacionados -->
+        @if($productosRelacionados->count() > 0)
         <div class="related-products-section">
-            <h2>Productos Relacionados</h2>
+            <h2 class="related-products-title">Productos Relacionados</h2>
             <div class="related-products-grid">
-                <!-- Aquí se pueden agregar productos relacionados -->
-                <div class="related-product-placeholder">
-                    <p>Productos relacionados próximamente</p>
-                </div>
+                @foreach($productosRelacionados as $productoRelacionado)
+                    @php
+                        $discountInfo = $productoRelacionado->getDiscountInfo();
+                    @endphp
+                    <div class="related-product-card">
+                        <a href="{{ route('productos.user.show', $productoRelacionado->Id_Producto) }}" class="related-product-link">
+                            <div class="related-product-image">
+                                @if ($productoRelacionado->Foto)
+                                    <img src="{{ asset('storage/' . $productoRelacionado->Foto) }}" 
+                                         alt="{{ $productoRelacionado->Nombre }}" 
+                                         class="related-product-img">
+                                @else
+                                    <div class="related-product-placeholder">
+                                        <img src="{{ asset('images/icon-user.png') }}" alt="Sin imagen" class="placeholder-icon">
+                                    </div>
+                                @endif
+                                
+                                <!-- Badge de descuento -->
+                                @if($discountInfo['has_discount'])
+                                    <div class="related-discount-badge {{ $discountInfo['expiry_class'] }}">
+                                        -{{ round($discountInfo['discount_percentage'], 0) }}%
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <div class="related-product-info">
+                                <h3 class="related-product-name">{{ $productoRelacionado->Nombre }}</h3>
+                                <p class="related-product-company">{{ $productoRelacionado->empresa->Nombre ?? 'Empresa' }}</p>
+                                
+                                <div class="related-product-price">
+                                    @if($discountInfo['has_discount'])
+                                        <span class="related-current-price">${{ number_format($discountInfo['discounted_price'], 0, ',', '.') }}</span>
+                                        <span class="related-original-price">${{ number_format($discountInfo['original_price'], 0, ',', '.') }}</span>
+                                    @else
+                                        <span class="related-current-price">${{ number_format($productoRelacionado->Precio, 0, ',', '.') }}</span>
+                                    @endif
+                                </div>
+                                
+                                @if($discountInfo['has_discount'])
+                                    <div class="related-savings {{ $discountInfo['expiry_class'] }}">
+                                        {{ $discountInfo['savings_message'] }}
+                                    </div>
+                                @endif
+                            </div>
+                        </a>
+                        
+                        <!-- Botón de agregar al carrito -->
+                        <div class="related-product-actions">
+                            <button class="btn-add-to-cart" 
+                                    onclick="addToCart({{ $productoRelacionado->Id_Producto }})"
+                                    {{ $productoRelacionado->Cantidad <= 0 ? 'disabled' : '' }}>
+                                <span class="cart-icon">🛒</span>
+                                {{ $productoRelacionado->Cantidad <= 0 ? 'Agotado' : 'Agregar' }}
+                            </button>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
+        @endif
 
         <!-- Botones de navegación -->
         <div class="navigation-buttons">

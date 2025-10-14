@@ -28,14 +28,20 @@
             </ul>
         </div>
 
-        <!-- Redes Sociales -->
+        <!-- Información de Contacto -->
         <div class="footer-section">
-            <h3 class="footer-title">Síguenos</h3>
+            <h3 class="footer-title">Contacto</h3>
+            <div class="contact-info">
+                <p><strong>📧 Email:</strong> caduxcom.store@gmail.com</p>
+                <p><strong>📞 Teléfono:</strong> 3233526807</p>
+            </div>
+            
+            <h3 class="footer-title" style="margin-top: 20px;">Síguenos</h3>
             <div class="social-icons">
-                <a href="https://www.facebook.com" target="_blank">
+                <a href="https://www.facebook.com/share/14FJfgWzoRf/" target="_blank">
                     <img src="{{ asset('images/facebook.png') }}" alt="Facebook" class="social-icon">
                 </a>
-                <a href="https://www.instagram.com" target="_blank">
+                <a href="https://www.instagram.com/caduxcom?igsh=MWxwa2t0NmJoOWtubA==" target="_blank">
                     <img src="{{ asset('images/instagram.png') }}" alt="Instagram" class="social-icon">
                 </a>
                 <a href="https://www.tiktok.com" target="_blank">

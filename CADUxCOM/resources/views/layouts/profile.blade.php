@@ -22,6 +22,7 @@
 <body class="body-base">
     <div class="page-container">
         @stack('scripts')
+        
 
         <!-- HEADER -->
         <x-header />

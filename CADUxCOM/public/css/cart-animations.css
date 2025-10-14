@@ -1,0 +1,182 @@
+/* === ANIMACIONES DEL CARRITO === */
+:root {
+    --color-white: #FFFFFF;
+    --color-green-dark: #49874E;
+    --color-green-light: #90D575;
+    --color-purple: #AA5FC7;
+    --color-gray-light: #F8F9FA;
+    --color-gray-medium: #6C757D;
+    --color-gray-dark: #333333;
+    --shadow-light: 0 2px 8px rgba(0,0,0,.1);
+    --shadow-medium: 0 4px 16px rgba(0,0,0,.15);
+    --transition: all .3s cubic-bezier(.4,0,.2,1);
+}
+
+/* Animación de botón al agregar al carrito */
+.add-to-cart-btn {
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.add-to-cart-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.add-to-cart-btn.animate::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Animación de éxito */
+.add-to-cart-btn.success {
+    background: var(--color-green-light) !important;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(144, 213, 117, 0.4);
+}
+
+.add-to-cart-btn.success::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    animation: checkmark 0.6s ease-in-out;
+}
+
+@keyframes checkmark {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Animación de pulso en el contador del carrito */
+.cart-count-animate {
+    animation: cartPulse 0.6s ease-in-out;
+}
+
+@keyframes cartPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); background: var(--color-green-light); }
+    100% { transform: scale(1); }
+}
+
+/* Notificación mejorada del carrito */
+.cart-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, var(--color-green-light), var(--color-green-dark));
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-medium);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    font-size: 14px;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.cart-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.cart-notification.hide {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.cart-notification-icon {
+    font-size: 20px;
+    animation: bounce 0.6s ease-in-out;
+}
+
+.cart-notification-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.cart-notification-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Animación de vuelo del producto al carrito */
+.product-fly-animation {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-fly-animation img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-medium);
+    border: 2px solid white;
+}
+
+/* Efecto de vibración en dispositivos móviles */
+@keyframes vibrate {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+}
+
+.vibrate {
+    animation: vibrate 0.3s ease-in-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cart-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        transform: translateY(-100%);
+    }
+    
+    .cart-notification.show {
+        transform: translateY(0);
+    }
+    
+    .cart-notification.hide {
+        transform: translateY(-100%);
+    }
+}
+
+

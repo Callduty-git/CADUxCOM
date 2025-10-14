@@ -1,45 +1,130 @@
 @props(['product'])
 
+<style>
+/* Estilos específicos para el botón de agregar al carrito */
+#add-cart-btn-{{ $product->Id_Producto }} {
+    background: linear-gradient(135deg, #90D575, #49874E) !important;
+    border: none !important;
+    box-shadow: 0 8px 25px rgba(144, 213, 117, 0.4) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+#add-cart-btn-{{ $product->Id_Producto }}:hover {
+    background: linear-gradient(135deg, #49874E, #90D575) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 12px 35px rgba(144, 213, 117, 0.6) !important;
+}
+
+#add-cart-btn-{{ $product->Id_Producto }}:active {
+    transform: translateY(-1px) !important;
+}
+
+#add-cart-btn-{{ $product->Id_Producto }}.animate::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+#add-cart-btn-{{ $product->Id_Producto }}.animate::before {
+    width: 300px;
+    height: 300px;
+}
+
+#add-cart-btn-{{ $product->Id_Producto }}.success {
+    background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+    transform: scale(1.05) !important;
+}
+
+#add-cart-btn-{{ $product->Id_Producto }}.success::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+    animation: checkmark 0.6s ease-in-out;
+}
+
+@keyframes checkmark {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Selector de cantidad mejorado */
+.cart-qty-selector-{{ $product->Id_Producto }} {
+    box-shadow: 0 4px 15px rgba(144, 213, 117, 0.3) !important;
+    border: 2px solid #90D575 !important;
+}
+
+.cart-qty-btn-{{ $product->Id_Producto }}:hover {
+    background: #90D575 !important;
+    color: white !important;
+    transform: scale(1.1) !important;
+}
+</style>
+
 <div class="add-to-cart-container">
     <form id="add-to-cart-form-{{ $product->Id_Producto }}" method="POST" action="{{ route('cart.add') }}" class="flex items-center space-x-3">
         @csrf
         <input type="hidden" name="product_id" value="{{ $product->Id_Producto }}">
         
         <!-- Selector de cantidad -->
-        <div class="flex items-center border border-gray-300 rounded-lg">
+        <div class="flex items-center border-2 border-green-300 rounded-xl bg-white shadow-md cart-qty-selector-{{ $product->Id_Producto }}">
             <button type="button" onclick="decreaseCartQty({{ $product->Id_Producto }})" 
-                    class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-l-lg">
+                    class="w-12 h-12 flex items-center justify-center hover:bg-green-500 hover:text-white rounded-l-xl text-green-600 font-bold text-xl transition-all duration-200 cart-qty-btn-{{ $product->Id_Producto }}">
                 -
             </button>
             <input type="number" name="quantity" min="1" max="{{ $product->Cantidad }}" 
                    value="1" id="cart-qty-{{ $product->Id_Producto }}"
-                   class="w-12 text-center border-0 focus:ring-0">
+                   class="w-20 text-center border-0 focus:ring-0 font-bold text-green-700 text-lg bg-green-50">
             <button type="button" onclick="increaseCartQty({{ $product->Id_Producto }})" 
-                    class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-r-lg">
+                    class="w-12 h-12 flex items-center justify-center hover:bg-green-500 hover:text-white rounded-r-xl text-green-600 font-bold text-xl transition-all duration-200 cart-qty-btn-{{ $product->Id_Producto }}">
                 +
             </button>
         </div>
 
-        <!-- Botón agregar al carrito -->
+        <!-- Botón agregar al carrito mejorado -->
         <button type="submit" 
-                class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
+                class="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 min-w-[250px] justify-center"
                 id="add-cart-btn-{{ $product->Id_Producto }}">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
-            </svg>
-            <span>Agregar</span>
+            <span class="text-2xl">🛒</span>
+            <span>Agregar al Carrito</span>
         </button>
     </form>
 
-    <!-- Mensaje de stock -->
+    <!-- Mensaje de stock mejorado -->
     @if($product->Cantidad <= 5 && $product->Cantidad > 0)
-        <p class="text-orange-600 text-sm mt-2">
-            ⚠️ Solo quedan {{ $product->Cantidad }} unidades
-        </p>
+        <div class="mt-3 p-3 bg-orange-50 border-l-4 border-orange-400 rounded-r-lg">
+            <p class="text-orange-700 text-sm font-medium">
+                ⚠️ Solo quedan {{ $product->Cantidad }} unidades disponibles
+            </p>
+        </div>
     @elseif($product->Cantidad == 0)
-        <p class="text-red-600 text-sm mt-2">
-            ❌ Producto agotado
-        </p>
+        <div class="mt-3 p-3 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
+            <p class="text-red-700 text-sm font-medium">
+                ❌ Producto agotado temporalmente
+            </p>
+        </div>
     @endif
 </div>
 
@@ -72,28 +157,49 @@ document.getElementById('add-to-cart-form-{{ $product->Id_Producto }}').addEvent
     const originalText = button.innerHTML;
     const quantity = parseInt(document.getElementById(`cart-qty-{{ $product->Id_Producto }}`).value);
 
-    // Mostrar loader en el botón
-    button.innerHTML = '<svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Agregando...</span>';
+    // Mostrar loader en el botón con animación
+    button.innerHTML = '<span class="animate-spin">⏳</span><span>Agregando...</span>';
     button.disabled = true;
+    button.classList.add('animate');
 
     // Llamada a cartManager
     window.cartManager.addToCart({{ $product->Id_Producto }}, quantity, button)
     .then(success => {
         if (success) {
-            showNotification('Producto agregado al carrito', 'success');
+            // Usar el sistema de notificaciones mejorado
+            if (window.showCartNotification) {
+                window.showCartNotification('¡Producto agregado al carrito!', 3000);
+            } else {
+                showNotification('Producto agregado al carrito', 'success');
+            }
             updateCartCount();
             document.getElementById(`cart-qty-{{ $product->Id_Producto }}`).value = 1;
+            
+            // Animación de éxito
+            button.classList.add('success');
+            setTimeout(() => {
+                button.classList.remove('success');
+            }, 1000);
         } else {
-            showNotification('Error al agregar al carrito', 'error');
+            if (window.showCartNotification) {
+                window.showCartNotification('Error al agregar al carrito', 3000);
+            } else {
+                showNotification('Error al agregar al carrito', 'error');
+            }
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showNotification('Error al agregar al carrito', 'error');
+        if (window.showCartNotification) {
+            window.showCartNotification('Error al agregar al carrito', 3000);
+        } else {
+            showNotification('Error al agregar al carrito', 'error');
+        }
     })
     .finally(() => {
         button.innerHTML = originalText;
         button.disabled = false;
+        button.classList.remove('animate');
     });
 });
 

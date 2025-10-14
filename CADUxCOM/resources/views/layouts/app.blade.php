@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="{{ asset('css/subcategorias.css') }}">
     <link rel="stylesheet" href="{{ asset('css/all-products.css') }}">
     <link rel="stylesheet" href="{{ asset('css/favorites.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/wishlist-button.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/cart-animations.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
@@ -43,5 +45,8 @@
         <!-- FOOTER -->
         <x-footer />
         </div>
+        
+        <!-- JavaScript de animaciones del carrito -->
+        <script src="{{ asset('js/cart-animations.js') }}"></script>
     </body>
 </html>

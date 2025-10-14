@@ -6,6 +6,7 @@
     <title>Sobre CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/about.css') }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/header-pages.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
 </head>
 <body>

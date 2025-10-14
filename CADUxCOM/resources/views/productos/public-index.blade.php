@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/productos-public.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/wishlist-button.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/cart-animations.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -323,5 +325,8 @@
             document.querySelector('.scroll-to-top').style.display = 'none';
         });
     </script>
+    
+    <!-- JavaScript de animaciones del carrito -->
+    <script src="{{ asset('js/cart-animations.js') }}"></script>
 </body>
 </html>

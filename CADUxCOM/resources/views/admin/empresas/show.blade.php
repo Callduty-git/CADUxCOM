@@ -7,13 +7,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
+    @php
+        $returnTo = request('return_to');
+        $backHref = match($returnTo) {
+            'pending' => route('admin.empresas.pending'),
+            'approved' => route('admin.empresas.approved'),
+            'rejected' => route('admin.empresas.rejected'),
+            default => route('admin.dashboard'),
+        };
+    @endphp
+    <x-admin.back-button href="{{ $backHref }}" />
     <div class="container mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-bold text-gray-800">Verificar Empresa: {{ $empresa->Nombre }}</h1>
-                <a href="{{ route('admin.empresas.pending') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-                    ← Volver
-                </a>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -104,6 +111,17 @@
                             onclick="showRejectModal()">
                         ❌ Rechazar Empresa
                     </button>
+
+                    @if($empresa->status === 'approved')
+                        <form action="{{ route('admin.empresas.destroy', ['empresa' => $empresa, 'return_to' => request('return_to')]) }}" method="POST" class="inline"
+                              onsubmit="return confirm('¿Seguro que deseas eliminar esta empresa y sus datos asociados? Esta acción no se puede deshacer.')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-900 font-medium">
+                                🗑️ Eliminar Empresa
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>

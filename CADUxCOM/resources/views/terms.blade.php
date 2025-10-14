@@ -6,6 +6,7 @@
     <title>Términos de Servicio - CADUxCOM</title>
     <link rel="stylesheet" href="{{ asset('css/terms.css') }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/header-pages.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
 </head>
 <body>
@@ -133,9 +134,8 @@
                 <h2>13. Contacto</h2>
                 <p>Para preguntas sobre estos términos, puede contactarnos en:</p>
                 <ul>
-                    <li>Email: legal@caduxcom.com</li>
-                    <li>Teléfono: +57 (1) 234-5678</li>
-                    <li>Dirección: Bogotá, Colombia</li>
+                    <li>Email: caduxcom.store@gmail.com</li>
+                    <li>Teléfono: 3233526807</li>
                 </ul>
             </div>
         </div>

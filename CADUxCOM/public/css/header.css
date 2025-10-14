@@ -293,6 +293,7 @@ html, body {
     border: 2px solid var(--cadux-white);
     box-shadow: var(--shadow-light);
     transition: transform var(--transition-fast);
+    z-index: 1000;
 }
 
 .wishlist-count.update {
