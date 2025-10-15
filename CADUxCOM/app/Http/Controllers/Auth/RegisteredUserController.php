@@ -59,7 +59,7 @@ class RegisteredUserController extends Controller
                 'contacto' => ['required', 'string', 'max:50'],
                 'nit' => ['required', 'string', 'max:50', 'unique:empresas,NIT'],
                 'foto' => ['required', 'image', 'max:2048'],
-                'certificado_camara_de_comercio' => ['required', 'file', 'mimes:pdf,jpg,png', 'max:5120'],
+            'certificado_camara_de_comercio' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
                 'terms' => ['accepted'],
             ];
         }

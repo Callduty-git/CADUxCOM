@@ -35,9 +35,15 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Perfil') }}
-                        </x-dropdown-link>
+                        @if(Auth::guard('empresa')->check())
+                            <x-dropdown-link :href="route('empresa.perfil.edit')">
+                                {{ __('Perfil') }}
+                            </x-dropdown-link>
+                        @else
+                            <x-dropdown-link :href="route('profile.edit')">
+                                {{ __('Perfil') }}
+                            </x-dropdown-link>
+                        @endif
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ Auth::guard('empresa')->check() ? route('empresa.logout') : route('logout') }}">

@@ -55,7 +55,10 @@ html, body {
 /* Espaciado superior específico */
 .wishlist-container { margin-top: 120px; padding-top: 20px; }
 @media (max-width: 768px) {
-    .wishlist-container { margin-top: 130px; padding-top: 15px; }
+    .wishlist-container { margin-top: 180px; padding-top: 15px; }
+}
+@media (max-width: 480px) {
+    .wishlist-container { margin-top: 200px; padding-top: 15px; }
 }
 
 /* ========================================
@@ -1111,7 +1114,7 @@ html, body {
 @media (max-width: 768px) {
     .wishlist-container {
         padding: 16px;
-        margin-top: 80px;
+        margin-top: 180px;
     }
     
     .wishlist-header {
@@ -1390,6 +1393,7 @@ html, body {
 @media (max-width: 360px) {
     .wishlist-container {
         padding: 10px;
+        margin-top: 200px;
     }
     
     .wishlist-header {

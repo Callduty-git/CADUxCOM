@@ -24,8 +24,8 @@ class EnsureEmpresaEmailIsVerified
         ]);
         
         if ($empresa && is_null($empresa->email_verified_at)) {
-            \Log::info('📧 Redirigiendo a verificación de email');
-            return redirect()->route('verification.notice')
+            \Log::info('📧 Redirigiendo a verificación de email (empresa)');
+            return redirect()->route('empresa.verification.notice')
                 ->with('error', 'Debes verificar tu email antes de acceder. Revisa tu bandeja de entrada.');
         }
 

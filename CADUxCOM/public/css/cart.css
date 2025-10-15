@@ -1,17 +1,13 @@
-/* === ESTILOS ESPECÍFICOS PARA LA PÁGINA DEL CARRITO === */
+﻿/* === ESTILOS ESPECÍFICOS PARA LA PÁGINA DEL CARRITO === */
 
 /* Asegurar que la página del carrito no tenga problemas de espaciado */
-body.cart-page {
-    padding-top: 80px !important;
-}
+body.cart-page { padding-top: 0 !important; }
 
 .cart-page .app-wrapper {
     padding-top: 0 !important;
 }
 
-.cart-page .content {
-    padding-top: 80px !important;
-}
+.cart-page .content { padding-top: calc(var(--header-h, 80px) + var(--navbar-h, 60px)) !important; }
 
 /* Estilos para el carrito vacío */
 .empty-cart-container {

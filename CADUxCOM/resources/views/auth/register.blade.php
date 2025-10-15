@@ -176,7 +176,7 @@
                                 Certificado cámara y comercio
                                 <span class="file-info">PDF, JPG o PNG</span>
                             </label>
-                            <input id="certificado" type="file" name="certificado_camara_de_comercio" accept=".pdf,.jpg,.png">
+                            <input id="certificado" type="file" name="certificado_camara_de_comercio" accept=".pdf,.jpg,.jpeg,.png">
                             <div id="certificado-preview" class="file-preview is-hidden">
                                 <div class="preview-header">
                                     <i class="fas fa-check-circle"></i>

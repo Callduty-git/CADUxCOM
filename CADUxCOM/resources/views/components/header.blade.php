@@ -47,7 +47,7 @@
                     </button>
                     <div class="user-menu" id="userMenu">
                         @if(Auth::guard('empresa')->check())
-                            <a href="{{ route('empresa.dashboard') }}" class="menu-item">
+                            <a href="{{ route('empresa.perfil.edit') }}" class="menu-item">
                                 <span class="menu-icon">🏢</span>
                                 Perfil empresa
                             </a>

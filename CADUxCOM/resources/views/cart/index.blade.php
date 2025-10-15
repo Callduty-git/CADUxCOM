@@ -16,7 +16,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
 </head>
-<body class="bg-white">
+<body class="bg-white cart-page">
     <div class="app-wrapper">
         {{-- Componentes globales --}}
         <x-header />
@@ -31,11 +31,11 @@
                 </div>
 
                 @if(empty($items))
-                    <!-- Carrito vacío mejorado -->
+                    <!-- Carrito vac�o mejorado -->
                     <div class="empty-cart-container flex flex-col items-center justify-center px-4">
-                        <!-- Contenedor principal con diseño corporativo -->
+                        <!-- Contenedor principal con dise�o corporativo -->
                         <div class="empty-cart-card rounded-2xl p-8 md:p-12 max-w-md w-full text-center">
-                            <!-- Ícono del carrito con paleta corporativa -->
+                            <!-- �cono del carrito con paleta corporativa -->
                             <div class="mb-8">
                                 <div class="cart-icon-container mx-auto w-32 h-32 rounded-full flex items-center justify-center mb-6">
                                     <svg class="cart-icon w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -53,15 +53,15 @@
                             
                             <!-- Texto principal -->
                             <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                                Tu carrito está vacío
+                                Tu carrito est� vac�o
                             </h2>
                             
-                            <!-- Descripción -->
+                            <!-- Descripci�n -->
                             <p class="text-gray-600 text-base md:text-lg mb-8 leading-relaxed">
-                                Explora nuestros productos y agrega los que más te gusten para comenzar tu compra
+                                Explora nuestros productos y agrega los que m�s te gusten para comenzar tu compra
                             </p>
                             
-                            <!-- Botón de acción -->
+                            <!-- Bot�n de acci�n -->
                             <a href="{{ route('productos.public.index') }}" 
                                class="continue-btn inline-flex items-center justify-center px-8 py-4 text-white font-semibold text-lg rounded-xl focus:outline-none focus:ring-4 focus:ring-green-200">
                                 <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -72,18 +72,18 @@
                             
                             <!-- Enlaces adicionales -->
                             <div class="mt-8 pt-6 border-t border-gray-100">
-                                <p class="text-sm text-gray-500 mb-4">O explora nuestras categorías:</p>
+                                <p class="text-sm text-gray-500 mb-4">O explora nuestras categor�as:</p>
                                 <div class="flex flex-wrap justify-center gap-3">
                                     <a href="{{ route('home') }}" class="text-sm text-green-600 hover:text-green-700 font-medium transition-colors">
-                                        🏠 Inicio
+                                        ?? Inicio
                                     </a>
-                                    <span class="text-gray-300">•</span>
+                                    <span class="text-gray-300">�</span>
                                     <a href="{{ route('productos.public.index') }}" class="text-sm text-green-600 hover:text-green-700 font-medium transition-colors">
-                                        🛍️ Todos los Productos
+                                        ??? Todos los Productos
                                     </a>
-                                    <span class="text-gray-300">•</span>
+                                    <span class="text-gray-300">�</span>
                                     <a href="{{ route('home') }}#categorias" class="text-sm text-green-600 hover:text-green-700 font-medium transition-colors">
-                                        📂 Categorías
+                                        ?? Categor�as
                                     </a>
                                 </div>
                             </div>
@@ -113,7 +113,7 @@
                                                          class="w-20 h-20 object-cover rounded-lg">
                                                 </div>
                                                 
-                                                <!-- Información del producto -->
+                                                <!-- Informaci�n del producto -->
                                                 <div class="flex-1 min-w-0">
                                                     <h3 class="text-sm font-medium text-gray-900 truncate">
                                                         {{ $item['product']->Nombre }}
@@ -122,7 +122,7 @@
                                                         {{ $item['product']->empresa->Nombre }}
                                                     </p>
                                                     <p class="text-sm text-gray-500">
-                                                        Código: {{ $item['product']->Codigo }}
+                                                        C�digo: {{ $item['product']->Codigo }}
                                                     </p>
                                                     
                                                     @if($item['discount'] > 0)
@@ -164,7 +164,7 @@
                                                     </p>
                                                 </div>
                                                 
-                                                <!-- Botón eliminar -->
+                                                <!-- Bot�n eliminar -->
                                                 <button onclick="removeFromCart({{ $item['product']->Id_Producto }})" 
                                                         class="text-red-500 hover:text-red-700 transition-colors">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,7 +175,7 @@
                                         @endforeach
                                     </div>
                                     
-                                    <!-- Botones de acción -->
+                                    <!-- Botones de acci�n -->
                                     <div class="mt-6 flex flex-col sm:flex-row gap-4">
                                         <a href="{{ route('productos.public.index') }}" 
                                            class="flex-1 text-center px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
@@ -208,7 +208,7 @@
                                         </div>
                                         
                                         <div class="flex justify-between text-sm">
-                                            <span class="text-gray-600">Envío</span>
+                                            <span class="text-gray-600">Env�o</span>
                                             <span class="font-medium">
                                                 @if($shipping > 0)
                                                     ${{ number_format($shipping, 0, ',', '.') }}
@@ -223,7 +223,7 @@
                                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
-                                                Envío gratis en compras superiores a $100,000
+                                                Env�o gratis en compras superiores a $100,000
                                             </div>
                                         @endif
                                         
@@ -236,7 +236,7 @@
                                     </div>
                                     
                                     <!-- Botón de checkout -->
-                                    <a href="{{ route('checkout.index') }}" 
+                                    <a href="/payments/mercadopago/start" 
                                        class="w-full mt-6 btn-primary text-white py-3 px-4 rounded-md font-medium hover:opacity-90 transition-all text-center block">
                                         Proceder al Checkout
                                     </a>
@@ -288,9 +288,9 @@
     function removeFromCart(productId) {
         window.cartManager.showConfirmModal(
             'Eliminar Producto',
-            '¿Estás seguro de que quieres eliminar este producto del carrito?',
+            '�Est�s seguro de que quieres eliminar este producto del carrito?',
             () => {
-                // Función a ejecutar al confirmar
+                // Funci�n a ejecutar al confirmar
                 const formData = new FormData();
                 formData.append('product_id', productId);
                 formData.append('_token', '{{ csrf_token() }}');
@@ -322,9 +322,9 @@
     function clearCart() {
         window.cartManager.showConfirmModal(
             'Vaciar Carrito',
-            '¿Estás seguro de que quieres vaciar todo el carrito?',
+            '�Est�s seguro de que quieres vaciar todo el carrito?',
             () => {
-                // Función a ejecutar al confirmar
+                // Funci�n a ejecutar al confirmar
                 const formData = new FormData();
                 formData.append('_token', '{{ csrf_token() }}');
                 

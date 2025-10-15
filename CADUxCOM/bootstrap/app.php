@@ -14,7 +14,6 @@ return Application::configure(basePath: dirname(__DIR__))
         // Alias de middleware personalizados
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminOnly::class,
-            'empresa.verified' => \App\Http\Middleware\EnsureEmpresaEmailIsVerified::class,
         ]);
 
         // Excluir rutas específicas de la verificación CSRF (como webhooks)

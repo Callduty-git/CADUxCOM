@@ -24,24 +24,28 @@ use App\Http\Controllers\empresa\EmpresaPasswordController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\DiscountRuleController;
 use App\Http\Controllers\GeolocationController;
-use App\Http\Controllers\EmpresaAdvancedDashboardController;
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\PasswordVerificationController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Auth\EmpresaEmailVerificationController;
+use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
 | Rutas de edición de perfil de empresa y dashboard
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth:empresa', 'empresa.verified'])->group(function () {
+Route::middleware(['auth:empresa'])->group(function () {
     // Dashboard
     Route::get('/empresa/dashboard', [EmpresaDashboardController::class, 'index'])
         ->name('empresa.dashboard');
-    Route::get('/empresa/dashboard/advanced', [EmpresaAdvancedDashboardController::class, 'index'])
-        ->name('empresa.advanced-dashboard');
-    Route::get('/empresa/dashboard/export', [EmpresaAdvancedDashboardController::class, 'exportData'])
-        ->name('empresa.dashboard.export');
+    // Ruta avanzada deshabilitada: redirige al dashboard normal
+    Route::get('/empresa/dashboard/advanced', function () {
+        return redirect()->route('empresa.dashboard');
+    })->name('empresa.advanced-dashboard');
+    // Ruta de exportación deshabilitada al eliminar el controlador avanzado
+    // Route::get('/empresa/dashboard/export', [EmpresaAdvancedDashboardController::class, 'exportData'])
+    //     ->name('empresa.dashboard.export');
 
     // Perfil de empresa
     Route::get('/empresa/perfil', [EmpresaProfileController::class, 'edit'])
@@ -93,10 +97,10 @@ Route::middleware(['auth:empresa', 'empresa.verified'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/empresa/facturas', [EmpresaDashboardController::class, 'facturas'])
-    ->middleware(['auth:empresa', 'empresa.verified'])
+    ->middleware(['auth:empresa'])
     ->name('empresa.facturas');
 Route::delete('/empresa/facturas/clear-logs', [EmpresaDashboardController::class, 'clearLogs'])
-    ->middleware(['auth:empresa', 'empresa.verified'])
+    ->middleware(['auth:empresa'])
     ->name('empresa.facturas.clear-logs');
 
 /*
@@ -105,7 +109,7 @@ Route::delete('/empresa/facturas/clear-logs', [EmpresaDashboardController::class
 |--------------------------------------------------------------------------
 */
 Route::get('/empresa/logs', [LogEmpresaController::class, 'index'])
-    ->middleware(['auth:empresa', 'empresa.verified'])
+    ->middleware(['auth:empresa'])
     ->name('empresa.logs');
 
 /*
@@ -366,6 +370,13 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Verificación de email para Empresas (DESHABILITADA)
+|--------------------------------------------------------------------------
+| Todas las rutas de verificación por correo han sido retiradas.
+*/
+
+/*
+|--------------------------------------------------------------------------
 | Auth Breeze
 |--------------------------------------------------------------------------
 */
@@ -390,3 +401,12 @@ Route::prefix('comentarios')->name('comentarios.')->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+
+// Pasarela de pagos (Mercado Pago)
+Route::post('/payments/mercadopago/preference', [\App\Http\Controllers\MercadoPagoController::class, 'createPreference'])->name('payments.mercadopago.preference');
+Route::get('/payments/mercadopago/start', [\App\Http\Controllers\MercadoPagoController::class, 'start'])->name('payments.mercadopago.start');
+Route::get('/payments/mercadopago/callback', [\App\Http\Controllers\MercadoPagoController::class, 'callback'])->name('payments.mercadopago.callback');
+Route::post('/payments/mercadopago/webhook', [\App\Http\Controllers\MercadoPagoController::class, 'webhook'])->name('payments.mercadopago.webhook');
+// Vista de pago con Wallet Brick (similar al video)
+Route::get('/payments/mercadopago/brick', [\App\Http\Controllers\MercadoPagoController::class, 'brick'])
+    ->name('payments.mercadopago.brick');

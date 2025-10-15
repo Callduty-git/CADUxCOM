@@ -42,16 +42,6 @@ class CustomLoginController extends Controller
         ], $request->filled('remember'))) {
             $user = Auth::guard('web')->user();
 
-            // Verificar si el correo está verificado (email_verified_at o email_verified)
-            $isVerified = !is_null($user->email_verified_at) || (bool)($user->email_verified ?? false);
-
-            if (!$isVerified) {
-                Auth::guard('web')->logout();
-                return back()->withErrors([
-                    'email' => 'Debes verificar tu correo electrónico antes de poder iniciar sesión. Revisa tu bandeja de entrada.',
-                ])->onlyInput('email');
-            }
-
             $request->session()->regenerate();
 
             // Redirigir usuarios a home.blade
@@ -71,15 +61,6 @@ class CustomLoginController extends Controller
             'password' => $credentials['password'],
         ], $request->filled('remember'))) {
             $empresa = Auth::guard('empresa')->user();
-
-            // Verificar si el correo de la empresa está verificado
-            $isVerified = !is_null($empresa->email_verified_at) || (bool)($empresa->email_verified ?? false);
-            if (!$isVerified) {
-                Auth::guard('empresa')->logout();
-                return back()->withErrors([
-                    'email' => 'Debes verificar tu correo electrónico antes de poder iniciar sesión. Revisa tu bandeja de entrada.',
-                ])->onlyInput('email');
-            }
 
             // Validar estado de la empresa (approved, sandbox, pending, rejected, etc.)
             if (!in_array($empresa->status, ['approved', 'sandbox'])) {

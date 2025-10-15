@@ -60,4 +60,12 @@ return [
             : 'https://sandbox.wompi.co',
     ],
 
+
+    // Mercado Pago payment gateway
+    'mercadopago' => [
+        'public_key' => env('MERCADOPAGO_PUBLIC_KEY', 'APP_USR-06d6bc84-a2c5-454d-a602-d702f7f93808'),
+        'access_token' => env('MERCADOPAGO_ACCESS_TOKEN', 'APP_USR-1666580171508604-101015-ad83b2a6acc7c7ca80384ccb793335e2-490116852'),
+        'client_id' => env('MERCADOPAGO_CLIENT_ID', '1666580171508604'),
+        'client_secret' => env('MERCADOPAGO_CLIENT_SECRET', 'AJ0NNHxEDgefAZmH0IyXYDgthf3pMR50'),
+    ],
 ];
