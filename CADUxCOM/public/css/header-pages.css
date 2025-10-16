@@ -22,7 +22,7 @@ body {
 .help-container,
 .education-container {
     margin-top: 0 !important;
-    padding-top: 0 !important; /* Sin padding adicional */
+    padding-top: 48 !important; 
 }
 
 /* Espaciado específico para página de contacto */

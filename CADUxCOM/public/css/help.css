@@ -14,6 +14,7 @@
     min-height: 100vh;
     background-color: var(--light-pink);
     padding: 40px 20px;
+    padding-top: 160px !important; /* Separación reducida del header fijo */
     font-family: 'Arial', sans-serif;
 }
 
@@ -313,7 +314,8 @@
 /* Responsive Design */
 @media (max-width: 768px) {
     .help-container {
-        padding: 20px 15px;
+        padding: 1rem;
+        padding-top: 180px !important; /* Separación reducida del header en tablets */
     }
     
     .help-header h1 {
@@ -365,7 +367,45 @@
     }
 }
 
+/* iPhone SE y pantallas similares (375px) */
+@media (max-width: 390px) {
+    .help-container {
+        padding-top: 200px !important; /* Separación reducida del header en pantallas muy pequeñas */
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .help-header h1 {
+        font-size: 1.6rem;
+        margin-bottom: 15px;
+    }
+    
+    .help-header p {
+        font-size: 0.9rem;
+        padding: 0 10px;
+    }
+    
+    .search-box {
+        padding: 12px 15px;
+        margin: 0 5px;
+    }
+    
+    .quick-help h2,
+    .faq-section h2 {
+        font-size: 1.6rem;
+    }
+    
+    .contact-support h2 {
+        font-size: 1.4rem;
+    }
+}
+
 @media (max-width: 480px) {
+    .help-container {
+        padding: 0.5rem;
+        padding-top: 190px !important; /* Separación reducida del header en móviles */
+    }
+    
     .help-header h1 {
         font-size: 1.8rem;
     }
@@ -379,13 +419,3 @@
         font-size: 1.6rem;
     }
 }
-
-
-
-
-
-
-
-
-
-

@@ -14,6 +14,7 @@
     min-height: 100vh;
     background-color: var(--light-pink);
     padding: 40px 20px;
+    padding-top: 160px !important; /* Separación reducida del header */
     font-family: 'Arial', sans-serif;
 }
 
@@ -168,56 +169,19 @@
     border-left: 4px solid var(--green);
 }
 
-/* Responsive Design */
+/* Media queries para dispositivos móviles */
 @media (max-width: 768px) {
     .privacy-container {
-        padding: 20px 15px;
+        padding: 1rem;
+        padding-top: 180px !important; /* Separación reducida del header en tablets */
     }
     
     .privacy-header h1 {
-        font-size: 2.2rem;
+        font-size: 2rem;
     }
     
     .privacy-content {
-        padding: 30px 25px;
-    }
-    
-    .privacy-section h2 {
-        font-size: 1.5rem;
-    }
-    
-    .privacy-section h3 {
-        font-size: 1.2rem;
-    }
-    
-    .privacy-section p {
-        font-size: 0.95rem;
-        text-align: left;
-    }
-    
-    .privacy-section li {
-        font-size: 0.95rem;
-    }
-    
-    .privacy-section:first-child,
-    .privacy-section:nth-child(7),
-    .privacy-section:last-child {
-        padding: 20px 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    .privacy-header h1 {
-        font-size: 1.8rem;
-    }
-    
-    .privacy-content {
-        padding: 20px 15px;
-    }
-    
-    .privacy-section {
-        margin-bottom: 30px;
-        padding-bottom: 20px;
+        padding: 1.5rem;
     }
     
     .privacy-section h2 {
@@ -228,25 +192,89 @@
         font-size: 1.1rem;
     }
     
-    .privacy-section:first-child,
-    .privacy-section:nth-child(7),
-    .privacy-section:last-child {
-        padding: 15px 10px;
-    }
-    
-    .privacy-section:nth-child(2),
-    .privacy-section:nth-child(3),
-    .privacy-section:nth-child(5) {
-        padding: 15px 10px;
+    .privacy-section p,
+    .privacy-section li {
+        font-size: 0.9rem;
     }
 }
 
+/* Media query para tablets */
+@media (max-width: 768px) {
+    .privacy-container {
+        padding-top: 200px !important; /* Separación apropiada del header en tablets */
+        padding: 20px 15px;
+    }
+}
 
+@media (max-width: 480px) {
+    .privacy-container {
+        padding: 0.5rem;
+        padding-top: 190px !important; /* Separación reducida del header en móviles */
+    }
+    
+    .privacy-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .privacy-content {
+        padding: 1rem;
+    }
+    
+    .privacy-section h2 {
+        font-size: 1.2rem;
+    }
+    
+    .privacy-section h3 {
+        font-size: 1rem;
+    }
+    
+    .privacy-section p,
+    .privacy-section li {
+        font-size: 0.85rem;
+    }
+}
 
-
-
-
-
-
-
-
+/* Media query específica para iPhone SE y dispositivos similares */
+@media (max-width: 390px) {
+    .privacy-container {
+        padding-top: 200px !important; /* Separación reducida del header en pantallas muy pequeñas */
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .privacy-header h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .privacy-header p {
+        font-size: 0.8rem;
+    }
+    
+    .privacy-content {
+        padding: 15px;
+        margin-top: 10px;
+    }
+    
+    .privacy-section {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+    }
+    
+    .privacy-section h2 {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+    
+    .privacy-section h3 {
+        font-size: 0.95rem;
+        margin-bottom: 6px;
+    }
+    
+    .privacy-section p,
+    .privacy-section li {
+        font-size: 0.8rem;
+        line-height: 1.4;
+        margin-bottom: 6px;
+    }
+}

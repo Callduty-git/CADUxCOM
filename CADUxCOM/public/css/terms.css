@@ -14,6 +14,7 @@
     min-height: 100vh;
     background-color: var(--light-pink);
     padding: 40px 20px;
+    padding-top: 140px !important; /* Separación reducida del header */
     font-family: 'Arial', sans-serif;
 }
 
@@ -139,50 +140,19 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive Design */
+/* Media queries para dispositivos móviles */
 @media (max-width: 768px) {
     .terms-container {
-        padding: 20px 15px;
+        padding: 1rem;
+        padding-top: 180px !important; /* Separación reducida del header en tablets */
     }
     
     .terms-header h1 {
-        font-size: 2.2rem;
+        font-size: 2rem;
     }
     
     .terms-content {
-        padding: 30px 25px;
-    }
-    
-    .terms-section h2 {
-        font-size: 1.5rem;
-    }
-    
-    .terms-section h3 {
-        font-size: 1.2rem;
-    }
-    
-    .terms-section p {
-        font-size: 0.95rem;
-        text-align: left;
-    }
-    
-    .terms-section li {
-        font-size: 0.95rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .terms-header h1 {
-        font-size: 1.8rem;
-    }
-    
-    .terms-content {
-        padding: 20px 15px;
-    }
-    
-    .terms-section {
-        margin-bottom: 30px;
-        padding-bottom: 20px;
+        padding: 1.5rem;
     }
     
     .terms-section h2 {
@@ -193,18 +163,93 @@
         font-size: 1.1rem;
     }
     
+    .terms-section p,
+    .terms-section li {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .terms-container {
+        padding: 0.5rem;
+        padding-top: 190px !important; /* Separación reducida del header en móviles */
+    }
+    
+    .terms-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .terms-content {
+        padding: 1rem;
+    }
+    
+    .terms-section {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+    }
+    
+    .terms-section h2 {
+        font-size: 1.2rem;
+    }
+    
+    .terms-section h3 {
+        font-size: 1rem;
+    }
+    
+    .terms-section p,
+    .terms-section li {
+        font-size: 0.85rem;
+    }
+    
     .terms-section:first-child,
     .terms-section:last-child {
         padding: 20px 15px;
     }
 }
 
+/* Media queries duplicadas eliminadas - se mantienen las de arriba con valores extremos */
 
-
-
-
-
-
-
-
-
+/* Media query específica para iPhone SE y dispositivos similares */
+@media (max-width: 390px) {
+    .terms-container {
+        padding-top: 200px !important; /* Separación reducida del header en pantallas muy pequeñas */
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .terms-header h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .terms-header p {
+        font-size: 0.8rem;
+    }
+    
+    .terms-content {
+        padding: 15px;
+        margin-top: 10px;
+    }
+    
+    .terms-section {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+    }
+    
+    .terms-section h2 {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+    
+    .terms-section h3 {
+        font-size: 0.95rem;
+        margin-bottom: 6px;
+    }
+    
+    .terms-section p,
+    .terms-section li {
+        font-size: 0.8rem;
+        line-height: 1.4;
+        margin-bottom: 6px;
+    }
+}
