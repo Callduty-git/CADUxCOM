@@ -93,7 +93,7 @@ class MercadoPagoController extends Controller
     {
         $cart = session('cart', []);
         if (empty($cart)) {
-            return redirect()->route('cart.index')->with('error', 'Tu carrito est� vac�o.');
+            return redirect()->route('cart.index')->with('error', 'Tu carrito está vacío.');
         }
 
         $accessToken = config('services.mercadopago.access_token');

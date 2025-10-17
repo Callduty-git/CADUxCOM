@@ -44,7 +44,16 @@ class CustomLoginController extends Controller
 
             $request->session()->regenerate();
 
-            // Redirigir usuarios a home.blade
+            // Verificar si el usuario es administrador
+            if (($user->role ?? null) === 'admin') {
+                $intended = session('url.intended');
+                if ($intended && $this->isSafeRedirect($intended)) {
+                    return redirect()->intended(route('admin.dashboard'));
+                }
+                return redirect()->route('admin.dashboard');
+            }
+
+            // Redirigir usuarios normales a home.blade
             $intended = session('url.intended');
             if ($intended && $this->isSafeRedirect($intended)) {
                 return redirect()->intended(route('home'));

@@ -94,9 +94,26 @@
                         <h2 class="text-xl font-semibold text-gray-900">Información de Envío</h2>
                     </div>
                     <div class="p-6">
+                        <!-- Aviso importante sobre envíos -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-blue-800">Información importante sobre envíos</h3>
+                                    <div class="mt-2 text-sm text-blue-700">
+                                        <p>CADUxCOM es una plataforma de conexión. Después de tu compra, recibirás la información de contacto de la empresa vendedora para coordinar directamente el envío de tus productos.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <h3 class="text-sm font-medium text-gray-900 mb-2">Dirección de Envío</h3>
+                                <h3 class="text-sm font-medium text-gray-900 mb-2">Dirección de Envío Registrada</h3>
                                 <div class="text-sm text-gray-600">
                                     <p class="font-medium">{{ $order->customer_name }}</p>
                                     <p>{{ $order->shipping_address }}</p>
@@ -120,14 +137,17 @@
                         </div>
                         
                         @if($order->tracking_number)
-                            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-                                <h3 class="text-sm font-medium text-blue-900 mb-2">Información de Seguimiento</h3>
-                                <p class="text-sm text-blue-800">
-                                    Número de tracking: <span class="font-mono font-medium">{{ $order->tracking_number }}</span>
+                            <div class="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                                <h3 class="text-sm font-medium text-purple-900 mb-2">Información de Seguimiento</h3>
+                                <p class="text-sm text-purple-800">
+                                    Número de referencia: <span class="font-mono font-medium">{{ $order->tracking_number }}</span>
+                                </p>
+                                <p class="text-sm text-purple-700 mt-2">
+                                    Para seguimiento detallado, contacta directamente con la empresa vendedora usando la información de contacto proporcionada.
                                 </p>
                                 @if($order->shipped_at)
-                                    <p class="text-sm text-blue-800 mt-1">
-                                        Enviado el: {{ $order->shipped_at->format('d/m/Y H:i') }}
+                                    <p class="text-sm text-purple-800 mt-1">
+                                        Procesado el: {{ $order->shipped_at->format('d/m/Y H:i') }}
                                     </p>
                                 @endif
                             </div>
@@ -181,12 +201,8 @@
                             
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-600">Envío</span>
-                                <span class="font-medium">
-                                    @if($order->shipping_amount > 0)
-                                        ${{ number_format($order->shipping_amount, 0, ',', '.') }}
-                                    @else
-                                        <span class="text-green-600">Gratis</span>
-                                    @endif
+                                <span class="font-medium text-blue-600">
+                                    Coordinado con la empresa
                                 </span>
                             </div>
                             

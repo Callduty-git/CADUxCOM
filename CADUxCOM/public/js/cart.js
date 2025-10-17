@@ -794,21 +794,34 @@ class CartManager {
     }
 }
 
-// Crear instancia global
-window.cartManager = new CartManager();
+// Crear instancia global solo si existe el componente del carrito
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.querySelector('.cart-badge') || document.querySelector('.cart-count') || document.querySelector('[data-cart-counter]')) {
+        window.cartManager = new CartManager();
+    }
+});
 
 // Funciones globales para compatibilidad
 window.addToCart = function(productId, quantity = 1) {
-    const button = event?.target?.closest('button');
-    return window.cartManager.addToCart(productId, quantity, button);
+    if (window.cartManager) {
+        const button = event?.target?.closest('button');
+        return window.cartManager.addToCart(productId, quantity, button);
+    }
+    return Promise.resolve(false);
 };
 
 window.updateCartCounter = function() {
-    return window.cartManager.updateCartCounter();
+    if (window.cartManager) {
+        return window.cartManager.updateCartCounter();
+    }
+    return Promise.resolve();
 };
 
 window.updateCartCount = function() {
-    return window.cartManager.updateCartCounter();
+    if (window.cartManager) {
+        return window.cartManager.updateCartCounter();
+    }
+    return Promise.resolve();
 };
 
 // CSS para el spinner de carga, animaciones y notificaciones mejoradas

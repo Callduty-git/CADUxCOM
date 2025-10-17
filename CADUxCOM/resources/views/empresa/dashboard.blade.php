@@ -71,11 +71,11 @@
 
         .nav-buttons {
             width: 100%;
-            padding: 20px 0;
+            padding: 8px 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 35px;
+            gap: 15px;
             align-items: center;
         }
 
@@ -86,14 +86,14 @@
             gap: 15px;
             background-color: #d88ef0;
             color: white;
-            padding: 15px 20px;
+            padding: 10px 18px;
             text-align: left;
             border-radius: 15px;
             font-weight: 600;
             text-decoration: none;
             border: 1px solid rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
-            font-size: 16px;
+            font-size: 14px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
@@ -145,6 +145,33 @@
         .nav-buttons .btn:active {
             transform: translateY(0);
             box-shadow: 0 4px 12px rgba(185, 99, 209, 0.3);
+        }
+
+        /* Estilos para el badge de notificaciones */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .sidebar:hover .notification-badge {
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            position: absolute;
         }
         
         .dashboard-panel {
@@ -1005,21 +1032,155 @@
                             <div class="stat-label">Total Productos</div>
                         </div>
                         <div class="stat-card">
-                            <i class="fas fa-check-circle stat-icon"></i>
-                            <div class="stat-value">{{ $productos->where('Cantidad', '>', 0)->count() }}</div>
-                            <div class="stat-label">Productos Disponibles</div>
-                        </div>
-                        <div class="stat-card">
-                            <i class="fas fa-exclamation-triangle stat-icon"></i>
-                            <div class="stat-value">{{ $productos->where('Cantidad', 0)->count() }}</div>
-                            <div class="stat-label">Productos Agotados</div>
+                            <i class="fas fa-shopping-cart stat-icon"></i>
+                            <div class="stat-value">{{ $pedidosPendientes }}</div>
+                            <div class="stat-label">Pedidos Pendientes</div>
                         </div>
                         <div class="stat-card">
                             <i class="fas fa-dollar-sign stat-icon"></i>
-                            <div class="stat-value">${{ number_format($productos->sum('Precio'), 0, ',', '.') }}</div>
-                            <div class="stat-label">Valor Total de Productos</div>
+                            <div class="stat-value">${{ number_format($totalVentas, 0, ',', '.') }}</div>
+                            <div class="stat-label">Total Ventas</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-chart-line stat-icon"></i>
+                            <div class="stat-value">${{ number_format($ventasHoy, 0, ',', '.') }}</div>
+                            <div class="stat-label">Ventas Hoy</div>
                         </div>
                     </div>
+                    
+                    <!-- Sección de Pedidos Recientes -->
+                    <div class="recent-orders-section" style="margin-bottom: 40px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="color: #333; font-size: 1.5rem; font-weight: 600; margin: 0;">
+                                <i class="fas fa-shopping-bag" style="color: #89CF6D; margin-right: 10px;"></i>
+                                Pedidos Recientes
+                            </h3>
+                            <a href="{{ route('empresa.pedidos') }}" class="btn btn-primary" style="background: #89CF6D; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500;">
+                                Ver Todos los Pedidos
+                            </a>
+                        </div>
+                        
+                        @if($pedidos->count() > 0)
+                            <div style="background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead style="background: #f8f9fa;">
+                                        <tr>
+                                            <th style="padding: 15px; text-align: left; font-weight: 600; color: #333;">Pedido #</th>
+                                            <th style="padding: 15px; text-align: left; font-weight: 600; color: #333;">Producto</th>
+                                            <th style="padding: 15px; text-align: left; font-weight: 600; color: #333;">Cliente</th>
+                                            <th style="padding: 15px; text-align: left; font-weight: 600; color: #333;">Cantidad</th>
+                                            <th style="padding: 15px; text-align: left; font-weight: 600; color: #333;">Total</th>
+                                            <th style="padding: 15px; text-align: left; font-weight: 600; color: #333;">Estado</th>
+                                            <th style="padding: 15px; text-align: left; font-weight: 600; color: #333;">Fecha</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($pedidos as $pedido)
+                                            <tr style="border-bottom: 1px solid #eee;">
+                                                <td style="padding: 15px; color: #666;">#{{ $pedido->order->id }}</td>
+                                                <td style="padding: 15px; color: #333; font-weight: 500;">{{ $pedido->product_name }}</td>
+                                                <td style="padding: 15px; color: #666;">
+                                                    {{ $pedido->order->user ? $pedido->order->user->name : 'Cliente Invitado' }}
+                                                </td>
+                                                <td style="padding: 15px; color: #666;">{{ $pedido->quantity }}</td>
+                                                <td style="padding: 15px; color: #333; font-weight: 600;">${{ number_format($pedido->total_price, 0, ',', '.') }}</td>
+                                                <td style="padding: 15px;">
+                                                    @php
+                                                        $statusColors = [
+                                                            'pending' => '#fbbf24',
+                                                            'paid' => '#10b981',
+                                                            'processing' => '#3b82f6',
+                                                            'shipped' => '#8b5cf6',
+                                                            'delivered' => '#059669',
+                                                            'cancelled' => '#ef4444'
+                                                        ];
+                                                        $statusLabels = [
+                                                            'pending' => 'Pendiente',
+                                                            'paid' => 'Pagado',
+                                                            'processing' => 'Procesando',
+                                                            'shipped' => 'Enviado',
+                                                            'delivered' => 'Entregado',
+                                                            'cancelled' => 'Cancelado'
+                                                        ];
+                                                    @endphp
+                                                    <span style="background: {{ $statusColors[$pedido->order->status] ?? '#6b7280' }}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+                                                        {{ $statusLabels[$pedido->order->status] ?? ucfirst($pedido->order->status) }}
+                                                    </span>
+                                                </td>
+                                                <td style="padding: 15px; color: #666;">{{ $pedido->created_at->format('d/m/Y H:i') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 12px; color: #666;">
+                                <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ddd; margin-bottom: 15px;"></i>
+                                <p style="font-size: 1.1rem; margin: 0;">No hay pedidos recientes</p>
+                                <p style="margin: 5px 0 0 0; font-size: 0.9rem;">Los pedidos aparecerán aquí cuando los clientes compren tus productos</p>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Notificaciones Recientes -->
+                    <div class="recent-orders">
+                        <h3><i class="fas fa-bell"></i> Notificaciones Recientes</h3>
+                        @if($notificaciones && $notificaciones->count() > 0)
+                            <div style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                @foreach($notificaciones as $notificacion)
+                                    <div style="padding: 15px; border-bottom: 1px solid #eee; {{ !$notificacion->read ? 'background: #f0f9ff;' : '' }}">
+                                        <div style="display: flex; justify-content: between; align-items: start;">
+                                            <div style="flex: 1;">
+                                                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                                    @php
+                                                        $typeIcons = [
+                                                            'new_order' => 'fas fa-shopping-cart',
+                                                            'order_status_change' => 'fas fa-sync-alt',
+                                                            'low_stock' => 'fas fa-exclamation-triangle'
+                                                        ];
+                                                        $typeColors = [
+                                                            'new_order' => '#10b981',
+                                                            'order_status_change' => '#3b82f6',
+                                                            'low_stock' => '#f59e0b'
+                                                        ];
+                                                    @endphp
+                                                    <i class="{{ $typeIcons[$notificacion->type] ?? 'fas fa-bell' }}" 
+                                                       style="color: {{ $typeColors[$notificacion->type] ?? '#6b7280' }}; margin-right: 8px;"></i>
+                                                    <h4 style="margin: 0; font-size: 1rem; color: #333;">{{ $notificacion->title }}</h4>
+                                                    @if(!$notificacion->read)
+                                                        <span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; margin-left: 8px;">Nuevo</span>
+                                                    @endif
+                                                </div>
+                                                <p style="margin: 0; color: #666; font-size: 0.9rem;">{{ $notificacion->message }}</p>
+                                                <small style="color: #999; font-size: 0.8rem;">{{ $notificacion->created_at->diffForHumans() }}</small>
+                                            </div>
+                                            <div style="margin-left: 15px;">
+                                                @if(!$notificacion->read)
+                                                    <button onclick="markAsRead({{ $notificacion->id }})" 
+                                                            style="background: #10b981; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; cursor: pointer;">
+                                                        Marcar como leída
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div style="text-align: center; margin-top: 15px;">
+                                <a href="{{ route('empresa.notifications.index') }}" 
+                                   style="color: #3b82f6; text-decoration: none; font-weight: 500;">
+                                    Ver todas las notificaciones
+                                </a>
+                            </div>
+                        @else
+                            <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 12px; color: #666;">
+                                <i class="fas fa-bell-slash" style="font-size: 3rem; color: #ddd; margin-bottom: 15px;"></i>
+                                <p style="font-size: 1.1rem; margin: 0;">No hay notificaciones</p>
+                                <p style="margin: 5px 0 0 0; font-size: 0.9rem;">Las notificaciones aparecerán aquí cuando ocurran eventos importantes</p>
+                            </div>
+                        @endif
+                    </div>
+                    
                     <div class="quick-actions">
                         <h3><i class="fas fa-bolt"></i> Acciones Rápidas</h3>
                             <style>
@@ -1633,6 +1794,27 @@
                 }, 4000);
             }
         });
+
+        // Función para marcar notificación como leída
+        function markAsRead(notificationId) {
+            fetch(`/empresa/notificaciones/${notificationId}/marcar-leida`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Recargar la página para actualizar las notificaciones
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
     </script>
 
     <style>

@@ -33,6 +33,11 @@ return [
             'driver' => 'session',
             'provider' => 'empresas',
         ],
+
+        'admin' => [ // Administradores
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
     ],
 
     /*
@@ -55,6 +60,11 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\Empresa::class,
         ],
+
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
+        ],
     ],
 
     /*
@@ -76,6 +86,13 @@ return [
 
         'empresas' => [
             'provider' => 'empresas',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'admins' => [
+            'provider' => 'admins',
             'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,

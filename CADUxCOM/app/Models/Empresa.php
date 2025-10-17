@@ -104,6 +104,22 @@ class Empresa extends Authenticatable
     }
 
     /**
+     * Relación: Una empresa tiene muchas notificaciones
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(EmpresaNotification::class, 'empresa_id', 'Id_Empresa');
+    }
+
+    /**
+     * Obtener notificaciones no leídas
+     */
+    public function unreadNotifications(): HasMany
+    {
+        return $this->notifications()->unread();
+    }
+
+    /**
      * Funciones de ubicación
      */
     public function hasValidCoordinates(): bool

@@ -31,11 +31,11 @@
                 </div>
 
                 @if(empty($items))
-                    <!-- Carrito vac�o mejorado -->
+                    <!-- Carrito vacío mejorado -->
                     <div class="empty-cart-container flex flex-col items-center justify-center px-4">
-                        <!-- Contenedor principal con dise�o corporativo -->
+                        <!-- Contenedor principal con diseño corporativo -->
                         <div class="empty-cart-card rounded-2xl p-8 md:p-12 max-w-md w-full text-center">
-                            <!-- �cono del carrito con paleta corporativa -->
+                            <!-- Ícono del carrito con paleta corporativa -->
                             <div class="mb-8">
                                 <div class="cart-icon-container mx-auto w-32 h-32 rounded-full flex items-center justify-center mb-6">
                                     <svg class="cart-icon w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -53,12 +53,12 @@
                             
                             <!-- Texto principal -->
                             <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                                Tu carrito est� vac�o
+                                Tu carrito está vacío
                             </h2>
                             
-                            <!-- Descripci�n -->
+                            <!-- Descripción -->
                             <p class="text-gray-600 text-base md:text-lg mb-8 leading-relaxed">
-                                Explora nuestros productos y agrega los que m�s te gusten para comenzar tu compra
+                                Explora nuestros productos y agrega los que más te gusten para comenzar tu compra
                             </p>
                             
                             <!-- Bot�n de acci�n -->
@@ -72,18 +72,18 @@
                             
                             <!-- Enlaces adicionales -->
                             <div class="mt-8 pt-6 border-t border-gray-100">
-                                <p class="text-sm text-gray-500 mb-4">O explora nuestras categor�as:</p>
+                                <p class="text-sm text-gray-500 mb-4">O explora nuestras categorías:</p>
                                 <div class="flex flex-wrap justify-center gap-3">
                                     <a href="{{ route('home') }}" class="text-sm text-green-600 hover:text-green-700 font-medium transition-colors">
-                                        ?? Inicio
+                                        🏠 Inicio
                                     </a>
-                                    <span class="text-gray-300">�</span>
+                                    <span class="text-gray-300">•</span>
                                     <a href="{{ route('productos.public.index') }}" class="text-sm text-green-600 hover:text-green-700 font-medium transition-colors">
-                                        ??? Todos los Productos
+                                        🛍️ Todos los Productos
                                     </a>
-                                    <span class="text-gray-300">�</span>
+                                    <span class="text-gray-300">•</span>
                                     <a href="{{ route('home') }}#categorias" class="text-sm text-green-600 hover:text-green-700 font-medium transition-colors">
-                                        ?? Categor�as
+                                        📂 Categorías
                                     </a>
                                 </div>
                             </div>
@@ -113,7 +113,7 @@
                                                          class="w-20 h-20 object-cover rounded-lg">
                                                 </div>
                                                 
-                                                <!-- Informaci�n del producto -->
+                                                <!-- Información del producto -->
                                                 <div class="flex-1 min-w-0">
                                                     <h3 class="text-sm font-medium text-gray-900 truncate">
                                                         {{ $item['product']->Nombre }}
@@ -122,7 +122,7 @@
                                                         {{ $item['product']->empresa->Nombre }}
                                                     </p>
                                                     <p class="text-sm text-gray-500">
-                                                        C�digo: {{ $item['product']->Codigo }}
+                                                        Código: {{ $item['product']->Codigo }}
                                                     </p>
                                                     
                                                     @if($item['discount'] > 0)
@@ -164,7 +164,7 @@
                                                     </p>
                                                 </div>
                                                 
-                                                <!-- Bot�n eliminar -->
+                                                <!-- Botón eliminar -->
                                                 <button onclick="removeFromCart({{ $item['product']->Id_Producto }})" 
                                                         class="text-red-500 hover:text-red-700 transition-colors">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,7 +175,7 @@
                                         @endforeach
                                     </div>
                                     
-                                    <!-- Botones de acci�n -->
+                                    <!-- Botones de acción -->
                                     <div class="mt-6 flex flex-col sm:flex-row gap-4">
                                         <a href="{{ route('productos.public.index') }}" 
                                            class="flex-1 text-center px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
@@ -208,7 +208,7 @@
                                         </div>
                                         
                                         <div class="flex justify-between text-sm">
-                                            <span class="text-gray-600">Env�o</span>
+                                            <span class="text-gray-600">Envío</span>
                                             <span class="font-medium">
                                                 @if($shipping > 0)
                                                     ${{ number_format($shipping, 0, ',', '.') }}
@@ -223,7 +223,7 @@
                                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
-                                                Env�o gratis en compras superiores a $100,000
+                                                Envío gratis en compras superiores a $100,000
                                             </div>
                                         @endif
                                         
@@ -235,11 +235,26 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Botón de checkout -->
-                                    <a href="/payments/mercadopago/start" 
-                                       class="w-full mt-6 btn-primary text-white py-3 px-4 rounded-md font-medium hover:opacity-90 transition-all text-center block">
-                                        Proceder al Checkout
-                                    </a>
+                                    <!-- Información de envíos -->
+                    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="flex items-start space-x-3">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="text-sm">
+                                <p class="font-medium text-blue-900 mb-1">Información de Envíos</p>
+                                <p class="text-blue-800">
+                                    CADUxCOM es una plataforma de conexión. Después de tu compra, recibirás la información de contacto de cada empresa vendedora para coordinar directamente el envío de tus productos.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón de checkout -->
+                    <a href="/payments/mercadopago/start" 
+                       class="w-full mt-6 btn-primary text-white py-3 px-4 rounded-md font-medium hover:opacity-90 transition-all text-center block">
+                        Proceder al Checkout
+                    </a>
                                     
 
                                 </div>
@@ -288,9 +303,9 @@
     function removeFromCart(productId) {
         window.cartManager.showConfirmModal(
             'Eliminar Producto',
-            '�Est�s seguro de que quieres eliminar este producto del carrito?',
+            '¿Estás seguro de que quieres eliminar este producto del carrito?',
             () => {
-                // Funci�n a ejecutar al confirmar
+                // Función a ejecutar al confirmar
                 const formData = new FormData();
                 formData.append('product_id', productId);
                 formData.append('_token', '{{ csrf_token() }}');
@@ -322,9 +337,9 @@
     function clearCart() {
         window.cartManager.showConfirmModal(
             'Vaciar Carrito',
-            '�Est�s seguro de que quieres vaciar todo el carrito?',
+            '¿Estás seguro de que quieres vaciar todo el carrito?',
             () => {
-                // Funci�n a ejecutar al confirmar
+                // Función a ejecutar al confirmar
                 const formData = new FormData();
                 formData.append('_token', '{{ csrf_token() }}');
                 

@@ -126,7 +126,46 @@
                             <i class="fas fa-city"></i>
                             Municipio
                         </label>
-                        <input id="municipio" type="text" name="municipio" value="{{ old('municipio') }}" placeholder="Municipio">
+                        <select id="municipio" name="municipio" required>
+                            <option value="">Selecciona un municipio</option>
+                            <option value="Acevedo" {{ old('municipio') == 'Acevedo' ? 'selected' : '' }}>Acevedo</option>
+                            <option value="Agrado" {{ old('municipio') == 'Agrado' ? 'selected' : '' }}>Agrado</option>
+                            <option value="Aipe" {{ old('municipio') == 'Aipe' ? 'selected' : '' }}>Aipe</option>
+                            <option value="Algeciras" {{ old('municipio') == 'Algeciras' ? 'selected' : '' }}>Algeciras</option>
+                            <option value="Altamira" {{ old('municipio') == 'Altamira' ? 'selected' : '' }}>Altamira</option>
+                            <option value="Baraya" {{ old('municipio') == 'Baraya' ? 'selected' : '' }}>Baraya</option>
+                            <option value="Campoalegre" {{ old('municipio') == 'Campoalegre' ? 'selected' : '' }}>Campoalegre</option>
+                            <option value="Colombia" {{ old('municipio') == 'Colombia' ? 'selected' : '' }}>Colombia</option>
+                            <option value="Elías" {{ old('municipio') == 'Elías' ? 'selected' : '' }}>Elías</option>
+                            <option value="Garzón" {{ old('municipio') == 'Garzón' ? 'selected' : '' }}>Garzón</option>
+                            <option value="Gigante" {{ old('municipio') == 'Gigante' ? 'selected' : '' }}>Gigante</option>
+                            <option value="Guadalupe" {{ old('municipio') == 'Guadalupe' ? 'selected' : '' }}>Guadalupe</option>
+                            <option value="Hobo" {{ old('municipio') == 'Hobo' ? 'selected' : '' }}>Hobo</option>
+                            <option value="Íquira" {{ old('municipio') == 'Íquira' ? 'selected' : '' }}>Íquira</option>
+                            <option value="Isnos" {{ old('municipio') == 'Isnos' ? 'selected' : '' }}>Isnos</option>
+                            <option value="La Argentina" {{ old('municipio') == 'La Argentina' ? 'selected' : '' }}>La Argentina</option>
+                            <option value="La Plata" {{ old('municipio') == 'La Plata' ? 'selected' : '' }}>La Plata</option>
+                            <option value="Nátaga" {{ old('municipio') == 'Nátaga' ? 'selected' : '' }}>Nátaga</option>
+                            <option value="Neiva" {{ old('municipio') == 'Neiva' ? 'selected' : '' }}>Neiva</option>
+                            <option value="Oporapa" {{ old('municipio') == 'Oporapa' ? 'selected' : '' }}>Oporapa</option>
+                            <option value="Paicol" {{ old('municipio') == 'Paicol' ? 'selected' : '' }}>Paicol</option>
+                            <option value="Palermo" {{ old('municipio') == 'Palermo' ? 'selected' : '' }}>Palermo</option>
+                            <option value="Palestina" {{ old('municipio') == 'Palestina' ? 'selected' : '' }}>Palestina</option>
+                            <option value="Pital" {{ old('municipio') == 'Pital' ? 'selected' : '' }}>Pital</option>
+                            <option value="Pitalito" {{ old('municipio') == 'Pitalito' ? 'selected' : '' }}>Pitalito</option>
+                            <option value="Rivera" {{ old('municipio') == 'Rivera' ? 'selected' : '' }}>Rivera</option>
+                            <option value="Saladoblanco" {{ old('municipio') == 'Saladoblanco' ? 'selected' : '' }}>Saladoblanco</option>
+                            <option value="San Agustín" {{ old('municipio') == 'San Agustín' ? 'selected' : '' }}>San Agustín</option>
+                            <option value="Santa María" {{ old('municipio') == 'Santa María' ? 'selected' : '' }}>Santa María</option>
+                            <option value="Suaza" {{ old('municipio') == 'Suaza' ? 'selected' : '' }}>Suaza</option>
+                            <option value="Tarqui" {{ old('municipio') == 'Tarqui' ? 'selected' : '' }}>Tarqui</option>
+                            <option value="Tello" {{ old('municipio') == 'Tello' ? 'selected' : '' }}>Tello</option>
+                            <option value="Teruel" {{ old('municipio') == 'Teruel' ? 'selected' : '' }}>Teruel</option>
+                            <option value="Tesalia" {{ old('municipio') == 'Tesalia' ? 'selected' : '' }}>Tesalia</option>
+                            <option value="Timaná" {{ old('municipio') == 'Timaná' ? 'selected' : '' }}>Timaná</option>
+                            <option value="Villavieja" {{ old('municipio') == 'Villavieja' ? 'selected' : '' }}>Villavieja</option>
+                            <option value="Yaguará" {{ old('municipio') == 'Yaguará' ? 'selected' : '' }}>Yaguará</option>
+                        </select>
                     </div>
                 </div>
 

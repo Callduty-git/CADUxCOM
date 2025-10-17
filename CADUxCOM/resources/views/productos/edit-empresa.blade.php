@@ -155,6 +155,10 @@
                                 <div class="form-group">
                                     <label for="Fecha_Caducidad" class="form-label">Fecha de Caducidad</label>
                                     <input type="date" id="Fecha_Caducidad" name="Fecha_Caducidad" class="form-input" value="{{ old('Fecha_Caducidad', $producto->Fecha_Caducidad) }}">
+                                    <div class="date-warning-alert">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <span>La fecha de caducidad no puede ser una fecha pasada.</span>
+                                    </div>
                                     @error('Fecha_Caducidad')
                                         <div class="form-error-message">
                                             {{ $message }}
@@ -270,6 +274,33 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
+
+        // Validación de fecha de caducidad
+        document.addEventListener('DOMContentLoaded', function() {
+            const fechaCaducidadInput = document.getElementById('Fecha_Caducidad');
+            const dateWarningAlert = document.querySelector('.date-warning-alert');
+            
+            if (fechaCaducidadInput && dateWarningAlert) {
+                function validateDate() {
+                    const selectedDate = new Date(fechaCaducidadInput.value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Resetear horas para comparar solo fechas
+                    
+                    if (fechaCaducidadInput.value && selectedDate < today) {
+                        dateWarningAlert.classList.add('show');
+                    } else {
+                        dateWarningAlert.classList.remove('show');
+                    }
+                }
+                
+                // Validar cuando se cambia la fecha
+                fechaCaducidadInput.addEventListener('change', validateDate);
+                fechaCaducidadInput.addEventListener('input', validateDate);
+                
+                // Validar al cargar la página si ya hay una fecha
+                validateDate();
+            }
+        });
     </script>
     </div>
 

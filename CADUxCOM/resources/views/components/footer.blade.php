@@ -11,8 +11,10 @@
         <div class="footer-section">
             <h3 class="footer-title">Enlaces Rápidos</h3>
             <ul class="footer-links">
-                <li><a href="{{ url('/') }}">Inicio</a></li>
-                <li><a href="{{ url('/productos') }}">Productos</a></li>
+                @if(!Auth::guard('empresa')->check())
+                    <li><a href="{{ url('/') }}">Inicio</a></li>
+                    <li><a href="{{ url('/productos') }}">Productos</a></li>
+                @endif
                 <li><a href="{{ route('about') }}">Nosotros</a></li>
                 <li><a href="{{ route('contact.index') }}">Contacto</a></li>
             </ul>

@@ -296,6 +296,203 @@
     transform: translateY(-2px);
 }
 
+/* Navegación de tabs */
+.profile-navigation {
+    margin-bottom: 30px;
+}
+
+.nav-tabs {
+    display: flex;
+    background: white;
+    border-radius: 15px;
+    padding: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+    gap: 8px;
+}
+
+.nav-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px 20px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-tab:hover {
+    background: #f8f9fa;
+    color: #49874E;
+}
+
+.nav-tab.active {
+    background: linear-gradient(135deg, #49874E 0%, #89CF6D 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(73, 135, 78, 0.3);
+}
+
+.nav-tab span:first-child {
+    font-size: 18px;
+}
+
+/* Contenido de tabs */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Estilos para la sección de pedidos */
+.loading-orders {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #49874E;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.order-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.order-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #89CF6D;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.order-number {
+    font-weight: 700;
+    color: #49874E;
+    font-size: 18px;
+}
+
+.order-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-pending { background: #fff3cd; color: #856404; }
+.status-paid { background: #d1ecf1; color: #0c5460; }
+.status-processing { background: #e2e3f1; color: #383d41; }
+.status-shipped { background: #d4edda; color: #155724; }
+.status-delivered { background: #d1ecf1; color: #0c5460; }
+.status-cancelled { background: #f8d7da; color: #721c24; }
+
+.order-details {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: center;
+}
+
+.order-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.order-date {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.order-total {
+    font-size: 18px;
+    font-weight: 700;
+    color: #49874E;
+}
+
+.order-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-contact-company {
+    background: #AA5FC7;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-contact-company:hover {
+    background: #8B4A9E;
+    transform: translateY(-1px);
+}
+
+.btn-view-order {
+    background: #89CF6D;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-view-order:hover {
+    background: #49874E;
+    transform: translateY(-1px);
+}
+
+.empty-orders {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.empty-orders-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
 .settings-grid {
     display: grid;
     gap: 20px;
@@ -630,6 +827,15 @@
         height: 100px;
     }
 
+    .photo-edit-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+        border: 3px solid white;
+        bottom: 3px;
+        right: 3px;
+    }
+
     .profile-name {
         font-size: 2rem;
     }
@@ -667,6 +873,15 @@
     .profile-photo {
         width: 80px;
         height: 80px;
+    }
+
+    .photo-edit-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        border: 2px solid white;
+        bottom: 2px;
+        right: 2px;
     }
 
     .profile-name {
@@ -745,8 +960,24 @@
         </div>
     </div>
 
+    {{-- NAVEGACIÓN DEL PERFIL --}}
+    <div class="profile-navigation">
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('profile-info')" id="tab-profile-info">
+                <span>👤</span>
+                <span>Mi Información</span>
+            </button>
+            <button class="nav-tab" onclick="showTab('my-orders')" id="tab-my-orders">
+                <span>📦</span>
+                <span>Mis Pedidos</span>
+            </button>
+        </div>
+    </div>
+
     {{-- CONTENIDO PRINCIPAL --}}
     <div class="profile-content">
+        {{-- TAB: INFORMACIÓN PERSONAL --}}
+        <div id="profile-info" class="tab-content active">
         {{-- INFORMACIÓN PERSONAL --}}
         <div class="profile-section">
             <div class="section-header">
@@ -884,6 +1115,27 @@
                     <button class="btn-danger" onclick="openDeleteModal()">
                         🗑️ Eliminar
                     </button>
+                </div>
+            </div>
+        </div>
+        </div> {{-- Fin del tab profile-info --}}
+
+        {{-- TAB: MIS PEDIDOS --}}
+        <div id="my-orders" class="tab-content" style="display: none;">
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span>📦</span>
+                        Mis Pedidos
+                    </h2>
+                </div>
+
+                {{-- Contenedor de pedidos --}}
+                <div id="orders-container">
+                    <div class="loading-orders">
+                        <div class="spinner"></div>
+                        <p>Cargando tus pedidos...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1964,6 +2216,233 @@ function setupDragAndDrop(uploadArea) {
     });
     
     console.log('✓ Drag and drop inicializado correctamente');
+}
+
+// Funciones para navegación de tabs
+function showTab(tabId) {
+    // Ocultar todos los tabs
+    const allTabs = document.querySelectorAll('.tab-content');
+    allTabs.forEach(tab => {
+        tab.style.display = 'none';
+        tab.classList.remove('active');
+    });
+    
+    // Remover clase active de todos los botones
+    const allButtons = document.querySelectorAll('.nav-tab');
+    allButtons.forEach(btn => btn.classList.remove('active'));
+    
+    // Mostrar el tab seleccionado
+    const selectedTab = document.getElementById(tabId);
+    if (selectedTab) {
+        selectedTab.style.display = 'block';
+        selectedTab.classList.add('active');
+    }
+    
+    // Activar el botón correspondiente
+    const selectedButton = document.getElementById('tab-' + tabId);
+    if (selectedButton) {
+        selectedButton.classList.add('active');
+    }
+    
+    // Si es el tab de pedidos y no se han cargado, cargarlos
+    if (tabId === 'my-orders') {
+        loadUserOrders();
+    }
+}
+
+// Cargar pedidos del usuario
+function loadUserOrders() {
+    const container = document.getElementById('orders-container');
+    if (!container) return;
+    
+    // Mostrar loading si no hay contenido cargado
+    if (container.innerHTML.includes('loading-orders')) {
+        fetch('/orders', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            displayOrders(data.orders);
+        })
+        .catch(error => {
+            console.error('Error loading orders:', error);
+            container.innerHTML = `
+                <div class="empty-orders">
+                    <div class="empty-orders-icon">❌</div>
+                    <h3>Error al cargar pedidos</h3>
+                    <p>No se pudieron cargar tus pedidos. Intenta recargar la página.</p>
+                </div>
+            `;
+        });
+    }
+}
+
+// Mostrar pedidos en el contenedor
+function displayOrders(orders) {
+    const container = document.getElementById('orders-container');
+    if (!container) return;
+    
+    if (!orders || orders.data.length === 0) {
+        container.innerHTML = `
+            <div class="empty-orders">
+                <div class="empty-orders-icon">📦</div>
+                <h3>No tienes pedidos aún</h3>
+                <p>Cuando realices tu primera compra, aparecerá aquí.</p>
+                <a href="/" class="btn-view-order" style="display: inline-block; text-decoration: none; margin-top: 20px;">
+                    Explorar Productos
+                </a>
+            </div>
+        `;
+        return;
+    }
+    
+    let ordersHtml = '';
+    orders.data.forEach(order => {
+        const statusClass = 'status-' + order.status;
+        const statusText = getStatusInSpanish(order.status);
+        
+        ordersHtml += `
+            <div class="order-item">
+                <div class="order-header">
+                    <div class="order-number">Pedido #${order.order_number}</div>
+                    <div class="order-status ${statusClass}">${statusText}</div>
+                </div>
+                <div class="order-details">
+                    <div class="order-info">
+                        <div class="order-date">Realizado el ${formatDate(order.created_at)}</div>
+                        <div class="order-total">$${formatPrice(order.total_amount)}</div>
+                        <div style="color: #6c757d; font-size: 14px;">${order.items.length} producto(s)</div>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn-contact-company" onclick="contactCompany(${order.id})">
+                            💬 Contactar Empresa
+                        </button>
+                        <button class="btn-view-order" onclick="viewOrder(${order.id})">
+                            👁️ Ver Detalles
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = ordersHtml;
+}
+
+// Funciones auxiliares
+function getStatusInSpanish(status) {
+    const statusMap = {
+        'pending': 'Pendiente',
+        'paid': 'Pagado',
+        'processing': 'Procesando',
+        'shipped': 'Enviado',
+        'delivered': 'Entregado',
+        'cancelled': 'Cancelado'
+    };
+    return statusMap[status] || status;
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function formatPrice(price) {
+    return new Intl.NumberFormat('es-CO', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(price);
+}
+
+// Funciones para acciones de pedidos
+function viewOrder(orderId) {
+    window.open('/orders/' + orderId, '_blank');
+}
+
+function contactCompany(orderId) {
+    // Obtener información del pedido para contactar a la empresa
+    fetch('/orders/' + orderId, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(order => {
+        // Obtener las empresas únicas del pedido
+        const companies = [...new Set(order.items.map(item => item.empresa))];
+        
+        if (companies.length === 1) {
+            // Si solo hay una empresa, contactar directamente
+            const company = companies[0];
+            showContactModal(company, orderId);
+        } else {
+            // Si hay múltiples empresas, mostrar selector
+            showCompanySelector(companies, orderId);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al obtener información del pedido');
+    });
+}
+
+function showContactModal(company, orderId) {
+    const message = `Hola, tengo una consulta sobre mi pedido #${orderId}. ¿Podrían ayudarme?`;
+    const whatsappUrl = `https://wa.me/${company.contacto}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+}
+
+function showCompanySelector(companies, orderId) {
+    let options = companies.map(company => 
+        `<option value="${company.id}">${company.nombre}</option>`
+    ).join('');
+    
+    const html = `
+        <div class="modal-overlay" style="display: flex;">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h3 class="modal-title">Seleccionar Empresa</h3>
+                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Este pedido contiene productos de múltiples empresas. Selecciona con cuál quieres contactarte:</p>
+                    <select id="company-selector" class="form-control" style="width: 100%; padding: 10px; margin: 15px 0;">
+                        ${options}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-cancel" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+                    <button class="btn-save" onclick="contactSelectedCompany(${orderId})">Contactar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function contactSelectedCompany(orderId) {
+    const selector = document.getElementById('company-selector');
+    const companyId = selector.value;
+    
+    // Aquí deberías obtener la información de contacto de la empresa seleccionada
+    // Por ahora, simularemos el contacto
+    alert(`Contactando empresa para pedido #${orderId}`);
+    
+    // Cerrar modal
+    document.querySelector('.modal-overlay').remove();
 }
 </script>
 @endpush

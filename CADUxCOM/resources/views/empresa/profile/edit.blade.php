@@ -735,8 +735,8 @@
         <div class="profile-photo-container">
             <div class="profile-photo">
                 <div class="profile-placeholder" id="profile-photo-container">
-                    @if($user->foto)
-                        <img src="{{ asset('storage/' . $user->foto) }}" alt="Foto de perfil" class="profile-image">
+                    @if($empresa->Foto)
+                        <img src="{{ asset('storage/' . $empresa->Foto) }}" alt="Foto de perfil" class="profile-image">
                     @else
                         <span>👤</span>
                     @endif
@@ -748,12 +748,12 @@
         </div>
         
         <div class="profile-info">
-            <h1 class="profile-name">{{ $user->name ?? 'Usuario' }}</h1>
+            <h1 class="profile-name">{{ $empresa->Nombre ?? 'Empresa' }}</h1>
             <div class="user-type-badge">
-                <span>🛒</span>
-                <span>Consumidor</span>
+                <span>🏢</span>
+                <span>Empresa</span>
             </div>
-            <p class="member-since">Miembro desde {{ $user->created_at->format('M Y') }}</p>
+            <p class="member-since">Miembro desde {{ $empresa->created_at->format('M Y') }}</p>
         </div>
 
         <div class="profile-actions">
@@ -782,17 +782,17 @@
                 <div class="info-item">
                     <label class="info-label">Nombre</label>
                     <div class="info-value-container">
-                        <span class="info-value" id="name-display">{{ $user->name ?? 'No especificado' }}</span>
-                        <input type="text" class="info-input" id="name-input" name="name" value="{{ $user->name ?? '' }}" style="display: none;">
+                        <span class="info-value" id="name-display">{{ $empresa->Nombre ?? 'No especificado' }}</span>
+                <input type="text" class="info-input" id="name-input" name="Nombre" value="{{ $empresa->Nombre ?? '' }}" style="display: none;">
                     </div>
                 </div>
 
-                {{-- Apellido --}}
+                {{-- NIT --}}
                 <div class="info-item">
-                    <label class="info-label">Apellido</label>
+                    <label class="info-label">NIT</label>
                     <div class="info-value-container">
-                        <span class="info-value" id="lastname-display">{{ $user->apellido ?? 'No especificado' }}</span>
-                        <input type="text" class="info-input" id="lastname-input" name="apellido" value="{{ $user->apellido ?? '' }}" style="display: none;">
+                        <span class="info-value" id="lastname-display">{{ $empresa->NIT ?? 'No especificado' }}</span>
+                <input type="text" class="info-input" id="lastname-input" name="NIT" value="{{ $empresa->NIT ?? '' }}" style="display: none;">
                     </div>
                 </div>
 
@@ -800,8 +800,8 @@
                 <div class="info-item">
                     <label class="info-label">Correo Electrónico</label>
                     <div class="info-value-container">
-                        <span class="info-value" id="email-display">{{ $user->email ?? 'No especificado' }}</span>
-                        <input type="email" class="info-input" id="email-input" name="email" value="{{ $user->email ?? '' }}" style="display: none;">
+                        <span class="info-value" id="email-display">{{ $empresa->email ?? 'No especificado' }}</span>
+                <input type="email" class="info-input" id="email-input" name="email" value="{{ $empresa->email ?? '' }}" style="display: none;">
                     </div>
                 </div>
 
@@ -809,8 +809,8 @@
                 <div class="info-item">
                     <label class="info-label">Teléfono</label>
                     <div class="info-value-container">
-                        <span class="info-value" id="phone-display">{{ $user->contacto ?? 'No especificado' }}</span>
-                        <input type="tel" class="info-input" id="phone-input" name="contacto" value="{{ $user->contacto ?? '' }}" style="display: none;">
+                        <span class="info-value" id="phone-display">{{ $empresa->Contacto ?? 'No especificado' }}</span>
+                <input type="tel" class="info-input" id="phone-input" name="Contacto" value="{{ $empresa->Contacto ?? '' }}" style="display: none;">
                     </div>
                 </div>
 
@@ -818,8 +818,8 @@
                 <div class="info-item">
                     <label class="info-label">Dirección</label>
                     <div class="info-value-container">
-                        <span class="info-value" id="address-display">{{ $user->ubicacion ?? 'No especificado' }}</span>
-                        <input type="text" class="info-input" id="address-input" name="ubicacion" value="{{ $user->ubicacion ?? '' }}" style="display: none;">
+                        <span class="info-value" id="address-display">{{ $empresa->Direccion ?? 'No especificado' }}</span>
+                <input type="text" class="info-input" id="address-input" name="Direccion" value="{{ $empresa->Direccion ?? '' }}" style="display: none;">
                     </div>
                 </div>
 
@@ -827,7 +827,7 @@
                 <div class="info-item">
                     <label class="info-label">Fecha de Registro</label>
                     <div class="info-value-container">
-                        <span class="info-value">{{ $user->created_at->format('d/m/Y') }}</span>
+                        <span class="info-value">{{ $empresa->created_at->format('d/m/Y') }}</span>
                     </div>
                 </div>
             </div>
@@ -1746,12 +1746,12 @@ function savePhoto() {
             formData.append('foto', blob, 'profile-photo.jpg');
             
             // Agregar campos requeridos para evitar errores de validación
-            const user = {!! json_encode($user) !!};
-            formData.append('name', user.name || 'Usuario');
-            formData.append('email', user.email || '');
-            formData.append('apellido', user.apellido || '');
-            formData.append('contacto', user.contacto || '');
-            formData.append('ubicacion', user.ubicacion || '');
+            const empresa = {!! json_encode($empresa) !!};
+            formData.append('Nombre', empresa.Nombre || 'Empresa');
+            formData.append('email', empresa.email || '');
+            formData.append('NIT', empresa.NIT || '');
+            formData.append('Contacto', empresa.Contacto || '');
+            formData.append('Direccion', empresa.Direccion || '');
             
             console.log('Enviando petición...');
             

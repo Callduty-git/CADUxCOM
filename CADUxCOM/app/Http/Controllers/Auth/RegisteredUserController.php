@@ -56,18 +56,52 @@ class RegisteredUserController extends Controller
                 'direccion' => ['required', 'string', 'max:255'],
                 'municipio' => ['required', 'string', 'max:255'],
                 'ubicacion' => ['nullable', 'string', 'max:255'],
-                'contacto' => ['required', 'string', 'max:50'],
-                'nit' => ['required', 'string', 'max:50', 'unique:empresas,NIT'],
+                'contacto' => ['required', 'numeric', 'digits_between:1,10'],
+                'nit' => ['required', 'numeric', 'digits_between:8,15', 'unique:empresas,NIT'],
                 'foto' => ['required', 'image', 'max:2048'],
-            'certificado_camara_de_comercio' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+                'certificado_camara_de_comercio' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
                 'terms' => ['accepted'],
             ];
         }
 
+        // Mensajes de error personalizados en español
+        $messages = [
+            'contacto.required' => 'El número de contacto es obligatorio.',
+            'contacto.numeric' => 'El número de contacto debe contener solo números.',
+            'contacto.digits_between' => 'El número de contacto debe tener máximo 10 dígitos.',
+            'nit.required' => 'El NIT es obligatorio.',
+            'nit.numeric' => 'El NIT debe contener solo números.',
+            'nit.digits_between' => 'El NIT debe tener entre 8 y 15 dígitos.',
+            'nit.unique' => 'Este NIT ya está registrado en el sistema.',
+            'email.required' => 'El email es obligatorio.',
+            'email.email' => 'El email debe tener un formato válido.',
+            'email.unique' => 'Este email ya está registrado.',
+            'email_empresa.required' => 'El email de la empresa es obligatorio.',
+            'email_empresa.email' => 'El email de la empresa debe tener un formato válido.',
+            'email_empresa.unique' => 'Este email de empresa ya está registrado.',
+            'name.required' => 'El nombre es obligatorio.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.confirmed' => 'La confirmación de contraseña no coincide.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'direccion.required' => 'La dirección es obligatoria.',
+            'municipio.required' => 'El municipio es obligatorio.',
+            'ubicacion.max' => 'La ubicación no debe superar los 255 caracteres.',
+            'foto.required' => 'La foto de la empresa es obligatoria.',
+            'foto.image' => 'El archivo debe ser una imagen.',
+            'foto.max' => 'La imagen no debe superar los 2MB.',
+            'certificado_camara_de_comercio.required' => 'El certificado de cámara de comercio es obligatorio.',
+            'certificado_camara_de_comercio.mimes' => 'El certificado debe ser un archivo PDF, JPG, JPEG o PNG.',
+            'certificado_camara_de_comercio.max' => 'El certificado no debe superar los 5MB.',
+            'terms.accepted' => 'Debes aceptar los términos y condiciones.',
+            'role.required' => 'Debes seleccionar un tipo de cuenta.',
+            'role.in' => 'El tipo de cuenta seleccionado no es válido.',
+        ];
+
         // Validación
         $validator = Validator::make(
             $request->all(),
-            array_merge($baseRules, $additionalRules)
+            array_merge($baseRules, $additionalRules),
+            $messages
         );
 
         if ($validator->fails()) {

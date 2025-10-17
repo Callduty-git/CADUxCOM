@@ -71,9 +71,9 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'No hay productos válidos en tu carrito.');
         }
 
-        // Calcular IVA y envío
+        // Calcular IVA (el envío es responsabilidad de cada empresa)
         $tax = $subtotal * 0.19; // IVA 19%
-        $shipping = $subtotal > 100000 ? 0 : 5000; // Envío gratis sobre $100,000
+        $shipping = 0; // CADUxCOM no maneja envíos directamente
 
         $total = $subtotal + $tax + $shipping;
 
@@ -114,7 +114,7 @@ class CheckoutController extends Controller
             'billing_state' => 'nullable|string|max:100',
             'billing_postal_code' => 'nullable|string|max:20',
             'billing_country' => 'nullable|string|max:100',
-            'payment_method' => 'required|in:credit_card,debit_card,bank_transfer,cash_on_delivery,digital_wallet',
+            'payment_method' => 'required|in:credit_card,debit_card,bank_transfer,digital_wallet',
             'notes' => 'nullable|string|max:1000',
             'same_as_shipping' => 'nullable|boolean',
         ]);
@@ -185,7 +185,7 @@ class CheckoutController extends Controller
         }
 
         $tax = $subtotal * 0.19;
-        $shipping = $subtotal > 100000 ? 0 : 5000;
+        $shipping = 0; // CADUxCOM no maneja envíos directamente
 
         $total = $subtotal + $tax + $shipping;
 
@@ -242,5 +242,43 @@ class CheckoutController extends Controller
             DB::rollBack();
             return back()->with('error', 'Hubo un error al procesar tu orden. Por favor, intenta nuevamente.')->withInput();
         }
+    }
+
+    /**
+     * Obtener municipios del Huila
+     */
+    private function getMunicipiosHuila()
+    {
+        return [
+            'Neiva',
+            'Pitalito',
+            'Garzón',
+            'La Plata',
+            'San Agustín',
+            'Timaná',
+            'Oporapa',
+            'Palermo',
+            'Rivera',
+            'Campoalegre',
+            'Algeciras',
+            'Íquira',
+            'Nátaga',
+            'Paicol',
+            'Tesalia',
+            'Villavieja',
+            'Yaguará',
+            'Aipe',
+            'Colombia',
+            'Hobo',
+            'Palestina',
+            'Pital',
+            'Saladoblanco',
+            'Santa María',
+            'Suaza',
+            'Tarqui',
+            'Tello',
+            'Teruel',
+            'Villavieja'
+        ];
     }
 }

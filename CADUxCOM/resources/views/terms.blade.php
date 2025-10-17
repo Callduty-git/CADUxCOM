@@ -79,7 +79,7 @@
             <div class="terms-section">
                 <h2>6. Pagos y Facturación</h2>
                 <h3>6.1 Métodos de Pago</h3>
-                <p>Aceptamos tarjetas de crédito, débito, transferencias bancarias y pagos en efectivo contra entrega. Todos los pagos son procesados de forma segura.</p>
+                <p>Aceptamos tarjetas de crédito, débito, transferencias bancarias y billeteras digitales. Todos los pagos son procesados de forma segura.</p>
                 
                 <h3>6.2 Facturación</h3>
                 <p>Se emitirán facturas electrónicas para todas las compras. Es responsabilidad del usuario proporcionar información fiscal correcta.</p>
@@ -88,10 +88,10 @@
             <div class="terms-section">
                 <h2>7. Entregas y Devoluciones</h2>
                 <h3>7.1 Entregas</h3>
-                <p>Los tiempos de entrega varían según la ubicación y disponibilidad del producto. CADUxCOM no se hace responsable por retrasos causados por terceros.</p>
+                <p>CADUxCOM es una plataforma de conexión. Después de realizar una compra, el usuario recibirá la información de contacto de la empresa vendedora para coordinar directamente el envío. Los tiempos, métodos y costos de entrega son responsabilidad exclusiva de cada empresa vendedora.</p>
                 
                 <h3>7.2 Devoluciones</h3>
-                <p>Las devoluciones están sujetas a las políticas de cada empresa vendedora. Los productos próximos a caducar tienen políticas de devolución específicas.</p>
+                <p>Las devoluciones están sujetas a las políticas individuales de cada empresa vendedora. CADUxCOM puede mediar en disputas, pero no es responsable directo de los procesos de devolución. Los usuarios deben coordinar directamente con la empresa vendedora.</p>
             </div>
 
             <div class="terms-section">

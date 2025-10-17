@@ -18,7 +18,12 @@
     </head>
 <body>
     <div class="page-container">
-        <x-header-pages />
+        <header class="main-header">
+            <div class="left-section">
+                <img src="{{ asset('images/logocort-caduxcom.png') }}" alt="Logo CADUxCOM" class="logo">
+                <span class="logo-text">CADUxCOM</span>
+            </div>
+        </header>
         <main class="content">
         <x-admin.back-button />
     <div class="container">
@@ -61,7 +66,7 @@
         </div>
     </div>
         </main>
-        <x-footer />
+    
     </div>
 </body>
 </html>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\LogEmpresa;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 
 class EmpresaDashboardController extends Controller
@@ -12,12 +13,64 @@ class EmpresaDashboardController extends Controller
     /**
      * Muestra el dashboard de la empresa con sus productos.
      */
-    public function index()
+    public function index(NotificationService $notificationService)
     {
         $empresa = Auth::guard('empresa')->user();
         $productos = \App\Models\Producto::where('Id_Empresa', $empresa->Id_Empresa)->get();
+        
+        // Obtener pedidos de la empresa
+        $pedidos = \App\Models\OrderItem::where('empresa_id', $empresa->Id_Empresa)
+            ->with(['order', 'product'])
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+            
+        // Estadísticas de ventas
+        $totalVentas = \App\Models\OrderItem::where('empresa_id', $empresa->Id_Empresa)
+            ->sum('total_price');
+            
+        $ventasHoy = \App\Models\OrderItem::where('empresa_id', $empresa->Id_Empresa)
+            ->whereDate('created_at', today())
+            ->sum('total_price');
+            
+        $pedidosPendientes = \App\Models\OrderItem::where('empresa_id', $empresa->Id_Empresa)
+            ->whereHas('order', function($query) {
+                $query->whereIn('status', ['pending', 'paid', 'processing']);
+            })
+            ->count();
 
-        return view('empresa.dashboard', compact('empresa', 'productos'));
+        // Obtener notificaciones recientes
+        $notificaciones = $notificationService->getUnreadNotifications($empresa->Id_Empresa, 5);
+        $conteoNotificaciones = $notificationService->getUnreadCount($empresa->Id_Empresa);
+
+        return view('empresa.dashboard', compact('empresa', 'productos', 'pedidos', 'totalVentas', 'ventasHoy', 'pedidosPendientes', 'notificaciones', 'conteoNotificaciones'));
+    }
+
+    /**
+     * Muestra todos los pedidos de la empresa.
+     */
+    public function pedidos(Request $request)
+    {
+        $empresa = Auth::guard('empresa')->user();
+        if (!$empresa) abort(403, 'Acceso no autorizado.');
+
+        $query = \App\Models\OrderItem::where('empresa_id', $empresa->Id_Empresa)
+            ->with(['order.user', 'product']);
+
+        // Filtros
+        if ($request->has('status') && $request->status != '') {
+            $query->whereHas('order', function($q) use ($request) {
+                $q->where('status', $request->status);
+            });
+        }
+
+        if ($request->has('fecha') && $request->fecha != '') {
+            $query->whereDate('created_at', $request->fecha);
+        }
+
+        $pedidos = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        return view('empresa.pedidos', compact('empresa', 'pedidos'));
     }
 
     /**

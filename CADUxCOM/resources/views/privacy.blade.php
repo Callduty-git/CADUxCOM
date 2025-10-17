@@ -35,7 +35,7 @@
                     <li>Nombre completo y datos de contacto</li>
                     <li>Dirección de correo electrónico</li>
                     <li>Número de teléfono</li>
-                    <li>Dirección de entrega</li>
+                    <li>Dirección de contacto (para coordinación con empresas)</li>
                     <li>Información de pago (procesada de forma segura)</li>
                     <li>Preferencias de productos y servicios</li>
                 </ul>
@@ -87,7 +87,7 @@
                 <p>Podemos compartir su información con:</p>
                 <ul>
                     <li>Proveedores de servicios de pago</li>
-                    <li>Empresas de entrega y logística</li>
+                    <li>Empresas vendedoras (para coordinación de envíos)</li>
                     <li>Proveedores de servicios tecnológicos</li>
                     <li>Empresas vendedoras (solo información necesaria)</li>
                 </ul>

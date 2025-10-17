@@ -97,17 +97,17 @@
                         <span class="faq-toggle">+</span>
                     </div>
                     <div class="faq-answer">
-                        <p>Aceptamos tarjetas de crédito y débito, transferencias bancarias y pagos en efectivo contra entrega. Todos los pagos son seguros y procesados a través de plataformas certificadas.</p>
+                        <p>Aceptamos tarjetas de crédito y débito, transferencias bancarias y billeteras digitales. Todos los pagos son seguros y procesados a través de plataformas certificadas.</p>
                     </div>
                 </div>
 
                 <div class="faq-item">
                     <div class="faq-question">
-                        <h3>¿Cuánto tiempo tarda la entrega?</h3>
+                        <h3>¿Cómo funciona la entrega?</h3>
                         <span class="faq-toggle">+</span>
                     </div>
                     <div class="faq-answer">
-                        <p>Los tiempos de entrega varían según la ubicación. En Bogotá, las entregas son de 1-2 días hábiles. Para otras ciudades, el tiempo puede ser de 3-5 días hábiles. Te notificaremos el tiempo estimado al momento de la compra.</p>
+                        <p>CADUxCOM es una plataforma de conexión. Después de tu compra, recibirás la información de contacto de la empresa vendedora para coordinar directamente el envío de tus productos. Cada empresa maneja sus propios tiempos, métodos y costos de entrega.</p>
                     </div>
                 </div>
 

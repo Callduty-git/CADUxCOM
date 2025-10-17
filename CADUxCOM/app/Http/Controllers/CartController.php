@@ -59,9 +59,9 @@ class CartController extends Controller
             session()->put('cart', $cart);
         }
 
-        // Cálculos de totales (IVA + envío condicional)
+        // Cálculos de totales (IVA - el envío es responsabilidad de cada empresa)
         $tax = $subtotal * 0.19; // IVA 19%
-        $shipping = $subtotal > 100000 ? 0 : 5000; // Envío gratis sobre $100,000
+        $shipping = 0; // CADUxCOM no maneja envíos directamente
         $total = $subtotal + $tax + $shipping;
 
         return view('cart.index', compact('items', 'total', 'subtotal', 'tax', 'shipping'));

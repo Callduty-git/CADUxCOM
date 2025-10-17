@@ -66,11 +66,11 @@
         
         .nav-buttons {
             width: 100%;
-            padding: 20px 0;
+            padding: 8px 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 35px;
+            gap: 15px;
             align-items: center;
         }
         
@@ -81,14 +81,14 @@
             gap: 15px;
             background-color: #d88ef0;
             color: white;
-            padding: 15px 20px;
+            padding: 10px 18px;
             text-align: left;
             border-radius: 15px;
             font-weight: 600;
             text-decoration: none;
             border: 1px solid rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
-            font-size: 16px;
+            font-size: 14px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;

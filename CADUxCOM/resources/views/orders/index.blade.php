@@ -88,7 +88,7 @@
                                     <span class="font-medium">{{ $order->getPaymentMethodInSpanish() }}</span>
                                 </div>
                                 <div>
-                                    <span class="text-gray-600">Envío a:</span>
+                                    <span class="text-gray-600">Dirección registrada:</span>
                                     <span class="font-medium">{{ $order->shipping_city }}, {{ $order->shipping_state }}</span>
                                 </div>
                                 @if($order->tracking_number)

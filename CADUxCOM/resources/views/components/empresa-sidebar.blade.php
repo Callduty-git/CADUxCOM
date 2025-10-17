@@ -9,6 +9,17 @@
                 <i class="fas fa-box"></i>
                 <span>Productos</span>
             </a>
+            <a href="{{ route('empresa.pedidos') }}" class="btn {{ request()->routeIs('empresa.pedidos') ? 'active' : '' }}">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Pedidos</span>
+            </a>
+            <a href="{{ route('empresa.notifications.index') }}" class="btn {{ request()->routeIs('empresa.notifications.*') ? 'active' : '' }}">
+                <i class="fas fa-bell"></i>
+                <span>Notificaciones</span>
+                @if(isset($conteoNotificaciones) && $conteoNotificaciones > 0)
+                    <span class="notification-badge">{{ $conteoNotificaciones }}</span>
+                @endif
+            </a>
             <a href="{{ route('empresa.facturas') }}" class="btn {{ request()->routeIs('empresa.facturas') ? 'active' : '' }}">
                 <i class="fas fa-list-alt"></i>
                 <span>Log de Productos</span>

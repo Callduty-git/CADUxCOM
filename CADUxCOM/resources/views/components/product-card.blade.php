@@ -1,11 +1,11 @@
 @props(['product', 'showWishlist' => true, 'showCart' => true])
 
-<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+<div class="product-card">
     {{-- Imagen del producto --}}
-    <div class="relative">
+    <div class="media-wrap">
         <a href="{{ route('productos.show', $product->Id_Producto) }}">
             <img src="{{ $product->Foto ? asset('storage/' . $product->Foto) : asset('images/default-product.png') }}" 
-                 alt="{{ $product->Nombre }}" class="w-full h-48 object-cover">
+                 alt="{{ $product->Nombre }}" class="product-image">
         </a>
 
         {{-- Badge de descuento --}}
@@ -13,7 +13,7 @@
             $discountInfo = method_exists($product, 'getDiscountInfo') 
                             ? $product->getDiscountInfo() 
                             : ['has_discount' => $product->PrecioOriginal > $product->Precio,
-                               'discount_percentage' => $product->PrecioOriginal > 0 ? round((($product->PrecioOriginal - $product->Precio)/$product->PrecioOriginal)*100) : 0,
+                               'discount_percentage' => $product->PrecioOriginal > 0 ? round((($product->PrecioOriginal - $product->Precio)/$product->PrecioOriginal)*100, 0) : 0,
                                'discounted_price' => $product->Precio,
                                'original_price' => $product->PrecioOriginal ?? $product->Precio,
                                'expiry_status' => null,
@@ -22,14 +22,8 @@
         @endphp
 
         @if($discountInfo['has_discount'])
-            <div class="absolute top-2 left-2">
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
-                    @if($discountInfo['expiry_status'] === 'critical') bg-red-100 text-red-800
-                    @elseif($discountInfo['expiry_status'] === 'urgent') bg-orange-100 text-orange-800
-                    @elseif($discountInfo['expiry_status'] === 'near_expiry') bg-yellow-100 text-yellow-800
-                    @else bg-red-100 text-red-800 @endif">
-                    -{{ $discountInfo['discount_percentage'] }}%
-                </span>
+            <div class="badge-discount">
+                -{{ $discountInfo['discount_percentage'] }}%
             </div>
         @endif
 
@@ -39,61 +33,53 @@
         @endif
     </div>
 
-    {{-- Información --}}
-    <div class="p-4">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-            <a href="{{ route('productos.show', $product->Id_Producto) }}" class="hover:text-blue-600 transition-colors">
+    {{-- Información del producto --}}
+    <div class="product-details">
+        <h3 class="product-name">
+            <a href="{{ route('productos.show', $product->Id_Producto) }}">
                 {{ $product->Nombre }}
             </a>
         </h3>
 
-        <p class="text-sm text-gray-600 mb-2">{{ $product->empresa->Nombre ?? '' }}</p>
-        <p class="text-sm text-gray-500 mb-3">Código: {{ $product->Codigo }}</p>
+        <p class="product-brand">{{ $product->Codigo }}</p>
+        <p class="product-company">{{ $product->empresa->Nombre ?? '' }}</p>
+    </div>
 
-        {{-- Precio --}}
-        <div class="mb-3">
+    {{-- Footer morado con precios y acciones --}}
+    <div class="product-footer">
+        {{-- Precios --}}
+        <div class="footer-prices">
             @if($discountInfo['has_discount'])
-                <div class="flex items-center space-x-2">
-                    <span class="text-lg font-bold text-gray-900">${{ number_format($discountInfo['discounted_price'], 0, ',', '.') }}</span>
-                    <span class="text-sm text-gray-500 line-through">${{ number_format($discountInfo['original_price'], 0, ',', '.') }}</span>
-                </div>
-                @if($discountInfo['savings_message'])
-                    <div class="text-xs text-green-600 font-medium">{{ $discountInfo['savings_message'] }}</div>
-                @endif
+                <span class="footer-original">${{ number_format($discountInfo['original_price'], 0, ',', '.') }}</span>
+                <span class="footer-arrow">→</span>
+                <span class="footer-discount">${{ number_format($discountInfo['discounted_price'], 0, ',', '.') }}</span>
             @else
-                <span class="text-lg font-bold text-gray-900">${{ number_format($product->Precio, 0, ',', '.') }}</span>
-            @endif
-        </div>
-
-        {{-- Stock --}}
-        <div class="mb-3">
-            @if($product->Cantidad > 10)
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">En Stock</span>
-            @elseif($product->Cantidad > 0)
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Poco Stock ({{ $product->Cantidad }})</span>
-            @else
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Agotado</span>
+                <span class="footer-discount">${{ number_format($product->Precio, 0, ',', '.') }}</span>
             @endif
         </div>
 
         {{-- Fecha de caducidad --}}
         @if($product->Fecha_Caducidad)
-            <div class="mb-3 text-xs text-gray-600">Caduca: {{ \Carbon\Carbon::parse($product->Fecha_Caducidad)->format('d/m/Y') }}</div>
+            <div class="footer-expire">
+                Vence: {{ \Carbon\Carbon::parse($product->Fecha_Caducidad)->format('d/m/Y') }}
+            </div>
         @endif
 
-        {{-- Botones --}}
-        <div class="flex space-x-2">
+        {{-- Botones de acción --}}
+        <div class="footer-actions">
+            <a href="{{ route('productos.show', $product->Id_Producto) }}" 
+               class="btn btn-secondary">Ver detalles</a>
+            
             @if($showCart && $product->Cantidad > 0)
                 <button data-product-id="{{ $product->Id_Producto }}" 
-                        class="add-to-cart-btn flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                        class="add-to-cart-btn btn btn-primary">
                     Agregar
                 </button>
             @elseif($showCart)
-                <button disabled class="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">Agotado</button>
+                <button disabled class="btn btn-secondary" style="opacity: 0.5; cursor: not-allowed;">
+                    Agotado
+                </button>
             @endif
-
-            <a href="{{ route('productos.show', $product->Id_Producto) }}" 
-               class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">Ver</a>
         </div>
     </div>
 </div>

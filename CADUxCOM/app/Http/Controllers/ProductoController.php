@@ -111,18 +111,7 @@ class ProductoController extends Controller
     public function create()
     {
         $subcategorias = Subcategoria::all();
-
-        if (Auth::guard('empresa')->check()) {
-            $empresa = Auth::guard('empresa')->user();
-            return view('productos.create', [
-                'subcategorias' => $subcategorias,
-                'empresas' => collect([$empresa]),
-                'empresa' => $empresa
-            ]);
-        }
-
-        $empresas = Empresa::all();
-        return view('productos.create', compact('empresas', 'subcategorias'));
+        return view('productos.create', compact('subcategorias'));
     }
 
     /**
@@ -141,16 +130,36 @@ class ProductoController extends Controller
             $request->merge(['Precio' => $precioOriginal]);
         }
 
+        // Mensajes de error personalizados en español
+        $messages = [
+            'Nombre.required' => 'El nombre del producto es obligatorio.',
+            'Marca.required' => 'La marca del producto es obligatoria.',
+            'PrecioOriginal.required' => 'El precio original es obligatorio.',
+            'PrecioOriginal.numeric' => 'El precio original debe ser un número.',
+            'PrecioOriginal.min' => 'El precio original debe ser mayor o igual a 0.',
+            'Precio.required' => 'El precio es obligatorio.',
+            'Precio.numeric' => 'El precio debe ser un número.',
+            'Precio.min' => 'El precio debe ser mayor o igual a 0.',
+            'Fecha_Caducidad.date' => 'La fecha de caducidad debe ser una fecha válida.',
+            'Fecha_Caducidad.after_or_equal' => 'La fecha de caducidad no puede ser una fecha pasada.',
+            'Id_Empresa.required' => 'La empresa es obligatoria.',
+            'Id_Empresa.exists' => 'La empresa seleccionada no existe.',
+            'Id_Subcategoria.required' => 'La subcategoría es obligatoria.',
+            'Id_Subcategoria.exists' => 'La subcategoría seleccionada no existe.',
+            'Foto.image' => 'El archivo debe ser una imagen.',
+            'Foto.max' => 'La imagen no debe superar los 2MB.',
+        ];
+
         $request->validate([
             'Nombre' => 'required|string|max:255',
             'Marca' => 'required|string|max:255',
             'PrecioOriginal' => 'required|numeric|min:0',
             'Precio' => 'required|numeric|min:0',
-            'Fecha_Caducidad' => 'nullable|date',
+            'Fecha_Caducidad' => 'nullable|date|after_or_equal:today',
             'Id_Empresa' => 'required|exists:empresas,Id_Empresa',
             'Id_Subcategoria' => 'required|exists:subcategorias,Id_Subcategoria',
             'Foto' => 'nullable|image|max:2048',
-        ]);
+        ], $messages);
 
         if ($request->Precio > $request->PrecioOriginal) {
             return back()->withInput()->with('error', 'El precio de oferta no puede ser mayor al precio original.');

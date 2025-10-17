@@ -14,6 +14,7 @@ use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ComentarioController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -28,6 +29,7 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\PasswordVerificationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Auth\EmpresaEmailVerificationController;
+use App\Http\Controllers\CentroAyudaController;
 use Illuminate\Support\Facades\Mail;
 
 /*
@@ -39,6 +41,22 @@ Route::middleware(['auth:empresa'])->group(function () {
     // Dashboard
     Route::get('/empresa/dashboard', [EmpresaDashboardController::class, 'index'])
         ->name('empresa.dashboard');
+    
+    // Pedidos de la empresa
+    Route::get('/empresa/pedidos', [EmpresaDashboardController::class, 'pedidos'])
+        ->name('empresa.pedidos');
+    
+    // Notificaciones de la empresa
+    Route::get('/empresa/notificaciones', [App\Http\Controllers\Empresa\NotificationController::class, 'index'])
+        ->name('empresa.notifications.index');
+    Route::get('/empresa/notificaciones/no-leidas', [App\Http\Controllers\Empresa\NotificationController::class, 'unread'])
+        ->name('empresa.notifications.unread');
+    Route::post('/empresa/notificaciones/{id}/marcar-leida', [App\Http\Controllers\Empresa\NotificationController::class, 'markAsRead'])
+        ->name('empresa.notifications.mark-read');
+    Route::post('/empresa/notificaciones/marcar-todas-leidas', [App\Http\Controllers\Empresa\NotificationController::class, 'markAllAsRead'])
+        ->name('empresa.notifications.mark-all-read');
+    Route::delete('/empresa/notificaciones/{id}', [App\Http\Controllers\Empresa\NotificationController::class, 'destroy'])
+        ->name('empresa.notifications.destroy');
     // Ruta avanzada deshabilitada: redirige al dashboard normal
     Route::get('/empresa/dashboard/advanced', function () {
         return redirect()->route('empresa.dashboard');
@@ -89,6 +107,15 @@ Route::middleware(['auth:empresa'])->group(function () {
     // Ruta para eliminar cuenta de empresa
     Route::delete('/empresa/eliminar', [EmpresaController::class, 'eliminarCuenta'])
         ->name('empresa.eliminar');
+    
+    // Rutas para notificaciones
+    Route::prefix('notificaciones')->name('empresa.notifications.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Empresa\NotificationController::class, 'index'])->name('index');
+        Route::get('/no-leidas', [App\Http\Controllers\Empresa\NotificationController::class, 'unread'])->name('unread');
+        Route::post('/{notification}/marcar-leida', [App\Http\Controllers\Empresa\NotificationController::class, 'markAsRead'])->name('mark-as-read');
+        Route::post('/marcar-todas-leidas', [App\Http\Controllers\Empresa\NotificationController::class, 'markAllAsRead'])->name('mark-all-as-read');
+        Route::delete('/{notification}', [App\Http\Controllers\Empresa\NotificationController::class, 'destroy'])->name('destroy');
+    });
 });
 
 /*
@@ -138,7 +165,14 @@ Route::get('/contacto', [\App\Http\Controllers\ContactController::class, 'index'
 Route::post('/contacto', [\App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
 
 Route::get('/about', function () { return view('about'); })->name('about');
-Route::get('/ayuda', function () { return view('help'); })->name('help');
+
+// Rutas del Centro de Ayuda
+Route::get('/ayuda', [CentroAyudaController::class, 'index'])->name('help');
+Route::get('/ayuda/mi-cuenta', [CentroAyudaController::class, 'miCuenta'])->name('ayuda.mi-cuenta');
+Route::get('/ayuda/pedidos', [CentroAyudaController::class, 'pedidos'])->name('ayuda.pedidos');
+Route::get('/ayuda/pagos', [CentroAyudaController::class, 'pagos'])->name('ayuda.pagos');
+Route::get('/ayuda/entrega', [CentroAyudaController::class, 'entrega'])->name('ayuda.entrega');
+
 Route::get('/terminos', function () { return view('terms'); })->name('terms');
 Route::post('/terminos/aceptar', function (Request $request) {
     // Marcar en sesión que el usuario ha leído los términos
@@ -260,6 +294,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/mapa', [App\Http\Controllers\OffersMapController::class, 'index'])->name('mapa');
+Route::get('/test-empresas', [App\Http\Controllers\OffersMapController::class, 'testEmpresas'])->name('test.empresas');
 Route::get('/educacion', [EducationController::class, 'index'])->name('education.index');
 Route::get('/educacion/calculadora', [EducationController::class, 'impactCalculator'])->name('education.calculator');
 Route::post('/educacion/calcular-impacto', [EducationController::class, 'calculateImpact'])->name('education.calculate-impact');
@@ -313,26 +348,109 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])
         ->name('dashboard');
     
-    Route::get('/empresas/pending', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'index'])
-        ->name('empresas.pending');
-    Route::get('/empresas/{empresa}', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'show'])
-        ->name('empresas.show');
-    Route::post('/empresas/{empresa}/approve', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'approve'])
-        ->name('empresas.approve');
-    Route::post('/empresas/{empresa}/reject', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'reject'])
-        ->name('empresas.reject');
-    Route::get('/empresas/approved', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'approved'])
-        ->name('empresas.approved');
-    Route::get('/empresas/rejected', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'rejected'])
-        ->name('empresas.rejected');
-    Route::get('/empresas/{empresa}/certificado', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'downloadCertificado'])
-        ->name('empresas.certificado');
-    Route::get('/empresas/{empresa}/foto', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'viewFoto'])
-        ->name('empresas.foto');
+    // Gestión de empresas
+    Route::prefix('empresas')->name('empresas.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'indexAll'])
+            ->name('index');
+        Route::get('/pending', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'index'])
+            ->name('pending');
+        Route::get('/approved', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'approved'])
+            ->name('approved');
+        Route::get('/rejected', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'rejected'])
+            ->name('rejected');
+        Route::get('/{empresa}', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'show'])
+            ->name('show');
+        Route::post('/{empresa}/approve', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'approve'])
+            ->name('approve');
+        Route::post('/{empresa}/reject', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'reject'])
+            ->name('reject');
+        Route::delete('/{empresa}', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'destroy'])
+            ->name('destroy');
+        Route::get('/{empresa}/certificado', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'downloadCertificado'])
+            ->name('certificado');
+        Route::get('/{empresa}/foto', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'viewFoto'])
+            ->name('foto');
+        Route::post('/bulk-action', [\App\Http\Controllers\Admin\EmpresaVerificationController::class, 'bulkAction'])
+            ->name('bulk-action');
+    });
+    
+    // Rutas de reportes y analytics
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\ReportsController::class, 'index'])->name('index');
+        Route::get('/users', [App\Http\Controllers\Admin\ReportsController::class, 'users'])->name('users');
+        Route::get('/companies', [App\Http\Controllers\Admin\ReportsController::class, 'companies'])->name('companies');
+        Route::get('/products', [App\Http\Controllers\Admin\ReportsController::class, 'products'])->name('products');
+        Route::get('/export', [App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('export');
+    });
+    
+    // Rutas de configuraciones del sistema
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('index');
+        Route::get('/general', [App\Http\Controllers\Admin\SettingsController::class, 'general'])->name('general');
+        Route::put('/general', [App\Http\Controllers\Admin\SettingsController::class, 'updateGeneral'])->name('general.update');
+        Route::get('/email', [App\Http\Controllers\Admin\SettingsController::class, 'email'])->name('email');
+        Route::put('/email', [App\Http\Controllers\Admin\SettingsController::class, 'updateEmail'])->name('email.update');
+        Route::get('/platform', [App\Http\Controllers\Admin\SettingsController::class, 'platform'])->name('platform');
+        Route::put('/platform', [App\Http\Controllers\Admin\SettingsController::class, 'updatePlatform'])->name('platform.update');
+        Route::post('/clear-cache', [App\Http\Controllers\Admin\SettingsController::class, 'clearCache'])->name('clear-cache');
+        Route::get('/export', [App\Http\Controllers\Admin\SettingsController::class, 'export'])->name('export');
+        Route::post('/import', [App\Http\Controllers\Admin\SettingsController::class, 'import'])->name('import');
+    });
+    
+    // Audit and Logs Routes
+    Route::prefix('audit')->name('audit.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\AuditController::class, 'index'])->name('index');
+        Route::get('/system', [App\Http\Controllers\Admin\AuditController::class, 'systemLogs'])->name('system');
+        Route::get('/user-activity', [App\Http\Controllers\Admin\AuditController::class, 'userActivity'])->name('user-activity');
+        Route::get('/company-activity', [App\Http\Controllers\Admin\AuditController::class, 'companyActivity'])->name('company-activity');
+        Route::get('/security', [App\Http\Controllers\Admin\AuditController::class, 'securityLogs'])->name('security');
+        Route::get('/export/{type}', [App\Http\Controllers\Admin\AuditController::class, 'export'])->name('export');
+        Route::post('/clean', [App\Http\Controllers\Admin\AuditController::class, 'cleanOldLogs'])->name('clean');
+    });
     
     // Gestión de usuarios
-    Route::get('/users', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])
-        ->name('users.index');
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])
+            ->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\AdminUserController::class, 'create'])
+            ->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\AdminUserController::class, 'store'])
+            ->name('store');
+        Route::get('/{user}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])
+            ->name('show');
+        Route::get('/{user}/edit', [\App\Http\Controllers\Admin\AdminUserController::class, 'edit'])
+            ->name('edit');
+        Route::put('/{user}', [\App\Http\Controllers\Admin\AdminUserController::class, 'update'])
+            ->name('update');
+        Route::delete('/{user}', [\App\Http\Controllers\Admin\AdminUserController::class, 'destroy'])
+            ->name('destroy');
+        Route::patch('/{user}/toggle-status', [\App\Http\Controllers\Admin\AdminUserController::class, 'toggleStatus'])
+            ->name('toggle-status');
+        Route::post('/destroy-multiple', [\App\Http\Controllers\Admin\AdminUserController::class, 'destroyMultiple'])
+            ->name('destroy.multiple');
+    });
+
+    // Alias en español para usuarios (para compatibilidad con vistas)
+    Route::prefix('usuarios')->name('usuarios.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])
+            ->name('index');
+    });
+    
+    // Gestión de reseñas/comentarios
+    Route::prefix('comentarios')->name('comentarios.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AdminComentarioController::class, 'index'])
+            ->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\AdminComentarioController::class, 'show'])
+            ->name('show');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\AdminComentarioController::class, 'destroy'])
+            ->name('destroy');
+        Route::post('/destroy-multiple', [\App\Http\Controllers\Admin\AdminComentarioController::class, 'destroyMultiple'])
+            ->name('destroy-multiple');
+        Route::get('/stats/data', [\App\Http\Controllers\Admin\AdminComentarioController::class, 'getStats'])
+            ->name('stats');
+        Route::get('/export/csv', [\App\Http\Controllers\Admin\AdminComentarioController::class, 'export'])
+            ->name('export');
+    });
 });
 
 
@@ -401,6 +519,15 @@ Route::prefix('comentarios')->name('comentarios.')->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| Rutas de Búsqueda
+|--------------------------------------------------------------------------
+*/
+Route::get('/search', [SearchController::class, 'search'])->name('search');
+Route::get('/api/search/autocomplete', [SearchController::class, 'autocomplete'])->name('search.autocomplete');
+Route::get('/api/search/quick', [SearchController::class, 'quickSearch'])->name('search.quick');
 
 // Pasarela de pagos (Mercado Pago)
 Route::post('/payments/mercadopago/preference', [\App\Http\Controllers\MercadoPagoController::class, 'createPreference'])->name('payments.mercadopago.preference');

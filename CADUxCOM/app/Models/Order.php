@@ -92,7 +92,6 @@ class Order extends Model
     const PAYMENT_CREDIT_CARD = 'credit_card';
     const PAYMENT_DEBIT_CARD = 'debit_card';
     const PAYMENT_BANK_TRANSFER = 'bank_transfer';
-    const PAYMENT_CASH_ON_DELIVERY = 'cash_on_delivery';
     const PAYMENT_DIGITAL_WALLET = 'digital_wallet';
 
     /**
@@ -206,7 +205,6 @@ class Order extends Model
             self::PAYMENT_CREDIT_CARD => 'Tarjeta de Crédito',
             self::PAYMENT_DEBIT_CARD => 'Tarjeta Débito',
             self::PAYMENT_BANK_TRANSFER => 'Transferencia Bancaria',
-            self::PAYMENT_CASH_ON_DELIVERY => 'Pago Contra Entrega',
             self::PAYMENT_DIGITAL_WALLET => 'Billetera Digital',
         ];
 

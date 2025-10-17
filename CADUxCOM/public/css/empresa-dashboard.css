@@ -105,9 +105,9 @@ body {
 .sidebar-container {
     position: fixed;
     left: 20px;
-    top: 50%;
+    top: 60%;
     transform: translateY(-50%);
-    width: 450px;
+    width: 300px;
     height: auto; /* Ajusta la altura al contenido (mismo alto que los botones) */
     z-index: 1000;
     transition: all 0.3s ease; /* Para que se mueva junto con el sidebar */
@@ -115,7 +115,7 @@ body {
 
 /* ==== SIDEBAR ==== */
 .sidebar {
-    width: 450px;
+    width: 300px;
     background-color: #ffffff;
     height: auto;
     display: flex;
@@ -131,6 +131,7 @@ body {
     overflow: visible; /* Que crezca con el contenido */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    padding: 8px 20px;
 }
 
 .sidebar:hover {
@@ -141,17 +142,17 @@ body {
 
 /* Cuando el sidebar hace hover, mover el contenedor */
 .sidebar-container:hover {
-    transform: translateY(-50%) scale(1.02);
+    transform: translateY(-50%);
 }
 
 /* Responsive para pantallas pequeñas */
 @media (max-width: 1200px) {
     .sidebar-container {
-        width: 350px;
+        width: 250px;
     }
     
     .sidebar {
-        width: 350px;
+        width: 250px;
     }
     
     .main-container {
@@ -162,17 +163,164 @@ body {
 
 @media (max-width: 768px) {
     .sidebar-container {
-        left: 10px;
-        width: 300px;
+        left: 5px;
+        width: 160px;
+        top: auto;
+        bottom: 15px;
+        transform: none;
     }
     
     .sidebar {
-        width: 300px;
+        width: 160px;
+        padding: 8px 5px;
+    }
+    
+    .logo-section {
+        padding: 5px;
+        margin-bottom: 12px;
+    }
+    
+    .logo {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .logo-section h1 {
+        font-size: 10px;
+        margin-top: 3px;
+    }
+    
+    .nav-buttons .btn {
+        margin-bottom: 20px;
+        font-size: 10px;
+        padding: 6px 8px;
+        border-radius: 20px;
     }
     
     .main-container {
         justify-content: center; /* Centrar el contenido */
         padding: 10px;
+        margin-left: 0; /* Asegurar que no hay margen izquierdo */
+        width: 100%; /* Usar todo el ancho disponible */
+    }
+    
+    .dashboard-panel {
+        padding: 15px; /* Reducir padding en móviles */
+        margin-bottom: 100px; /* Espacio para el sidebar en la parte inferior */
+    }
+}
+
+/* Para móviles muy pequeños */
+@media (max-width: 480px) {
+    .sidebar-container {
+        left: 3px;
+        width: 80px;
+        top: auto;
+        bottom: 10px;
+        transform: none;
+    }
+    
+    .sidebar {
+        width: 80px;
+        padding: 4px 2px;
+    }
+    
+    .logo-section {
+        padding: 2px;
+        margin-bottom: 6px;
+    }
+    
+    .logo {
+        width: 15px;
+        height: 15px;
+    }
+    
+    .logo-section h1 {
+        font-size: 6px;
+        margin-top: 1px;
+    }
+    
+    .nav-buttons .btn {
+        margin-bottom: 10px;
+        font-size: 6px;
+        padding: 3px 4px;
+        border-radius: 10px;
+        min-height: 22px;
+    }
+    
+    .main-container {
+        margin-left: 0;
+        width: 100%;
+        padding: 8px;
+    }
+    
+    .dashboard-panel {
+        padding: 12px;
+        margin-bottom: 90px; /* Espacio para el sidebar */
+    }
+    
+    .info-panel {
+        padding: 15px;
+        gap: 15px;
+    }
+}
+
+/* Para pantallas extra pequeñas (iPhone SE y similares) */
+@media (max-width: 320px) {
+    .sidebar-container {
+        left: 2px;
+        width: 60px;
+        bottom: 8px;
+    }
+    
+    .sidebar {
+        width: 60px;
+        padding: 3px 1px;
+    }
+    
+    .logo-section {
+        padding: 1px;
+        margin-bottom: 4px;
+    }
+    
+    .logo {
+        width: 12px;
+        height: 12px;
+    }
+    
+    .logo-section h1 {
+        font-size: 5px;
+        margin-top: 1px;
+    }
+    
+    .nav-buttons .btn {
+        margin-bottom: 8px;
+        font-size: 5px;
+        padding: 2px 3px;
+        border-radius: 8px;
+        min-height: 20px;
+    }
+    
+    .main-container {
+        margin-left: 0;
+        width: 100%;
+        padding: 5px;
+    }
+    
+    .dashboard-panel {
+        padding: 8px;
+        margin-bottom: 80px; /* Espacio para el sidebar */
+    }
+    
+    .info-panel {
+        padding: 10px;
+        gap: 10px;
+        flex-direction: column; /* Cambiar a columna en pantallas muy pequeñas */
+    }
+    
+    .empresa-title {
+        font-size: 20px;
+        margin-bottom: 15px;
     }
 }
 
@@ -184,20 +332,21 @@ form .btn {
 .logo-section {
     text-align: center;
     background-color: #87d96d;
-    padding: 10px;
-    margin-bottom: 30px;
+    padding: 5px;
+    margin-bottom: 10px;
     border-radius: 10px;
     width: 100%;
 }
 
 .logo {
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
 }
 
 .logo-section h1 {
-    font-size: 18px;
-    margin-top: 10px;
+    font-size: 14px;
+    margin-top: 5px;
+    margin-bottom: 0;
 }
 
 .nav-buttons {
@@ -211,12 +360,13 @@ form .btn {
     color: white;
     text-align: center;
     border-radius: 40px;
-    margin-bottom: 70px;
+    margin-bottom: 15px;
     font-weight: bold;
     text-decoration: none;
     border: 2px solid black;
     transition: background-color 0.3s;
-    font-size: 16px;
+    font-size: 14px;
+    padding: 10px 18px;
 }
 
 .nav-buttons .btn:hover {

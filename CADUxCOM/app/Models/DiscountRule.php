@@ -215,7 +215,7 @@ class DiscountRule extends Model
         return [
             'discount_amount' => round($discountAmount, 2),
             'discounted_price' => round($discountedPrice, 2),
-            'discount_percentage' => round($discountPercentage, 2),
+            'discount_percentage' => round($discountPercentage, 0),
             'applied_rule' => $this,
         ];
     }

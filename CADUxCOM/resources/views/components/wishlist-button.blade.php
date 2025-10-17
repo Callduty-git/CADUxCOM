@@ -29,18 +29,22 @@
 <link rel="stylesheet" href="{{ asset('css/wishlist-button.css') }}">
 
 <script>
-// Sistema de debounce para toggleWishlist
-let toggleDebounceTimer = null;
-const TOGGLE_DEBOUNCE_DELAY = 500; // 500ms de debounce para toggle
+// Verificar si el script ya se ha inicializado para evitar múltiples declaraciones
+if (typeof window.caduxcomWishlistInitialized === 'undefined') {
+    window.caduxcomWishlistInitialized = true;
+    
+    // Sistema de debounce para toggleWishlist
+    let caduxcomWishlistDebounceTimer = null;
+    const TOGGLE_DEBOUNCE_DELAY = 500; // 500ms de debounce para toggle
 
 function toggleWishlist(productId) {
     // Limpiar timer anterior si existe
-    if (toggleDebounceTimer) {
-        clearTimeout(toggleDebounceTimer);
+    if (caduxcomWishlistDebounceTimer) {
+        clearTimeout(caduxcomWishlistDebounceTimer);
     }
     
     // Aplicar debounce para evitar múltiples llamadas
-    toggleDebounceTimer = setTimeout(() => {
+    caduxcomWishlistDebounceTimer = setTimeout(() => {
         const button = document.querySelector(`[data-product-id="${productId}"]`);
         if (!button) return;
         
@@ -317,4 +321,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+} // Fin del bloque de inicialización
 </script>

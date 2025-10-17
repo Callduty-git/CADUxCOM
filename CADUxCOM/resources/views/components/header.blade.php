@@ -14,6 +14,10 @@
             <button class="search-button" type="button">
                 <img src="{{ asset('images/icon-search.png') }}" alt="Buscar" class="search-icon">
             </button>
+            <!-- Contenedor del autocompletado -->
+            <div class="search-autocomplete" id="searchAutocomplete">
+                <!-- Los resultados del autocompletado se cargarán aquí dinámicamente -->
+            </div>
         </div>
     </div>
 
@@ -159,28 +163,155 @@
         const searchInput = document.querySelector('.search-input');
         const searchButton = document.querySelector('.search-button');
 
+        // Función para realizar la búsqueda
+        function performSearch() {
+            const query = searchInput.value.trim();
+            
+            if (query.length === 0) {
+                alert('Por favor, ingresa un término de búsqueda');
+                return;
+            }
+            
+            // Redirigir a la página de resultados de búsqueda
+            window.location.href = `/search?q=${encodeURIComponent(query)}`;
+        }
+
         if (searchButton) {
-            searchButton.addEventListener('click', function() {
-                const query = searchInput.value.trim();
-                if (query) {
-                    // Aquí puedes implementar la lógica de búsqueda
-                    console.log('Buscando:', query);
-                    // window.location.href = `/productos?search=${encodeURIComponent(query)}`;
-                }
-            });
+            searchButton.addEventListener('click', performSearch);
         }
 
         if (searchInput) {
             searchInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    const query = this.value.trim();
-                    if (query) {
-                        // Aquí puedes implementar la lógica de búsqueda
-                        console.log('Buscando:', query);
-                        // window.location.href = `/productos?search=${encodeURIComponent(query)}`;
-                    }
+                    e.preventDefault();
+                    performSearch();
                 }
             });
+
+            // Autocompletado en tiempo real
+            const autocompleteContainer = document.getElementById('searchAutocomplete');
+            let searchTimeout;
+            let currentHighlightIndex = -1;
+            let autocompleteResults = [];
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+                
+                if (query.length >= 2) {
+                    searchTimeout = setTimeout(() => {
+                        fetchAutocomplete(query);
+                    }, 300);
+                } else {
+                    hideAutocomplete();
+                }
+            });
+
+            // Navegación con teclado
+            searchInput.addEventListener('keydown', function(e) {
+                if (!autocompleteContainer.classList.contains('show')) return;
+
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        currentHighlightIndex = Math.min(currentHighlightIndex + 1, autocompleteResults.length - 1);
+                        updateHighlight();
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        currentHighlightIndex = Math.max(currentHighlightIndex - 1, -1);
+                        updateHighlight();
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (currentHighlightIndex >= 0) {
+                            selectAutocompleteItem(autocompleteResults[currentHighlightIndex]);
+                        } else {
+                            performSearch();
+                        }
+                        break;
+                    case 'Escape':
+                        hideAutocomplete();
+                        break;
+                }
+            });
+
+            // Ocultar autocompletado al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-bar')) {
+                    hideAutocomplete();
+                }
+            });
+
+            function fetchAutocomplete(query) {
+                // Mostrar indicador de carga
+                showLoading();
+
+                fetch(`/api/search/autocomplete?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        autocompleteResults = data;
+                        displayAutocomplete(data);
+                    })
+                    .catch(error => {
+                        console.error('Error en autocompletado:', error);
+                        hideAutocomplete();
+                    });
+            }
+
+            function displayAutocomplete(results) {
+                if (results.length === 0) {
+                    showNoResults();
+                    return;
+                }
+
+                let html = '';
+                results.forEach((item, index) => {
+                    html += `
+                        <div class="autocomplete-item" data-index="${index}" onclick="selectAutocompleteItem(autocompleteResults[${index}])">
+                            <div class="autocomplete-icon">🛒</div>
+                            <div class="autocomplete-content">
+                                <div class="autocomplete-title">${item.title}</div>
+                                <div class="autocomplete-subtitle">${item.subtitle}</div>
+                            </div>
+                            <div class="autocomplete-price">$${item.price}</div>
+                        </div>
+                    `;
+                });
+
+                autocompleteContainer.innerHTML = html;
+                autocompleteContainer.classList.add('show');
+                currentHighlightIndex = -1;
+            }
+
+            function showLoading() {
+                autocompleteContainer.innerHTML = '<div class="autocomplete-loading">Buscando...</div>';
+                autocompleteContainer.classList.add('show');
+            }
+
+            function showNoResults() {
+                autocompleteContainer.innerHTML = '<div class="autocomplete-no-results">No se encontraron productos</div>';
+                autocompleteContainer.classList.add('show');
+            }
+
+            function hideAutocomplete() {
+                autocompleteContainer.classList.remove('show');
+                currentHighlightIndex = -1;
+            }
+
+            function updateHighlight() {
+                const items = autocompleteContainer.querySelectorAll('.autocomplete-item');
+                items.forEach((item, index) => {
+                    item.classList.toggle('highlighted', index === currentHighlightIndex);
+                });
+            }
+
+            function selectAutocompleteItem(item) {
+                window.location.href = item.url;
+            }
+
+            // Hacer la función global para onclick
+            window.selectAutocompleteItem = selectAutocompleteItem;
         }
 
         // === RESPONSIVE HEADER ===

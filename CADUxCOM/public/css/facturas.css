@@ -4,8 +4,8 @@
 .sidebar:hover{width:280px!important;opacity:1;box-shadow:0 15px 40px rgba(0,0,0,.15)}
 .sidebar:hover .nav-buttons .btn span{opacity:1!important}
 .sidebar-container:hover{width:280px!important}
-.nav-buttons{width:100%;padding:20px 0;display:flex;flex-direction:column;justify-content:center;gap:35px;align-items:center}
-.nav-buttons .btn{display:flex;align-items:center;justify-content:flex-start;gap:15px;background-color:#d88ef0;color:#fff;padding:15px 20px;text-align:left;border-radius:15px;font-weight:600;text-decoration:none;border:1px solid rgba(0,0,0,.2);transition:all .3s ease;font-size:16px;box-shadow:0 4px 12px rgba(0,0,0,.1);position:relative;overflow:hidden;width:60px;min-width:60px;white-space:nowrap}
+.nav-buttons{width:100%;padding:8px 0;display:flex;flex-direction:column;justify-content:center;gap:15px;align-items:center}
+.nav-buttons .btn{display:flex;align-items:center;justify-content:flex-start;gap:15px;background-color:#d88ef0;color:#fff;padding:10px 18px;text-align:left;border-radius:15px;font-weight:600;text-decoration:none;border:1px solid rgba(0,0,0,.2);transition:all .3s ease;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.1);position:relative;overflow:hidden;width:60px;min-width:60px;white-space:nowrap}
 .sidebar:hover .nav-buttons .btn{width:240px!important;justify-content:flex-start!important}
 .nav-buttons .btn i{font-size:20px!important;opacity:.9!important;min-width:20px!important;text-align:center!important}
 .nav-buttons .btn span{opacity:0!important;transition:opacity .3s ease!important;font-size:14px!important}

@@ -154,6 +154,10 @@
                                 <div class="form-group">
                                     <label for="Fecha_Caducidad" class="form-label">Fecha de Caducidad</label>
                                     <input type="date" id="Fecha_Caducidad" name="Fecha_Caducidad" class="form-input" value="{{ old('Fecha_Caducidad') }}">
+                                    <div class="date-warning-alert">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <span>La fecha de caducidad no puede ser una fecha pasada.</span>
+                                    </div>
                                     @error('Fecha_Caducidad')
                                         <div class="form-error-message">
                                             {{ $message }}
@@ -172,15 +176,10 @@
                             
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label for="Id_Empresa" class="form-label">Empresa</label>
-                                    <select id="Id_Empresa" name="Id_Empresa" class="form-select" required>
-                                        <option value="">Seleccione una empresa</option>
-                                        @foreach ($empresas as $empresa)
-                                            <option value="{{ $empresa->Id_Empresa }}" {{ old('Id_Empresa') == $empresa->Id_Empresa ? 'selected' : '' }}>
-                                                {{ $empresa->Nombre }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <label for="empresa_nombre" class="form-label">Empresa</label>
+                                    <input type="text" id="empresa_nombre" class="form-input" value="{{ auth('empresa')->user()->Nombre }}" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
+                                    <input type="hidden" name="Id_Empresa" value="{{ auth('empresa')->id() }}">
+                                    <small class="form-help-text">La empresa se asigna automáticamente según tu sesión activa</small>
                                     @error('Id_Empresa')
                                         <div class="form-error-message">
                                             {{ $message }}
@@ -287,6 +286,33 @@
             sidebar.addEventListener('mouseenter', function() {
                 clearTimeout(sidebarTimeout);
             });
+        });
+
+        // Validación de fecha de caducidad
+        document.addEventListener('DOMContentLoaded', function() {
+            const fechaCaducidadInput = document.getElementById('Fecha_Caducidad');
+            const dateWarningAlert = document.querySelector('.date-warning-alert');
+            
+            if (fechaCaducidadInput && dateWarningAlert) {
+                function validateDate() {
+                    const selectedDate = new Date(fechaCaducidadInput.value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Resetear horas para comparar solo fechas
+                    
+                    if (fechaCaducidadInput.value && selectedDate < today) {
+                        dateWarningAlert.classList.add('show');
+                    } else {
+                        dateWarningAlert.classList.remove('show');
+                    }
+                }
+                
+                // Validar cuando se cambia la fecha
+                fechaCaducidadInput.addEventListener('change', validateDate);
+                fechaCaducidadInput.addEventListener('input', validateDate);
+                
+                // Validar al cargar la página si ya hay una fecha
+                validateDate();
+            }
         });
     </script>
     </div>

@@ -95,7 +95,9 @@ class SearchController extends Controller
         $empresas = Empresa::select('Id_Empresa', 'Nombre')->get();
 
         $searchStats = [
-            'total_results' => $productos->total(),
+            'total' => $productos->total(),
+            'categories' => $categorias->count(),
+            'companies' => $empresas->count(),
             'query' => $query,
         ];
 

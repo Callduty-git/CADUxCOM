@@ -214,7 +214,7 @@ class Producto extends Model
         // 2️⃣ Descuento manual (PrecioOriginal > Precio)
         if ($this->PrecioOriginal > $this->Precio) {
             $discountAmount = $this->PrecioOriginal - $this->Precio;
-            $discountPercentage = ($discountAmount / $this->PrecioOriginal) * 100;
+            $discountPercentage = round(($discountAmount / $this->PrecioOriginal) * 100, 0);
 
             return [
                 'original_price' => $this->PrecioOriginal,

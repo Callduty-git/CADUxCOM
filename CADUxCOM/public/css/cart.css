@@ -1,4 +1,4 @@
-﻿/* === ESTILOS ESPECÍFICOS PARA LA PÁGINA DEL CARRITO === */
+/* === ESTILOS ESPECÍFICOS PARA LA PÁGINA DEL CARRITO === */
 
 /* Asegurar que la página del carrito no tenga problemas de espaciado */
 body.cart-page { padding-top: 0 !important; }
@@ -7,7 +7,7 @@ body.cart-page { padding-top: 0 !important; }
     padding-top: 0 !important;
 }
 
-.cart-page .content { padding-top: calc(var(--header-h, 80px) + var(--navbar-h, 60px)) !important; }
+.cart-page .content { padding-top: calc(var(--header-h, 80px) + var(--navbar-h, 60px) + 20px) !important; }
 
 /* Estilos para el carrito vacío */
 .empty-cart-container {
@@ -92,7 +92,7 @@ body.cart-page { padding-top: 0 !important; }
 /* Responsive para la página del carrito */
 @media (max-width: 768px) {
     .cart-page .content {
-        padding-top: 100px !important;
+        padding-top: 140px !important;
     }
     
     .empty-cart-card {
@@ -113,7 +113,7 @@ body.cart-page { padding-top: 0 !important; }
 
 @media (max-width: 480px) {
     .cart-page .content {
-        padding-top: 120px !important;
+        padding-top: 160px !important;
     }
     
     .empty-cart-card {
